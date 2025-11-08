@@ -1729,8 +1729,8 @@
                         <ul class="items-list">
                             ${items.map(item => `
                                 <li class="item ${item.checked ? 'checked' : ''}" data-id="${item.id}">
-                                    <div class="item-checkbox" onclick="toggleItem('${item.id}')"></div>
-                                    <div class="item-content" onclick="openEditModal('${item.id}')">
+                                    <div class="item-checkbox"></div>
+                                    <div class="item-content">
                                         <div class="item-text">${item.name}</div>
                                         ${item.quantity ? `<div class="item-quantity">${item.quantity}</div>` : ''}
                                     </div>
@@ -1749,6 +1749,8 @@
 
             // Ajouter les event listeners pour le drag & drop
             setupCategoryDragDrop();
+            // Ajouter les event listeners pour les interactions tactiles sur les articles
+            setupItemInteractions();
         }
 
         function handleCategoryHeaderClick(event, category) {
@@ -1892,6 +1894,93 @@
                 touchStartY = 0;
                 touchCurrentY = 0;
             }, { passive: true });
+        }
+
+        function setupItemInteractions() {
+            const items = document.querySelectorAll('.item');
+
+            items.forEach(item => {
+                const itemId = item.dataset.id;
+                const checkbox = item.querySelector('.item-checkbox');
+                const content = item.querySelector('.item-content');
+
+                // Variables pour gérer l'appui long
+                let longPressTimer = null;
+                let isLongPress = false;
+
+                // Fonction pour démarrer le timer d'appui long
+                const startLongPress = (e) => {
+                    isLongPress = false;
+                    longPressTimer = setTimeout(() => {
+                        isLongPress = true;
+                        // Vibration feedback si disponible
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
+                        openEditModal(itemId);
+                    }, 500); // 500ms pour considérer comme appui long
+                };
+
+                // Fonction pour annuler le timer d'appui long
+                const cancelLongPress = () => {
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                };
+
+                // Fonction pour gérer le clic/touch
+                const handleClick = (e) => {
+                    if (!isLongPress) {
+                        toggleItem(itemId);
+                    }
+                    isLongPress = false;
+                };
+
+                // === ÉVÉNEMENTS SOURIS (Desktop) ===
+                // Sur la checkbox
+                if (checkbox) {
+                    checkbox.addEventListener('click', (e) => {
+                        toggleItem(itemId);
+                    });
+                }
+
+                // Sur le contenu (nom de l'article)
+                if (content) {
+                    content.addEventListener('click', (e) => {
+                        toggleItem(itemId);
+                    });
+
+                    // Clic droit pour éditer
+                    content.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        openEditModal(itemId);
+                    });
+                }
+
+                // === ÉVÉNEMENTS TACTILES (Mobile) ===
+                // Sur la checkbox
+                if (checkbox) {
+                    checkbox.addEventListener('touchstart', startLongPress, { passive: true });
+                    checkbox.addEventListener('touchend', (e) => {
+                        e.preventDefault(); // Empêcher le double déclenchement avec click
+                        cancelLongPress();
+                        handleClick(e);
+                    });
+                    checkbox.addEventListener('touchmove', cancelLongPress, { passive: true });
+                }
+
+                // Sur le contenu (nom de l'article)
+                if (content) {
+                    content.addEventListener('touchstart', startLongPress, { passive: true });
+                    content.addEventListener('touchend', (e) => {
+                        e.preventDefault(); // Empêcher le double déclenchement avec click
+                        cancelLongPress();
+                        handleClick(e);
+                    });
+                    content.addEventListener('touchmove', cancelLongPress, { passive: true });
+                }
+            });
         }
 
         function renderSuggestions() {
