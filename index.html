@@ -1247,12 +1247,16 @@
                     favorites: loadedState.favorites || []
                 };
 
-                // Assurer que tous les items ont la propriété favorite
+                // Assurer que tous les items ont la propriété favorite et une catégorie valide
                 Object.values(state.lists).forEach(list => {
                     if (list.items) {
                         list.items.forEach(item => {
                             if (item.favorite === undefined) {
                                 item.favorite = false;
+                            }
+                            // Vérifier que la catégorie existe, sinon utiliser "autre"
+                            if (!state.categories[item.category]) {
+                                item.category = 'autre';
                             }
                         });
                     }
@@ -1281,6 +1285,13 @@
                         saveToLocalStorage();
                     }
                 }
+
+                // Vérifier que tous les favoris ont une catégorie valide
+                state.favorites.forEach(fav => {
+                    if (!state.categories[fav.category]) {
+                        fav.category = 'autre';
+                    }
+                });
             } else {
                 state.lists['courses'] = { name: 'Courses', items: [] };
             }
