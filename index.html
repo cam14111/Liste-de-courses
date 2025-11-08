@@ -1305,15 +1305,22 @@
                                     ontouchmove="handleTouchMove(event, '${item.id}')"
                                     ontouchend="handleTouchEnd(event, '${item.id}')">
                                     <div class="delete-background">Supprimer</div>
-                                    <div class="item-checkbox" onclick="toggleItem('${item.id}', event)"></div>
-                                    <div class="item-content" onclick="openEditModal('${item.id}', event)">
+                                    <div class="item-checkbox"
+                                         ontouchend="handleButtonTouch(event, 'toggleItem', '${item.id}')"
+                                         onclick="toggleItem('${item.id}', event)"></div>
+                                    <div class="item-content"
+                                         ontouchend="handleButtonTouch(event, 'openEditModal', '${item.id}')"
+                                         onclick="openEditModal('${item.id}', event)">
                                         <div class="item-text">${item.name}</div>
                                         ${item.quantity ? `<div class="item-quantity">${item.quantity}</div>` : ''}
                                     </div>
                                     <div class="item-actions">
                                         <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}"
+                                                ontouchend="handleButtonTouch(event, 'toggleFavorite', '${item.id}')"
                                                 onclick="toggleFavorite('${item.id}', event)">★</button>
-                                        <button class="item-btn delete-btn" onclick="deleteItem('${item.id}', event)">🗑️</button>
+                                        <button class="item-btn delete-btn"
+                                                ontouchend="handleButtonTouch(event, 'deleteItem', '${item.id}')"
+                                                onclick="deleteItem('${item.id}', event)">🗑️</button>
                                     </div>
                                 </li>
                             `).join('')}
@@ -1468,15 +1475,36 @@
         let isSwiping = false;
         let swipingItemId = null;
 
+        function handleButtonTouch(event, functionName, itemId) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Appeler la fonction appropriée
+            if (functionName === 'toggleFavorite') {
+                toggleFavorite(itemId);
+            } else if (functionName === 'deleteItem') {
+                deleteItem(itemId);
+            } else if (functionName === 'toggleItem') {
+                toggleItem(itemId);
+            } else if (functionName === 'openEditModal') {
+                openEditModal(itemId);
+            }
+        }
+
         function handleTouchStart(event, itemId) {
-            // Ignorer si le touch commence sur un bouton ou dans item-actions
+            // Ignorer si le touch commence sur un élément interactif
             const target = event.target;
-            if (target.closest('.item-btn') || target.closest('.item-actions') || target.closest('button')) {
+            if (target.closest('.item-btn') ||
+                target.closest('.item-actions') ||
+                target.closest('.item-checkbox') ||
+                target.closest('.item-content') ||
+                target.closest('button')) {
                 swipingItemId = null;
                 return;
             }
 
             touchStartX = event.touches[0].clientX;
+            touchCurrentX = touchStartX;
             swipingItemId = itemId;
         }
 
