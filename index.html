@@ -992,6 +992,13 @@
                 </div>
                 <div class="categories-list" id="categoriesList"></div>
             </div>
+            <div class="settings-option" style="border-top: 2px solid var(--border-color); margin-top: 1rem; padding-top: 1rem; display: block;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <span style="font-weight: 600; font-size: 1.1rem; color: var(--danger);">Zone de danger</span>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 0;">Cette action supprimera toutes vos données de manière irréversible.</p>
+                    <button class="font-btn" onclick="resetApp()" style="background-color: var(--danger); color: white; width: 100%; padding: 0.75rem; margin-top: 0.5rem; font-weight: 600;">🔄 Réinitialiser l'application</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -2046,6 +2053,35 @@
             document.documentElement.style.setProperty('--font-size-base', `${state.settings.fontSize}%`);
             document.getElementById('fontSizeLabel').textContent = `${state.settings.fontSize}%`;
             saveToLocalStorage();
+        }
+
+        function resetApp() {
+            const confirmation = confirm(
+                '⚠️ ATTENTION ⚠️\n\n' +
+                'Êtes-vous sûr de vouloir réinitialiser l\'application ?\n\n' +
+                'Cette action supprimera TOUTES vos données :\n' +
+                '• Toutes vos listes de courses\n' +
+                '• Tous vos articles\n' +
+                '• Tous vos favoris\n' +
+                '• Toutes vos catégories personnalisées\n' +
+                '• Tous vos paramètres\n\n' +
+                'Cette action est IRRÉVERSIBLE !'
+            );
+
+            if (confirmation) {
+                const doubleConfirmation = confirm(
+                    'Dernière confirmation !\n\n' +
+                    'Tapez OK pour confirmer la suppression définitive de toutes vos données.'
+                );
+
+                if (doubleConfirmation) {
+                    // Supprimer toutes les données du localStorage
+                    localStorage.removeItem('shoppingListApp');
+
+                    // Recharger la page pour redémarrer l'application
+                    window.location.reload();
+                }
+            }
         }
 
         // ==================== GESTION DES CATÉGORIES ====================
