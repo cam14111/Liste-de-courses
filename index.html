@@ -794,6 +794,80 @@
             color: var(--text-secondary);
         }
 
+        .categories-list {
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 1rem 0;
+        }
+
+        .category-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+
+        .category-item:hover {
+            background: var(--bg-secondary);
+        }
+
+        .category-item-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .category-item-icon {
+            font-size: 1.5rem;
+        }
+
+        .category-item-name {
+            font-weight: 500;
+        }
+
+        .category-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+            gap: 0.5rem;
+            margin: 1rem 0;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .icon-option {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg-primary);
+        }
+
+        .icon-option:hover {
+            background: var(--bg-secondary);
+        }
+
+        .icon-option.selected {
+            border-color: var(--primary);
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
         @media (max-width: 480px) {
             .header h1 {
                 font-size: 1.2rem;
@@ -905,6 +979,13 @@
                     <button class="font-btn" id="increaseFontBtn">A+</button>
                 </div>
             </div>
+            <div class="settings-option" style="border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; display: block;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span style="font-weight: 600; font-size: 1.1rem;">Catégories</span>
+                    <button class="btn-primary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="openAddCategoryModal()">➕ Ajouter</button>
+                </div>
+                <div class="categories-list" id="categoriesList"></div>
+            </div>
         </div>
     </div>
 
@@ -992,6 +1073,25 @@
         </div>
     </div>
 
+    <!-- Modal Gestion Catégorie -->
+    <div class="modal" id="categoryModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="categoryModalTitle">Nouvelle catégorie</h2>
+                <button class="close-btn" id="closeCategoryModal">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nom de la catégorie</label>
+                <input type="text" class="form-input" id="categoryName" placeholder="Ex: Pharmacie, Bricolage...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Icône</label>
+                <div class="icon-grid" id="iconGrid"></div>
+            </div>
+            <button class="btn-primary" id="saveCategoryBtn">Enregistrer</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
         // ==================== CONSTANTES ====================
@@ -1023,6 +1123,43 @@
             { name: 'Poulet', icon: '🍗', category: 'viandes' },
             { name: 'Fromage', icon: '🧀', category: 'laitiers' },
             { name: 'Yaourt', icon: '🥛', category: 'laitiers' }
+        ];
+
+        // Icônes disponibles pour les catégories
+        const AVAILABLE_ICONS = [
+            // Alimentation
+            '🍎', '🍊', '🍋', '🍌', '🍉', '🍇', '🍓', '🫐', '🍒', '🍑', '🥭', '🍍', '🥥', '🥝',
+            '🍅', '🥬', '🥦', '🥒', '🌶️', '🫑', '🌽', '🥕', '🫒', '🧄', '🧅', '🥔', '🍠', '🫘', '🥜',
+            '🥩', '🍗', '🥓', '🍖', '🌭', '🍔', '🍟',
+            '🐟', '🦐', '🦞', '🦀', '🐙', '🦑',
+            '🥛', '🧈', '🧀', '🥚', '🍳',
+            '🍞', '🥖', '🥨', '🥯', '🥐', '🍰', '🧁', '🍪', '🎂', '🍩', '🥧',
+            '🍝', '🍕', '🌮', '🌯', '🥙', '🥗', '🍲', '🥘', '🍜', '🍛', '🍱', '🍣', '🍤',
+            '🥫', '🍯', '🧂', '🫙',
+            '☕', '🧃', '🥤', '🧋', '🍵', '🧉', '🍷', '🍺', '🥂', '🍾', '🧊',
+            '🍬', '🍫', '🍭', '🍮', '🍦', '🧇', '🥞',
+            // Maison & Bricolage
+            '🏠', '🏡', '🔨', '🔧', '🪛', '⚒️', '🛠️', '⚙️', '🪚', '🔩', '⛏️', '🪓', '🪜',
+            '🔌', '💡', '🕯️', '🪔', '🧯', '🧲', '🔦',
+            '🪟', '🚪', '🛋️', '🪑', '🛏️', '🖼️', '🪞', '🚿', '🛁', '🚽', '🧺', '🧹', '🧽', '🪣',
+            // Vêtements & Accessoires
+            '👕', '👔', '👗', '👘', '🥻', '🩱', '👙', '👚', '👖', '🩳', '🩲', '🧥', '🧦', '👟', '👠', '🥿', '👞', '🥾', '👢', '👑', '👒', '🎩', '🧢', '⛑️', '🎓', '🧤', '🧣', '👜', '👝', '🎒', '💼', '👓', '🕶️', '🥽', '👶', '🧷',
+            // Hygiène & Beauté
+            '🧴', '🧼', '🧽', '🪥', '🪒', '🧻', '💄', '💅', '💆', '💇', '🛁', '🚿',
+            // Électronique & Technologie
+            '📱', '💻', '⌨️', '🖱️', '🖨️', '📷', '📹', '🎥', '📞', '☎️', '📟', '📠', '📺', '📻', '🎙️', '🎚️', '🎛️', '🔋', '🔌', '💾', '💿', '📀',
+            // Papeterie & Bureau
+            '📝', '📄', '📃', '📑', '📊', '📈', '📉', '🗒️', '📔', '📓', '📕', '📗', '📘', '📙', '📚', '📖', '✏️', '✒️', '🖊️', '🖍️', '🖌️', '📌', '📍', '✂️', '📏', '📐', '🗂️', '📁', '📂', '🗃️',
+            // Sport & Loisirs
+            '⚽', '🏀', '🏈', '⚾', '🥎', '🎾', '🏐', '🏉', '🥏', '🎱', '🏓', '🏸', '🏒', '🏑', '🥍', '🏏', '🥊', '🥋', '⛳', '⛸️', '🎣', '🤿', '🎽', '🥌', '🛷', '🎿', '⛷️', '🏂', '🪂', '🏋️',
+            // Jardin & Plantes
+            '🌱', '🌿', '☘️', '🍀', '🌾', '🌵', '🌴', '🌳', '🌲', '🪴', '💐', '🌷', '🌹', '🥀', '🌺', '🌸', '🌼', '🌻', '🪷', '🏵️',
+            // Animaux
+            '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦆', '🦅', '🦉', '🦇', '🐺', '🐗', '🐴', '🦄', '🐝', '🐛', '🦋', '🐌', '🐞', '🐜', '🦗', '🕷️', '🦂',
+            // Transports
+            '🚗', '🚕', '🚙', '🚌', '🚎', '🏎️', '🚓', '🚑', '🚒', '🚐', '🚚', '🚛', '🚜', '🏍️', '🛵', '🚲', '🛴', '✈️', '🚁', '🚂', '🚆', '🚇', '🚊', '🚉', '⛴️', '🚤', '⛵', '🛶',
+            // Autres
+            '📦', '📫', '📪', '📬', '📭', '🎁', '🎀', '🎈', '🎉', '🎊', '🧸', '🪀', '🪁', '🎯', '🎲', '🧩', '♟️', '🎮', '🕹️', '🎰', '🧨', '🎪', '🎭', '🎨', '🧵', '🧶', '🔑', '🗝️', '🔒', '🔓', '⚗️', '🧬', '🔬', '🔭', '📡', '💊', '💉', '🩹', '🩺', '⚕️', '🛍️', '🛒'
         ];
 
         // ==================== STATE ====================
@@ -1808,6 +1945,181 @@
             saveToLocalStorage();
         }
 
+        // ==================== GESTION DES CATÉGORIES ====================
+        let currentEditingCategory = null;
+        let selectedIcon = null;
+
+        function renderCategoriesList() {
+            const container = document.getElementById('categoriesList');
+            if (!container) return;
+
+            const categoriesArray = Object.entries(CATEGORIES);
+            container.innerHTML = categoriesArray.map(([id, data]) => `
+                <div class="category-item">
+                    <div class="category-item-info">
+                        <span class="category-item-icon">${data.icon}</span>
+                        <span class="category-item-name">${id.charAt(0).toUpperCase() + id.slice(1)}</span>
+                    </div>
+                    <div class="category-item-actions">
+                        <button class="item-btn" onclick="editCategory('${id}')" title="Modifier">✏️</button>
+                        <button class="item-btn" onclick="deleteCategory('${id}')" title="Supprimer">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderIconGrid() {
+            const grid = document.getElementById('iconGrid');
+            if (!grid) return;
+
+            grid.innerHTML = AVAILABLE_ICONS.map(icon => `
+                <div class="icon-option ${selectedIcon === icon ? 'selected' : ''}" onclick="selectIcon('${icon}')">
+                    ${icon}
+                </div>
+            `).join('');
+        }
+
+        function selectIcon(icon) {
+            selectedIcon = icon;
+            renderIconGrid();
+        }
+
+        function openAddCategoryModal() {
+            currentEditingCategory = null;
+            selectedIcon = null;
+            document.getElementById('categoryModalTitle').textContent = 'Nouvelle catégorie';
+            document.getElementById('categoryName').value = '';
+            renderIconGrid();
+            openModal('categoryModal');
+        }
+
+        function editCategory(categoryId) {
+            currentEditingCategory = categoryId;
+            const category = CATEGORIES[categoryId];
+            selectedIcon = category.icon;
+
+            document.getElementById('categoryModalTitle').textContent = 'Modifier la catégorie';
+            document.getElementById('categoryName').value = categoryId;
+            renderIconGrid();
+            openModal('categoryModal');
+        }
+
+        function deleteCategory(categoryId) {
+            if (!confirm(`Supprimer la catégorie "${categoryId}" ?\n\nLes articles de cette catégorie seront déplacés dans "autre".`)) {
+                return;
+            }
+
+            // Déplacer tous les items de cette catégorie vers "autre"
+            Object.values(state.lists).forEach(list => {
+                if (list.items) {
+                    list.items.forEach(item => {
+                        if (item.category === categoryId) {
+                            item.category = 'autre';
+                        }
+                    });
+                }
+            });
+
+            // Mettre à jour les favoris
+            state.favorites.forEach(fav => {
+                if (fav.category === categoryId) {
+                    fav.category = 'autre';
+                }
+            });
+
+            // Supprimer la catégorie
+            delete CATEGORIES[categoryId];
+
+            // Retirer de l'ordre des catégories
+            state.categoryOrder = state.categoryOrder.filter(cat => cat !== categoryId);
+
+            saveToLocalStorage();
+            renderCategoriesList();
+            renderItems();
+        }
+
+        function saveCategory() {
+            const name = document.getElementById('categoryName').value.trim().toLowerCase();
+
+            if (!name) {
+                alert('Veuillez entrer un nom de catégorie');
+                return;
+            }
+
+            if (!selectedIcon) {
+                alert('Veuillez sélectionner une icône');
+                return;
+            }
+
+            if (currentEditingCategory) {
+                // Modification
+                const oldCategoryId = currentEditingCategory;
+
+                if (name !== oldCategoryId) {
+                    // Renommer la catégorie
+                    CATEGORIES[name] = {
+                        icon: selectedIcon,
+                        color: CATEGORIES[oldCategoryId].color || 'var(--cat-autre)',
+                        keywords: CATEGORIES[oldCategoryId].keywords || []
+                    };
+
+                    delete CATEGORIES[oldCategoryId];
+
+                    // Mettre à jour tous les items
+                    Object.values(state.lists).forEach(list => {
+                        if (list.items) {
+                            list.items.forEach(item => {
+                                if (item.category === oldCategoryId) {
+                                    item.category = name;
+                                }
+                            });
+                        }
+                    });
+
+                    // Mettre à jour les favoris
+                    state.favorites.forEach(fav => {
+                        if (fav.category === oldCategoryId) {
+                            fav.category = name;
+                        }
+                    });
+
+                    // Mettre à jour l'ordre
+                    const index = state.categoryOrder.indexOf(oldCategoryId);
+                    if (index !== -1) {
+                        state.categoryOrder[index] = name;
+                    }
+                } else {
+                    // Juste changer l'icône
+                    CATEGORIES[name].icon = selectedIcon;
+                }
+            } else {
+                // Nouvelle catégorie
+                if (CATEGORIES[name]) {
+                    alert('Cette catégorie existe déjà');
+                    return;
+                }
+
+                CATEGORIES[name] = {
+                    icon: selectedIcon,
+                    color: 'var(--cat-autre)',
+                    keywords: []
+                };
+
+                // Ajouter à l'ordre (avant "autre")
+                const autreIndex = state.categoryOrder.indexOf('autre');
+                if (autreIndex !== -1) {
+                    state.categoryOrder.splice(autreIndex, 0, name);
+                } else {
+                    state.categoryOrder.push(name);
+                }
+            }
+
+            saveToLocalStorage();
+            renderCategoriesList();
+            renderItems();
+            closeModal('categoryModal');
+        }
+
         // ==================== EVENT LISTENERS ====================
         document.getElementById('addItemForm').addEventListener('submit', (e) => {
             e.preventDefault();
@@ -1825,7 +2137,10 @@
         document.getElementById('shareBtn').addEventListener('click', generateQRCode);
 
         document.getElementById('importBtn').addEventListener('click', () => openModal('importManualModal'));
-        document.getElementById('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            renderCategoriesList();
+            openModal('settingsModal');
+        });
         document.getElementById('favoritesBtn').addEventListener('click', () => {
             renderFavorites();
             openModal('favoritesModal');
@@ -1839,8 +2154,10 @@
         document.getElementById('closeShareModal').addEventListener('click', () => closeModal('shareModal'));
         document.getElementById('closeImportModal').addEventListener('click', () => closeModal('importModal'));
         document.getElementById('closeImportManualModal').addEventListener('click', () => closeModal('importManualModal'));
+        document.getElementById('closeCategoryModal').addEventListener('click', () => closeModal('categoryModal'));
 
         document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+        document.getElementById('saveCategoryBtn').addEventListener('click', saveCategory);
 
         document.getElementById('themeToggle').addEventListener('click', toggleTheme);
         document.getElementById('hideCheckedToggle').addEventListener('click', toggleHideChecked);
