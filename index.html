@@ -1210,8 +1210,23 @@
                 // Fusionner les catégories : garder les catégories sauvegardées et ajouter les nouvelles par défaut
                 let categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
                 if (loadedState.categories) {
-                    // Fusionner les catégories sauvegardées avec les catégories par défaut
-                    categories = { ...categories, ...loadedState.categories };
+                    // Fusionner intelligemment pour préserver les propriétés par défaut
+                    Object.keys(loadedState.categories).forEach(catKey => {
+                        const defaultCat = DEFAULT_CATEGORIES[catKey];
+                        const savedCat = loadedState.categories[catKey];
+
+                        if (defaultCat) {
+                            // Catégorie par défaut : préserver keywords et color, permettre modification de icon
+                            categories[catKey] = {
+                                icon: savedCat.icon || defaultCat.icon,
+                                color: defaultCat.color,  // Toujours utiliser la couleur par défaut
+                                keywords: defaultCat.keywords  // Toujours utiliser les keywords par défaut
+                            };
+                        } else {
+                            // Catégorie personnalisée : utiliser telle quelle
+                            categories[catKey] = savedCat;
+                        }
+                    });
                 }
 
                 // Fusionner avec les valeurs par défaut pour assurer la compatibilité
