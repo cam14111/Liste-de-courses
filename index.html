@@ -457,8 +457,15 @@
             box-shadow: 0 -2px 8px var(--shadow);
             display: flex;
             gap: 0.5rem;
-            max-width: 800px;
-            margin: 0 auto;
+            z-index: 90;
+        }
+
+        @media (min-width: 800px) {
+            .bottom-bar {
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 800px;
+            }
         }
 
         .bottom-btn {
@@ -1145,7 +1152,7 @@
                 saveToLocalStorage();
                 renderListTabs();
                 renderItems();
-                }
+            }
         }
 
         function toggleFavorite(itemId) {
@@ -1156,7 +1163,7 @@
                 saveToLocalStorage();
                 renderItems();
                 renderFavorites();
-                }
+            }
         }
 
         function editItem(itemId, name, quantity, category) {
@@ -1184,7 +1191,7 @@
                 saveToLocalStorage();
                 renderListTabs();
                 renderItems();
-                }
+            }
         }
 
         // ==================== RENDU ====================
@@ -1538,11 +1545,11 @@
             try {
                 document.execCommand('copy');
                 alert('Code copié !');
-                } catch (e) {
+            } catch (e) {
                 // Fallback pour navigateurs modernes
                 navigator.clipboard.writeText(code.value).then(() => {
                     alert('Code copié !');
-                        }).catch(() => {
+                }).catch(() => {
                     alert('Erreur lors de la copie');
                 });
             }
