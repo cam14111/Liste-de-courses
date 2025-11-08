@@ -343,10 +343,6 @@
             text-decoration: line-through;
         }
 
-        .item.swiping {
-            transition: none;
-        }
-
         .item-checkbox {
             width: 24px;
             height: 24px;
@@ -419,28 +415,6 @@
 
         .favorite-btn.active {
             color: #FFD700;
-        }
-
-        .delete-background {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            background: var(--danger);
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 0 1.5rem;
-            font-weight: 600;
-            width: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-
-        .item.swiping .delete-background {
-            width: 100px;
-            opacity: 1;
         }
 
         .item.hidden {
@@ -749,16 +723,6 @@
         .merge-option-desc {
             font-size: 0.85rem;
             color: var(--text-secondary);
-        }
-
-        .delete-btn {
-            display: inline-block;
-        }
-
-        @media (max-width: 768px) {
-            .delete-btn {
-                display: none;
-            }
         }
 
         @media (max-width: 480px) {
@@ -1161,10 +1125,9 @@
             renderSuggestions();
         }
 
-        function deleteItem(itemId, event) {
-            if (event) {
-                event.stopPropagation();
-                event.preventDefault();
+        function deleteItem(itemId) {
+            if (!confirm('Supprimer cet article ?')) {
+                return;
             }
             const list = state.lists[state.currentList];
             list.items = list.items.filter(item => item.id !== itemId);
@@ -1173,10 +1136,7 @@
             renderItems();
         }
 
-        function toggleItem(itemId, event) {
-            if (event) {
-                event.stopPropagation();
-            }
+        function toggleItem(itemId) {
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (item) {
@@ -1187,11 +1147,7 @@
             }
         }
 
-        function toggleFavorite(itemId, event) {
-            if (event) {
-                event.stopPropagation();
-                event.preventDefault();
-            }
+        function toggleFavorite(itemId) {
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (item) {
@@ -1295,32 +1251,21 @@
                             <span class="category-icon">${categoryData.icon}</span>
                             <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
                             <span class="category-count">${items.length}</span>
-                            <button class="category-toggle" onclick="toggleCategory('${category}', event)">▼</button>
+                            <button class="category-toggle" onclick="toggleCategory('${category}')">▼</button>
                         </div>
                         <ul class="items-list">
                             ${items.map(item => `
-                                <li class="item ${item.checked ? 'checked' : ''}"
-                                    data-id="${item.id}"
-                                    ontouchstart="handleTouchStart(event, '${item.id}')"
-                                    ontouchmove="handleTouchMove(event, '${item.id}')"
-                                    ontouchend="handleTouchEnd(event, '${item.id}')">
-                                    <div class="delete-background">Supprimer</div>
-                                    <div class="item-checkbox"
-                                         ontouchend="handleButtonTouch(event, 'toggleItem', '${item.id}')"
-                                         onclick="toggleItem('${item.id}', event)"></div>
-                                    <div class="item-content"
-                                         ontouchend="handleButtonTouch(event, 'openEditModal', '${item.id}')"
-                                         onclick="openEditModal('${item.id}', event)">
+                                <li class="item ${item.checked ? 'checked' : ''}" data-id="${item.id}">
+                                    <div class="item-checkbox" onclick="toggleItem('${item.id}')"></div>
+                                    <div class="item-content" onclick="openEditModal('${item.id}')">
                                         <div class="item-text">${item.name}</div>
                                         ${item.quantity ? `<div class="item-quantity">${item.quantity}</div>` : ''}
                                     </div>
                                     <div class="item-actions">
                                         <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}"
-                                                ontouchend="handleButtonTouch(event, 'toggleFavorite', '${item.id}')"
-                                                onclick="toggleFavorite('${item.id}', event)">★</button>
+                                                onclick="toggleFavorite('${item.id}')">★</button>
                                         <button class="item-btn delete-btn"
-                                                ontouchend="handleButtonTouch(event, 'deleteItem', '${item.id}')"
-                                                onclick="deleteItem('${item.id}', event)">🗑️</button>
+                                                onclick="deleteItem('${item.id}')">🗑️</button>
                                     </div>
                                 </li>
                             `).join('')}
@@ -1333,10 +1278,7 @@
             setupCategoryDragDrop();
         }
 
-        function toggleCategory(category, event) {
-            if (event) {
-                event.stopPropagation();
-            }
+        function toggleCategory(category) {
             state.collapsedCategories[category] = !state.collapsedCategories[category];
             saveToLocalStorage();
             renderItems();
@@ -1469,76 +1411,6 @@
             closeModal('favoritesModal');
         }
 
-        // ==================== SWIPE GESTURES ====================
-        let touchStartX = 0;
-        let touchCurrentX = 0;
-        let isSwiping = false;
-        let swipingItemId = null;
-
-        function handleButtonTouch(event, functionName, itemId) {
-            event.preventDefault();
-            event.stopPropagation();
-
-            // Appeler la fonction appropriée
-            if (functionName === 'toggleFavorite') {
-                toggleFavorite(itemId);
-            } else if (functionName === 'deleteItem') {
-                deleteItem(itemId);
-            } else if (functionName === 'toggleItem') {
-                toggleItem(itemId);
-            } else if (functionName === 'openEditModal') {
-                openEditModal(itemId);
-            }
-        }
-
-        function handleTouchStart(event, itemId) {
-            // Ignorer si le touch commence sur un élément interactif
-            const target = event.target;
-            if (target.closest('.item-btn') ||
-                target.closest('.item-actions') ||
-                target.closest('.item-checkbox') ||
-                target.closest('.item-content') ||
-                target.closest('button')) {
-                swipingItemId = null;
-                return;
-            }
-
-            touchStartX = event.touches[0].clientX;
-            touchCurrentX = touchStartX;
-            swipingItemId = itemId;
-        }
-
-        function handleTouchMove(event, itemId) {
-            if (swipingItemId !== itemId) return;
-
-            touchCurrentX = event.touches[0].clientX;
-            const diff = touchStartX - touchCurrentX;
-
-            if (diff > 10) {
-                isSwiping = true;
-                const item = document.querySelector(`[data-id="${itemId}"]`);
-                item.classList.add('swiping');
-                item.style.transform = `translateX(-${Math.min(diff, 100)}px)`;
-            }
-        }
-
-        function handleTouchEnd(event, itemId) {
-            if (swipingItemId !== itemId) return;
-
-            const diff = touchStartX - touchCurrentX;
-            const item = document.querySelector(`[data-id="${itemId}"]`);
-
-            if (diff > 100) {
-                deleteItem(itemId);
-            } else {
-                item.style.transform = '';
-                item.classList.remove('swiping');
-            }
-
-            isSwiping = false;
-            swipingItemId = null;
-        }
-
         // ==================== MODALS ====================
         let currentEditingId = null;
 
@@ -1550,10 +1422,7 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        function openEditModal(itemId, event) {
-            if (event) {
-                event.stopPropagation();
-            }
+        function openEditModal(itemId) {
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (!item) return;
