@@ -1161,7 +1161,11 @@
             renderSuggestions();
         }
 
-        function deleteItem(itemId) {
+        function deleteItem(itemId, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
             const list = state.lists[state.currentList];
             list.items = list.items.filter(item => item.id !== itemId);
             saveToLocalStorage();
@@ -1169,7 +1173,10 @@
             renderItems();
         }
 
-        function toggleItem(itemId) {
+        function toggleItem(itemId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (item) {
@@ -1180,7 +1187,11 @@
             }
         }
 
-        function toggleFavorite(itemId) {
+        function toggleFavorite(itemId, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (item) {
@@ -1284,7 +1295,7 @@
                             <span class="category-icon">${categoryData.icon}</span>
                             <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
                             <span class="category-count">${items.length}</span>
-                            <button class="category-toggle" onclick="toggleCategory('${category}')">▼</button>
+                            <button class="category-toggle" onclick="toggleCategory('${category}', event)">▼</button>
                         </div>
                         <ul class="items-list">
                             ${items.map(item => `
@@ -1294,15 +1305,15 @@
                                     ontouchmove="handleTouchMove(event, '${item.id}')"
                                     ontouchend="handleTouchEnd(event, '${item.id}')">
                                     <div class="delete-background">Supprimer</div>
-                                    <div class="item-checkbox" onclick="toggleItem('${item.id}')"></div>
-                                    <div class="item-content" onclick="openEditModal('${item.id}')">
+                                    <div class="item-checkbox" onclick="toggleItem('${item.id}', event)"></div>
+                                    <div class="item-content" onclick="openEditModal('${item.id}', event)">
                                         <div class="item-text">${item.name}</div>
                                         ${item.quantity ? `<div class="item-quantity">${item.quantity}</div>` : ''}
                                     </div>
                                     <div class="item-actions">
                                         <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}"
-                                                onclick="toggleFavorite('${item.id}')">★</button>
-                                        <button class="item-btn delete-btn" onclick="deleteItem('${item.id}')">🗑️</button>
+                                                onclick="toggleFavorite('${item.id}', event)">★</button>
+                                        <button class="item-btn delete-btn" onclick="deleteItem('${item.id}', event)">🗑️</button>
                                     </div>
                                 </li>
                             `).join('')}
@@ -1315,7 +1326,10 @@
             setupCategoryDragDrop();
         }
 
-        function toggleCategory(category) {
+        function toggleCategory(category, event) {
+            if (event) {
+                event.stopPropagation();
+            }
             state.collapsedCategories[category] = !state.collapsedCategories[category];
             saveToLocalStorage();
             renderItems();
@@ -1501,7 +1515,10 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        function openEditModal(itemId) {
+        function openEditModal(itemId, event) {
+            if (event) {
+                event.stopPropagation();
+            }
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (!item) return;
