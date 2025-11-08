@@ -1,0 +1,115 @@
+# Configuration GitHub Pages pour Ma Liste de Courses
+# =======================================================
+
+# Informations générales
+title: Ma Liste de Courses
+description: Application web progressive de liste de courses optimisée pour mobile avec stockage local
+author: Votre nom
+lang: fr-FR
+
+# URL de base (à personnaliser avec votre nom d'utilisateur GitHub)
+# Format : https://USERNAME.github.io/REPO-NAME
+# Exemple : https://johndoe.github.io/Liste-de-courses
+baseurl: "" # Laissez vide pour un site principal ou "/nom-du-repo" pour un projet
+url: "" # Votre URL GitHub Pages, ex: https://username.github.io
+
+# Thème GitHub Pages (optionnel)
+# Désactivé car l'application a son propre design
+theme: null
+
+# Plugins GitHub Pages
+plugins:
+  - jekyll-relative-links
+
+# Configuration Jekyll
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+
+# Relative Links (pour les fichiers .md)
+relative_links:
+  enabled: true
+  collections: false
+
+# Fichiers et dossiers à exclure
+exclude:
+  - README.md
+  - LICENCE
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .git
+  - .gitignore
+  - .vscode
+  - .idea
+
+# Fichiers à inclure (optionnel)
+include:
+  - _config.yml
+  - manifest.json
+  - service-worker.js
+  - manuel.html
+  - MANUEL_UTILISATEUR.md
+  - DOCUMENTATION_TECHNIQUE.md
+
+# Configuration PWA
+# Les fichiers suivants sont essentiels pour le fonctionnement PWA
+keep_files:
+  - manifest.json
+  - service-worker.js
+
+# Désactiver Jekyll pour certains fichiers
+# (important pour que les fichiers ne soient pas transformés)
+defaults:
+  - scope:
+      path: "index.html"
+    values:
+      layout: none
+  - scope:
+      path: "manuel.html"
+    values:
+      layout: none
+  - scope:
+      path: "manifest.json"
+    values:
+      layout: none
+  - scope:
+      path: "service-worker.js"
+    values:
+      layout: none
+
+# Encodage
+encoding: utf-8
+
+# Timezone
+timezone: Europe/Paris
+
+# Liens permanents (pour les pages .md si converties)
+permalink: pretty
+
+# Configuration SEO (optionnel)
+google_analytics: # Votre ID Google Analytics (si souhaité)
+twitter:
+  username: # Votre nom d'utilisateur Twitter
+  card: summary_large_image
+
+# Open Graph / Social Media
+og_image: # URL de votre image de partage social
+
+# Configuration supplémentaire
+sass:
+  style: compressed
+
+# Limitation de fichiers processés
+lsi: false
+safe: true
+incremental: false
+highlighter: rouge
+gist:
+  noscript: false
+
+# Collections (désactivées pour ce projet)
+collections: null
