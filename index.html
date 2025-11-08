@@ -265,6 +265,8 @@
             font-size: 1.2rem;
             padding: 0 0.25rem;
             transition: color 0.2s;
+            touch-action: none; /* Permet le drag tactile sans interférence */
+            user-select: none; /* Empêche la sélection de texte pendant le drag */
         }
 
         .category-drag-handle:active {
@@ -886,7 +888,6 @@
         <div class="header-top">
             <h1>🛒 Mes Courses</h1>
             <div class="header-actions">
-                <button class="icon-btn" id="importBtn" title="Importer">📥</button>
                 <button class="icon-btn" id="favoritesBtn" title="Favoris">⭐</button>
                 <button class="icon-btn" id="settingsBtn" title="Paramètres">⚙️</button>
                 <button class="icon-btn" id="newListBtn" title="Nouvelle liste">➕</button>
@@ -912,9 +913,6 @@
     <div class="bottom-bar">
         <button class="bottom-btn btn-clear" id="clearCheckedBtn">
             🗑️ Effacer cochés
-        </button>
-        <button class="bottom-btn btn-share" id="shareBtn">
-            📤 Partager
         </button>
     </div>
 
@@ -978,6 +976,14 @@
                     <span id="fontSizeLabel">100%</span>
                     <button class="font-btn" id="increaseFontBtn">A+</button>
                 </div>
+            </div>
+            <div class="settings-option" style="border-top: 2px solid var(--border-color); margin-top: 1rem; padding-top: 1rem;">
+                <span>Partager la liste</span>
+                <button class="font-btn" id="shareSettingsBtn" style="width: auto; padding: 0.5rem 1rem;">📤</button>
+            </div>
+            <div class="settings-option">
+                <span>Importer une liste</span>
+                <button class="font-btn" id="importSettingsBtn" style="width: auto; padding: 0.5rem 1rem;">📥</button>
             </div>
             <div class="settings-option" style="border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; display: block;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -1511,7 +1517,7 @@
                 const categoryData = CATEGORIES[category];
                 const isCollapsed = state.collapsedCategories[category];
                 return `
-                    <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="true">
+                    <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="false">
                         <div class="category-header" style="border-color: ${categoryData.color};" onclick="handleCategoryHeaderClick(event, '${category}')">
                             <span class="category-drag-handle" title="Réorganiser">☰</span>
                             <span class="category-icon">${categoryData.icon}</span>
@@ -1564,15 +1570,15 @@
             let draggedElement = null;
             let draggedCategory = null;
 
-            categories.forEach(category => {
-                category.addEventListener('dragstart', (e) => {
-                    // Vérifier si le drag a commencé sur la poignée
-                    if (!e.target.classList.contains('category-drag-handle') &&
-                        !e.target.closest('.category-drag-handle')) {
-                        e.preventDefault();
-                        return;
-                    }
+            // Variables pour le support tactile
+            let touchStartY = 0;
+            let touchCurrentY = 0;
+            let isTouchDragging = false;
 
+            categories.forEach(category => {
+                // === ÉVÉNEMENTS SOURIS (Desktop) ===
+                category.addEventListener('dragstart', (e) => {
+                    // Le filtrage est déjà fait par mousedown qui gère draggable
                     draggedElement = category;
                     draggedCategory = category.dataset.category;
                     category.classList.add('dragging');
@@ -1582,6 +1588,7 @@
                 category.addEventListener('dragend', () => {
                     if (draggedElement) {
                         draggedElement.classList.remove('dragging');
+                        draggedElement.draggable = false; // Réinitialiser après le drag
                         draggedElement = null;
                         draggedCategory = null;
                     }
@@ -1623,7 +1630,67 @@
                         category.draggable = false;
                     }
                 });
+
+                // === ÉVÉNEMENTS TACTILES (Mobile) ===
+                const handle = category.querySelector('.category-drag-handle');
+
+                handle.addEventListener('touchstart', (e) => {
+                    e.stopPropagation(); // Empêcher la propagation
+                    isTouchDragging = true;
+                    draggedElement = category;
+                    draggedCategory = category.dataset.category;
+                    touchStartY = e.touches[0].clientY;
+                    category.classList.add('dragging');
+                }, { passive: true });
             });
+
+            // Événements tactiles globaux (en dehors de la boucle pour éviter les doublons)
+            document.addEventListener('touchmove', (e) => {
+                if (!isTouchDragging || !draggedElement) return;
+
+                e.preventDefault(); // Empêcher le scroll pendant le drag
+                touchCurrentY = e.touches[0].clientY;
+
+                // Trouver l'élément sous le doigt
+                const elementBelow = document.elementFromPoint(
+                    e.touches[0].clientX,
+                    e.touches[0].clientY
+                );
+
+                const categoryBelow = elementBelow?.closest('.category-section');
+                if (!categoryBelow || categoryBelow === draggedElement) return;
+
+                const rect = categoryBelow.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+
+                if (touchCurrentY < midpoint) {
+                    categoryBelow.parentNode.insertBefore(draggedElement, categoryBelow);
+                } else {
+                    categoryBelow.parentNode.insertBefore(draggedElement, categoryBelow.nextSibling);
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', (e) => {
+                if (!isTouchDragging) return;
+
+                if (draggedElement) {
+                    draggedElement.classList.remove('dragging');
+
+                    // Mettre à jour l'ordre dans le state
+                    const newOrder = Array.from(document.querySelectorAll('.category-section'))
+                        .map(el => el.dataset.category);
+
+                    state.categoryOrder = newOrder;
+                    saveToLocalStorage();
+
+                    draggedElement = null;
+                    draggedCategory = null;
+                }
+
+                isTouchDragging = false;
+                touchStartY = 0;
+                touchCurrentY = 0;
+            }, { passive: true });
         }
 
         function renderSuggestions() {
@@ -2134,9 +2201,7 @@
         document.getElementById('searchInput').addEventListener('input', renderItems);
 
         document.getElementById('clearCheckedBtn').addEventListener('click', clearCheckedItems);
-        document.getElementById('shareBtn').addEventListener('click', generateQRCode);
 
-        document.getElementById('importBtn').addEventListener('click', () => openModal('importManualModal'));
         document.getElementById('settingsBtn').addEventListener('click', () => {
             renderCategoriesList();
             openModal('settingsModal');
@@ -2163,6 +2228,8 @@
         document.getElementById('hideCheckedToggle').addEventListener('click', toggleHideChecked);
         document.getElementById('decreaseFontBtn').addEventListener('click', () => adjustFontSize(-10));
         document.getElementById('increaseFontBtn').addEventListener('click', () => adjustFontSize(10));
+        document.getElementById('shareSettingsBtn').addEventListener('click', generateQRCode);
+        document.getElementById('importSettingsBtn').addEventListener('click', () => openModal('importManualModal'));
 
         document.getElementById('createListBtn').addEventListener('click', () => {
             const name = document.getElementById('newListName').value.trim();
