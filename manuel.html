@@ -36,20 +36,26 @@
             --link-color: #64B5F6;
         }
 
+        /* Mobile first - Base styles */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             line-height: 1.6;
             color: var(--text-primary);
             background: var(--bg-secondary);
+            font-size: 16px;
+            overflow-x: hidden;
         }
 
         .header {
             background: var(--primary);
             color: white;
-            padding: 2rem 1rem;
+            padding: 1.25rem 1rem;
             box-shadow: 0 2px 8px var(--shadow);
             position: sticky;
             top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
             z-index: 100;
         }
 
@@ -57,65 +63,56 @@
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .header h1 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            line-height: 1.3;
         }
 
         .theme-toggle {
             background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            padding: 0.5rem 1rem;
+            padding: 0.75rem 1rem;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9375rem;
+            font-weight: 500;
             transition: background 0.2s;
+            width: 100%;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .theme-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
+        .theme-toggle:active {
+            background: rgba(255, 255, 255, 0.35);
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 1rem;
             display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 2rem;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
-
-            .sidebar {
-                position: static !important;
-                height: auto !important;
-            }
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
         }
 
         .sidebar {
-            position: sticky;
-            top: 90px;
-            height: calc(100vh - 110px);
-            overflow-y: auto;
+            position: static;
             background: var(--bg-primary);
-            padding: 1.5rem;
-            border-radius: 12px;
+            padding: 1.25rem;
+            border-radius: 8px;
             box-shadow: 0 2px 8px var(--shadow);
+            order: 2;
         }
 
         .sidebar h2 {
-            font-size: 1.1rem;
+            font-size: 1.125rem;
             margin-bottom: 1rem;
             color: var(--primary);
         }
@@ -125,41 +122,44 @@
         }
 
         .toc li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.375rem;
         }
 
         .toc a {
             color: var(--text-primary);
             text-decoration: none;
             display: block;
-            padding: 0.5rem;
+            padding: 0.625rem 0.75rem;
             border-radius: 6px;
             transition: all 0.2s;
+            -webkit-tap-highlight-color: transparent;
+            font-size: 0.9375rem;
         }
 
-        .toc a:hover {
+        .toc a:active {
             background: var(--bg-secondary);
             color: var(--primary);
         }
 
         .toc .sub-item {
             margin-left: 1rem;
-            font-size: 0.9rem;
+            font-size: 0.875rem;
         }
 
         .content {
             background: var(--bg-primary);
-            padding: 2rem;
-            border-radius: 12px;
+            padding: 1.25rem;
+            border-radius: 8px;
             box-shadow: 0 2px 8px var(--shadow);
+            order: 1;
         }
 
         .section {
-            margin-bottom: 3rem;
+            margin-bottom: 2.5rem;
         }
 
         .section h2 {
-            font-size: 2rem;
+            font-size: 1.625rem;
             color: var(--primary);
             margin-bottom: 1rem;
             padding-bottom: 0.5rem;
@@ -167,45 +167,61 @@
         }
 
         .section h3 {
-            font-size: 1.5rem;
+            font-size: 1.375rem;
             color: var(--text-primary);
             margin-top: 2rem;
             margin-bottom: 1rem;
         }
 
         .section h4 {
-            font-size: 1.2rem;
+            font-size: 1.125rem;
             color: var(--text-primary);
-            margin-top: 1.5rem;
-            margin-bottom: 0.75rem;
+            margin-top: 1.25rem;
+            margin-bottom: 0.625rem;
         }
 
         .section p {
             margin-bottom: 1rem;
             color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 0.9375rem;
         }
 
         .section ul, .section ol {
-            margin-left: 2rem;
+            margin-left: 1.25rem;
             margin-bottom: 1rem;
             color: var(--text-secondary);
         }
 
         .section li {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.625rem;
+            line-height: 1.65;
+            font-size: 0.9375rem;
         }
 
         .feature-box {
             background: var(--bg-secondary);
-            padding: 1.5rem;
+            padding: 1.25rem;
             border-radius: 8px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
             border-left: 4px solid var(--primary);
         }
 
         .feature-box h4 {
             margin-top: 0;
+            margin-bottom: 0.75rem;
             color: var(--primary);
+            font-size: 1.0625rem;
+        }
+
+        .feature-box ul, .feature-box ol {
+            margin-left: 1.25rem;
+        }
+
+        .feature-box li {
+            margin-bottom: 0.5rem;
+            line-height: 1.65;
+            font-size: 0.9375rem;
         }
 
         .info-box {
@@ -213,7 +229,9 @@
             border-left: 4px solid #2196F3;
             padding: 1rem;
             margin: 1rem 0;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 0.9375rem;
+            line-height: 1.65;
         }
 
         [data-theme="dark"] .info-box {
@@ -226,7 +244,9 @@
             border-left: 4px solid #FF9800;
             padding: 1rem;
             margin: 1rem 0;
-            border-radius: 4px;
+            border-radius: 6px;
+            font-size: 0.9375rem;
+            line-height: 1.65;
         }
 
         [data-theme="dark"] .warning-box {
@@ -236,13 +256,18 @@
 
         .table-container {
             overflow-x: auto;
-            margin: 1rem 0;
+            margin: 1.25rem 0;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px var(--shadow);
         }
 
         table {
             width: 100%;
+            min-width: 500px;
             border-collapse: collapse;
             background: var(--bg-primary);
+            font-size: 0.875rem;
         }
 
         th, td {
@@ -255,6 +280,7 @@
             background: var(--bg-secondary);
             font-weight: 600;
             color: var(--primary);
+            font-size: 0.8125rem;
         }
 
         code {
@@ -262,51 +288,41 @@
             padding: 0.2rem 0.4rem;
             border-radius: 4px;
             font-family: 'Courier New', monospace;
-            font-size: 0.9em;
+            font-size: 0.85em;
+            word-break: break-word;
         }
 
         .step-list {
             counter-reset: step;
-            list-style: none;
-            margin-left: 0;
+            list-style: decimal;
+            margin-left: 1.25rem;
+            padding-left: 0;
         }
 
         .step-list li {
             counter-increment: step;
-            position: relative;
-            padding-left: 3rem;
-            margin-bottom: 1.5rem;
+            padding-left: 0.5rem;
+            margin-bottom: 0.75rem;
         }
 
-        .step-list li::before {
-            content: counter(step);
-            position: absolute;
-            left: 0;
-            top: 0;
-            background: var(--primary);
-            color: white;
-            width: 2rem;
-            height: 2rem;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
+        .step-list li::marker {
+            color: var(--primary);
+            font-weight: 600;
         }
 
         .emoji {
-            font-size: 1.5rem;
+            font-size: 1.375rem;
             margin-right: 0.5rem;
         }
 
         .back-to-top {
             position: fixed;
-            bottom: 2rem;
-            right: 2rem;
+            bottom: 1rem;
+            right: 1rem;
             background: var(--primary);
             color: white;
-            width: 50px;
-            height: 50px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             border: none;
             font-size: 1.5rem;
@@ -316,11 +332,13 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            z-index: 50;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .back-to-top:hover {
+        .back-to-top:active {
             background: var(--primary-dark);
-            transform: translateY(-3px);
+            transform: scale(0.95);
         }
 
         .back-to-top.visible {
@@ -329,15 +347,16 @@
 
         .footer {
             background: var(--bg-primary);
-            padding: 2rem;
+            padding: 1.5rem 1rem;
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 1rem;
             border-top: 1px solid var(--border-color);
         }
 
         .footer p {
             color: var(--text-secondary);
             margin-bottom: 0.5rem;
+            font-size: 0.9rem;
         }
 
         .footer a {
@@ -345,11 +364,11 @@
             text-decoration: none;
         }
 
-        .footer a:hover {
-            text-decoration: underline;
+        .footer a:active {
+            opacity: 0.7;
         }
 
-        /* Scrollbar personnalisée */
+        /* Scrollbar personnalisée (desktop) */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -365,6 +384,187 @@
 
         ::-webkit-scrollbar-thumb:hover {
             background: var(--primary-dark);
+        }
+
+        /* Tablet styles (min-width: 600px) */
+        @media (min-width: 600px) {
+            .header {
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .theme-toggle {
+                width: auto;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            .content {
+                padding: 1.5rem;
+            }
+
+            .section h2 {
+                font-size: 1.75rem;
+            }
+
+            .section h3 {
+                font-size: 1.4rem;
+            }
+
+            .table-container {
+                border-radius: 8px;
+            }
+
+            th, td {
+                padding: 0.65rem;
+            }
+        }
+
+        /* Desktop styles (min-width: 900px) */
+        @media (min-width: 900px) {
+            .header {
+                padding: 2rem 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 2rem 1rem;
+                grid-template-columns: 280px 1fr;
+                gap: 2rem;
+            }
+
+            .sidebar {
+                position: sticky;
+                top: 90px;
+                height: calc(100vh - 110px);
+                overflow-y: auto;
+                padding: 1.5rem;
+                border-radius: 12px;
+                order: 0;
+            }
+
+            .sidebar h2 {
+                font-size: 1.1rem;
+                margin-bottom: 1rem;
+            }
+
+            .toc a:hover {
+                background: var(--bg-secondary);
+                color: var(--primary);
+            }
+
+            .content {
+                padding: 2rem;
+                border-radius: 12px;
+            }
+
+            .section {
+                margin-bottom: 3rem;
+            }
+
+            .section h2 {
+                font-size: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .section h3 {
+                font-size: 1.5rem;
+                margin-top: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .section h4 {
+                font-size: 1.2rem;
+                margin-top: 1.5rem;
+                margin-bottom: 0.75rem;
+            }
+
+            .section p {
+                margin-bottom: 1rem;
+            }
+
+            .section ul, .section ol {
+                margin-left: 2rem;
+                margin-bottom: 1rem;
+            }
+
+            .feature-box {
+                padding: 1.5rem;
+            }
+
+            .feature-box h4 {
+                font-size: 1.2rem;
+            }
+
+            .info-box, .warning-box {
+                padding: 1rem;
+                margin: 1rem 0;
+                font-size: 1rem;
+            }
+
+            .step-list {
+                margin-left: 2rem;
+            }
+
+            .step-list li {
+                padding-left: 0.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .emoji {
+                font-size: 1.5rem;
+            }
+
+            .back-to-top {
+                bottom: 2rem;
+                right: 2rem;
+                width: 50px;
+                height: 50px;
+            }
+
+            .back-to-top:hover {
+                background: var(--primary-dark);
+                transform: translateY(-3px);
+            }
+
+            .footer {
+                padding: 2rem;
+                margin-top: 2rem;
+            }
+
+            .footer p {
+                font-size: 1rem;
+            }
+
+            .footer a:hover {
+                text-decoration: underline;
+            }
+
+            table {
+                font-size: 1rem;
+            }
+
+            th {
+                font-size: 1rem;
+            }
+
+            th, td {
+                padding: 0.75rem;
+            }
         }
     </style>
 </head>
@@ -497,7 +697,7 @@
 
                 <h4>Créer une nouvelle liste</h4>
                 <ol class="step-list">
-                    <li>Cliquez sur le bouton <strong>➕</strong> en haut à droite</li>
+                    <li>Cliquez sur le bouton <strong>➕</strong> dans l'entête en haut à droite</li>
                     <li>Entrez le nom de la liste (ex: "Pharmacie", "Bricolage")</li>
                     <li>Cliquez sur <strong>Créer</strong></li>
                 </ol>
@@ -558,7 +758,7 @@
 
                 <p><strong>Méthode 3 : Depuis les favoris</strong></p>
                 <ol>
-                    <li>Cliquez sur l'icône <strong>⭐ Favoris</strong> en haut à droite</li>
+                    <li>Cliquez sur l'icône <strong>⭐</strong> dans l'entête en haut à droite</li>
                     <li>Parcourez vos favoris groupés par catégorie</li>
                     <li>Cliquez sur un article pour l'ajouter instantanément</li>
                 </ol>
@@ -580,6 +780,23 @@
 
                 <div class="info-box">
                     <strong>💡 Note :</strong> Le statut favori est synchronisé dans toutes les listes. Marquez un article favori une fois, retrouvez-le partout.
+                </div>
+
+                <h4>Supprimer un article</h4>
+                <p><strong>Méthode 1 : Supprimer un article individuel</strong></p>
+                <ol>
+                    <li>Cliquez sur l'icône <strong>🗑️</strong> à droite de l'article</li>
+                    <li>Confirmez la suppression</li>
+                </ol>
+
+                <p><strong>Méthode 2 : Effacer tous les articles cochés</strong></p>
+                <ol>
+                    <li>Cliquez sur l'icône <strong>🗑️</strong> dans l'entête en haut à droite</li>
+                    <li>Confirmez pour supprimer tous les articles cochés de la liste active</li>
+                </ol>
+
+                <div class="info-box">
+                    <strong>💡 Astuce :</strong> Utilisez la fonction "Effacer cochés" en fin de courses pour nettoyer rapidement votre liste.
                 </div>
 
                 <!-- CATÉGORIES -->
@@ -647,7 +864,7 @@
 
                 <h4>Utiliser le panneau de favoris</h4>
                 <ol class="step-list">
-                    <li>Cliquez sur <strong>⭐</strong> en haut à droite</li>
+                    <li>Cliquez sur l'icône <strong>⭐</strong> dans l'entête en haut à droite</li>
                     <li>Vos favoris sont groupés par catégorie</li>
                     <li>Cliquez sur une catégorie pour la déployer</li>
                     <li>Cliquez sur un article pour l'ajouter à la liste active</li>
@@ -732,6 +949,53 @@
 
                 <!-- PARAMÈTRES -->
                 <h3 id="parametres"><span class="emoji">⚙️</span> Paramètres et personnalisation</h3>
+
+                <h4>Accès rapide depuis l'entête</h4>
+                <p>L'entête de l'application contient 5 icônes pour un accès rapide aux fonctionnalités principales :</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Icône</th>
+                                <th>Fonction</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>📖</td>
+                                <td>Manuel</td>
+                                <td>Ouvre le manuel utilisateur interactif dans un nouvel onglet</td>
+                            </tr>
+                            <tr>
+                                <td>🗑️</td>
+                                <td>Effacer cochés</td>
+                                <td>Supprime tous les articles cochés de la liste active</td>
+                            </tr>
+                            <tr>
+                                <td>⭐</td>
+                                <td>Favoris</td>
+                                <td>Ouvre le panneau des favoris pour ajout rapide</td>
+                            </tr>
+                            <tr>
+                                <td>⚙️</td>
+                                <td>Paramètres</td>
+                                <td>Ouvre les paramètres de l'application</td>
+                            </tr>
+                            <tr>
+                                <td>➕</td>
+                                <td>Nouvelle liste</td>
+                                <td>Crée une nouvelle liste de courses</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Accéder aux paramètres</h4>
+                <ol>
+                    <li>Cliquez sur l'icône <strong>⚙️</strong> dans l'entête en haut à droite</li>
+                    <li>La fenêtre des paramètres s'ouvre avec toutes les options disponibles</li>
+                </ol>
 
                 <h4>Mode sombre</h4>
                 <p>Activez/désactivez le mode sombre pour réduire la fatigue oculaire et économiser la batterie sur écrans OLED.</p>

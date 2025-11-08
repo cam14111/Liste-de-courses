@@ -423,51 +423,6 @@
             display: none;
         }
 
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--bg-primary);
-            padding: 1rem;
-            box-shadow: 0 -2px 8px var(--shadow);
-            display: flex;
-            gap: 0.5rem;
-            z-index: 90;
-        }
-
-        @media (min-width: 800px) {
-            .bottom-bar {
-                left: 50%;
-                transform: translateX(-50%);
-                max-width: 800px;
-            }
-        }
-
-        .bottom-btn {
-            flex: 1;
-            padding: 0.75rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-
-        .btn-clear {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-clear:active {
-            background: #d32f2f;
-        }
-
         .btn-share {
             background: var(--warning);
             color: white;
@@ -888,6 +843,8 @@
         <div class="header-top">
             <h1>🛒 Mes Courses</h1>
             <div class="header-actions">
+                <a href="manuel.html" class="icon-btn" title="Manuel utilisateur" style="text-decoration: none;">📖</a>
+                <button class="icon-btn" id="clearCheckedBtn" title="Effacer les articles cochés">🗑️</button>
                 <button class="icon-btn" id="favoritesBtn" title="Favoris">⭐</button>
                 <button class="icon-btn" id="settingsBtn" title="Paramètres">⚙️</button>
                 <button class="icon-btn" id="newListBtn" title="Nouvelle liste">➕</button>
@@ -909,12 +866,6 @@
     </div>
 
     <div class="container" id="container"></div>
-
-    <div class="bottom-bar">
-        <button class="bottom-btn btn-clear" id="clearCheckedBtn">
-            🗑️ Effacer cochés
-        </button>
-    </div>
 
     <!-- Modal Édition Article -->
     <div class="modal" id="editModal">

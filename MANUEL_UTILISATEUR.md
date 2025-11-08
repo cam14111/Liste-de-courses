@@ -80,7 +80,7 @@ Au premier lancement, vous verrez une liste vide nommée "Courses".
 ### 1. Gestion des listes
 
 #### Créer une nouvelle liste
-1. Cliquez sur le bouton **➕** en haut à droite
+1. Cliquez sur le bouton **➕** dans l'entête en haut à droite
 2. Entrez le nom de la liste (ex: "Pharmacie", "Bricolage")
 3. Cliquez sur **Créer**
 
@@ -134,7 +134,7 @@ Chaque onglet affiche : `Nom de la liste (cochés/total)`
 - Les suggestions sont basées sur votre historique d'utilisation
 
 **Méthode 3 : Depuis les favoris**
-1. Cliquez sur l'icône **⭐ Favoris** en haut à droite
+1. Cliquez sur l'icône **⭐** dans l'entête en haut à droite
 2. Parcourez vos favoris groupés par catégorie
 3. Cliquez sur un article pour l'ajouter instantanément
 4. Un effet visuel confirme l'ajout
@@ -170,7 +170,7 @@ Chaque onglet affiche : `Nom de la liste (cochés/total)`
 2. Confirmez la suppression
 
 **Méthode 2 : Effacer tous les articles cochés**
-1. Cliquez sur **🗑️ Effacer cochés** en bas de l'écran
+1. Cliquez sur l'icône **🗑️** dans l'entête en haut à droite
 2. Confirmez pour supprimer tous les articles cochés de la liste active
 
 ---
@@ -264,7 +264,7 @@ L'ordre est sauvegardé automatiquement.
 
 #### Utiliser le panneau de favoris
 
-1. Cliquez sur **⭐** en haut à droite
+1. Cliquez sur l'icône **⭐** dans l'entête en haut à droite
 2. Vos favoris sont groupés par catégorie
 3. Cliquez sur une catégorie pour la déployer (accordion)
 4. Cliquez sur un article pour l'ajouter à la liste active
@@ -394,8 +394,13 @@ L'application normalise intelligemment les catégories :
 
 #### Accéder aux paramètres
 
-1. Cliquez sur **⚙️** en haut à droite
+1. Cliquez sur l'icône **⚙️** dans l'entête en haut à droite
 2. La fenêtre des paramètres s'ouvre
+
+#### Accéder au manuel
+
+1. Cliquez sur l'icône **📖** dans l'entête en haut à droite
+2. Le manuel utilisateur interactif s'ouvre dans un nouvel onglet
 
 #### Mode sombre
 

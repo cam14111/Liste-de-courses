@@ -67,27 +67,48 @@ Application web standalone de liste de courses optimisée pour mobile avec stock
 4. L'application s'ouvre maintenant comme une app native !
 
 ### Hébergement
-Déployez simplement les 3 fichiers sur n'importe quel hébergeur :
-- `index.html`
-- `manifest.json`
-- `service-worker.js`
 
-Compatible avec : GitHub Pages, Netlify, Vercel, Apache, Nginx, etc.
+#### GitHub Pages (recommandé)
+Déployez gratuitement sur GitHub Pages en suivant le **[Guide de déploiement](DEPLOIEMENT_GITHUB_PAGES.md)** :
+1. Créez un repository GitHub
+2. Uploadez les fichiers du projet
+3. Activez GitHub Pages dans les paramètres
+4. Votre app est en ligne ! 🎉
+
+Fichiers nécessaires :
+- `index.html`, `manifest.json`, `service-worker.js`
+- `_config.yml` (configuration GitHub Pages)
+- `.nojekyll` (important pour le bon fonctionnement)
+
+#### Autres hébergeurs
+L'application est compatible avec :
+- **Netlify** : Glissez-déposez le dossier
+- **Vercel** : Déploiement automatique via Git
+- **Apache/Nginx** : Uploadez les fichiers sur votre serveur
+- **GitHub Pages, GitLab Pages** : Intégration native
 
 ## 📚 Documentation
 
 Pour une utilisation optimale de l'application, consultez :
 - **[📖 Manuel Utilisateur (HTML)](manuel.html)** - Guide interactif détaillé pour les utilisateurs
 - **[Manuel Utilisateur (MD)](MANUEL_UTILISATEUR.md)** - Version Markdown du guide
-- **[Documentation Technique](DOCUMENTATION_TECHNIQUE.md)** - Architecture et détails techniques pour développeurs
+- **[🔧 Documentation Technique](DOCUMENTATION_TECHNIQUE.md)** - Architecture et détails techniques pour développeurs
+- **[🚀 Guide de déploiement](DEPLOIEMENT_GITHUB_PAGES.md)** - Déployer sur GitHub Pages (et autres)
 
 ## 🎯 Utilisation
 
 ### Gérer les listes
-- **Créer** : Bouton ➕ en haut à droite
+- **Créer** : Bouton ➕ dans l'entête en haut à droite
 - **Changer** : Cliquez sur les onglets en haut
 - **Dupliquer/Renommer** : Appui long sur un onglet (mobile) ou clic droit (desktop)
 - **Supprimer** : Appui long sur un onglet → Supprimer
+
+### Accès rapide (entête)
+- **📖 Manuel** : Accès au manuel utilisateur interactif
+- **🗑️ Effacer cochés** : Supprime tous les articles cochés de la liste active
+- **⭐ Favoris** : Ouvre le panneau des favoris pour ajout rapide
+- **⚙️ Paramètres** : Ouvre les paramètres de l'application
+- **➕ Nouvelle liste** : Crée une nouvelle liste
 
 ### Gérer les articles
 - **Ajouter** : Tapez le nom et appuyez sur Entrer ou "Ajouter"
@@ -96,7 +117,7 @@ Pour une utilisation optimale de l'application, consultez :
 - **Favoris** : Étoile ⭐ sur l'article
 - **Supprimer** :
   - Bouton 🗑️ sur l'article
-  - Ou bouton "Effacer cochés" en bas
+  - Ou icône 🗑️ dans l'entête pour effacer tous les cochés
 
 ### Catégories disponibles
 - 🍎 Fruits
@@ -121,7 +142,7 @@ Pour une utilisation optimale de l'application, consultez :
 6. Choix : Remplacer / Fusionner / Nouvelle liste
 
 ### Utiliser les favoris
-1. Cliquez sur ⭐ en haut à droite
+1. Cliquez sur l'icône ⭐ dans l'entête en haut à droite
 2. Parcourez vos articles favoris groupés par catégorie
 3. Cliquez sur un article pour l'ajouter instantanément à votre liste
 4. Ajoutez plusieurs favoris sans fermer la fenêtre
@@ -208,3 +229,4 @@ Fait avec ❤️ pour simplifier vos courses
 - [📖 Manuel Utilisateur (HTML)](manuel.html) - Guide complet interactif
 - [📄 Manuel Utilisateur (MD)](MANUEL_UTILISATEUR.md) - Version Markdown
 - [🔧 Documentation Technique](DOCUMENTATION_TECHNIQUE.md) - Pour les développeurs
+- [🚀 Guide de déploiement](DEPLOIEMENT_GITHUB_PAGES.md) - Déployer sur GitHub Pages
