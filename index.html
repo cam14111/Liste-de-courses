@@ -1579,7 +1579,16 @@
         }
 
         function toggleFavoriteCategory(category) {
-            state.collapsedFavoriteCategories[category] = !state.collapsedFavoriteCategories[category];
+            const wasCollapsed = state.collapsedFavoriteCategories[category];
+
+            // Replier toutes les catégories (comportement accordion)
+            state.categoryOrder.forEach(cat => {
+                state.collapsedFavoriteCategories[cat] = true;
+            });
+
+            // Déployer uniquement la catégorie cliquée si elle était repliée
+            state.collapsedFavoriteCategories[category] = !wasCollapsed;
+
             saveToLocalStorage();
             renderFavorites();
         }
@@ -1593,6 +1602,14 @@
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+
+            // Replier toutes les catégories de favoris lors de la fermeture de la modale
+            if (modalId === 'favoritesModal') {
+                state.categoryOrder.forEach(cat => {
+                    state.collapsedFavoriteCategories[cat] = true;
+                });
+                saveToLocalStorage();
+            }
         }
 
         function openEditModal(itemId) {
