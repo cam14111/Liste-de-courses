@@ -1041,6 +1041,17 @@
                     history: loadedState.history || {},
                     importData: loadedState.importData || null
                 };
+
+                // Assurer que tous les items ont la propriété favorite
+                Object.values(state.lists).forEach(list => {
+                    if (list.items) {
+                        list.items.forEach(item => {
+                            if (item.favorite === undefined) {
+                                item.favorite = false;
+                            }
+                        });
+                    }
+                });
             } else {
                 state.lists['courses'] = { name: 'Courses', items: [] };
             }
@@ -1290,7 +1301,7 @@
                                     </div>
                                     <div class="item-actions">
                                         <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}"
-                                                onclick="toggleFavorite('${item.id}')">⭐</button>
+                                                onclick="toggleFavorite('${item.id}')">★</button>
                                         <button class="item-btn delete-btn" onclick="deleteItem('${item.id}')">🗑️</button>
                                     </div>
                                 </li>
