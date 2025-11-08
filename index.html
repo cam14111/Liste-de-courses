@@ -265,6 +265,8 @@
             font-size: 1.2rem;
             padding: 0 0.25rem;
             transition: color 0.2s;
+            touch-action: none; /* Permet le drag tactile sans interférence */
+            user-select: none; /* Empêche la sélection de texte pendant le drag */
         }
 
         .category-drag-handle:active {
@@ -1568,7 +1570,13 @@
             let draggedElement = null;
             let draggedCategory = null;
 
+            // Variables pour le support tactile
+            let touchStartY = 0;
+            let touchCurrentY = 0;
+            let isTouchDragging = false;
+
             categories.forEach(category => {
+                // === ÉVÉNEMENTS SOURIS (Desktop) ===
                 category.addEventListener('dragstart', (e) => {
                     // Le filtrage est déjà fait par mousedown qui gère draggable
                     draggedElement = category;
@@ -1622,7 +1630,67 @@
                         category.draggable = false;
                     }
                 });
+
+                // === ÉVÉNEMENTS TACTILES (Mobile) ===
+                const handle = category.querySelector('.category-drag-handle');
+
+                handle.addEventListener('touchstart', (e) => {
+                    e.stopPropagation(); // Empêcher la propagation
+                    isTouchDragging = true;
+                    draggedElement = category;
+                    draggedCategory = category.dataset.category;
+                    touchStartY = e.touches[0].clientY;
+                    category.classList.add('dragging');
+                }, { passive: true });
             });
+
+            // Événements tactiles globaux (en dehors de la boucle pour éviter les doublons)
+            document.addEventListener('touchmove', (e) => {
+                if (!isTouchDragging || !draggedElement) return;
+
+                e.preventDefault(); // Empêcher le scroll pendant le drag
+                touchCurrentY = e.touches[0].clientY;
+
+                // Trouver l'élément sous le doigt
+                const elementBelow = document.elementFromPoint(
+                    e.touches[0].clientX,
+                    e.touches[0].clientY
+                );
+
+                const categoryBelow = elementBelow?.closest('.category-section');
+                if (!categoryBelow || categoryBelow === draggedElement) return;
+
+                const rect = categoryBelow.getBoundingClientRect();
+                const midpoint = rect.top + rect.height / 2;
+
+                if (touchCurrentY < midpoint) {
+                    categoryBelow.parentNode.insertBefore(draggedElement, categoryBelow);
+                } else {
+                    categoryBelow.parentNode.insertBefore(draggedElement, categoryBelow.nextSibling);
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', (e) => {
+                if (!isTouchDragging) return;
+
+                if (draggedElement) {
+                    draggedElement.classList.remove('dragging');
+
+                    // Mettre à jour l'ordre dans le state
+                    const newOrder = Array.from(document.querySelectorAll('.category-section'))
+                        .map(el => el.dataset.category);
+
+                    state.categoryOrder = newOrder;
+                    saveToLocalStorage();
+
+                    draggedElement = null;
+                    draggedCategory = null;
+                }
+
+                isTouchDragging = false;
+                touchStartY = 0;
+                touchCurrentY = 0;
+            }, { passive: true });
         }
 
         function renderSuggestions() {
