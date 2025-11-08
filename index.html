@@ -1101,7 +1101,7 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
         // ==================== CONSTANTES ====================
-        const CATEGORIES = {
+        const DEFAULT_CATEGORIES = {
             'fruits': { icon: '🍎', color: 'var(--cat-fruits)', keywords: ['pomme', 'banane', 'orange', 'poire', 'fraise', 'raisin', 'kiwi', 'mangue', 'ananas', 'melon', 'pastèque', 'citron', 'pamplemousse', 'abricot', 'pêche', 'prune', 'cerise', 'framboise', 'myrtille'] },
             'legumes': { icon: '🥬', color: 'var(--cat-legumes)', keywords: ['tomate', 'salade', 'carotte', 'courgette', 'poivron', 'oignon', 'ail', 'pomme de terre', 'haricot', 'petit pois', 'brocoli', 'chou', 'aubergine', 'concombre', 'radis', 'navet', 'poireau', 'épinard', 'champignon'] },
             'viandes': { icon: '🥩', color: 'var(--cat-viandes)', keywords: ['poulet', 'boeuf', 'porc', 'agneau', 'veau', 'dinde', 'canard', 'steak', 'côtelette', 'rôti', 'escalope', 'saucisse', 'jambon', 'bacon', 'merguez'] },
@@ -1179,6 +1179,7 @@
             },
             collapsedCategories: {},
             collapsedFavoriteCategories: {},  // Catégories de favoris repliées
+            categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),  // Copie profonde des catégories
             categoryOrder: ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
             history: {},
             importData: null,
@@ -1189,7 +1190,7 @@
 
         function getCategory(itemName) {
             const name = itemName.toLowerCase();
-            for (const [category, data] of Object.entries(CATEGORIES)) {
+            for (const [category, data] of Object.entries(state.categories)) {
                 if (data.keywords.some(keyword => name.includes(keyword))) {
                     return category;
                 }
@@ -1205,6 +1206,14 @@
             const saved = localStorage.getItem('shoppingListApp');
             if (saved) {
                 const loadedState = JSON.parse(saved);
+
+                // Fusionner les catégories : garder les catégories sauvegardées et ajouter les nouvelles par défaut
+                let categories = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+                if (loadedState.categories) {
+                    // Fusionner les catégories sauvegardées avec les catégories par défaut
+                    categories = { ...categories, ...loadedState.categories };
+                }
+
                 // Fusionner avec les valeurs par défaut pour assurer la compatibilité
                 state = {
                     lists: loadedState.lists || {},
@@ -1216,6 +1225,7 @@
                     },
                     collapsedCategories: loadedState.collapsedCategories || {},
                     collapsedFavoriteCategories: loadedState.collapsedFavoriteCategories || {},
+                    categories: categories,
                     categoryOrder: loadedState.categoryOrder || ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
                     history: loadedState.history || {},
                     importData: loadedState.importData || null,
@@ -1514,7 +1524,7 @@
                 .map(cat => [cat, grouped[cat]]);
 
             container.innerHTML = orderedCategories.map(([category, items]) => {
-                const categoryData = CATEGORIES[category];
+                const categoryData = state.categories[category];
                 const isCollapsed = state.collapsedCategories[category];
                 return `
                     <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="false">
@@ -1747,7 +1757,7 @@
             });
 
             grid.innerHTML = orderedCategories.map(([category, items]) => {
-                const categoryData = CATEGORIES[category];
+                const categoryData = state.categories[category];
                 const isCollapsed = state.collapsedFavoriteCategories[category];
                 return `
                     <div class="favorite-category ${isCollapsed ? 'collapsed' : ''}">
@@ -1826,8 +1836,8 @@
             document.getElementById('editItemQuantity').value = item.quantity;
 
             const categorySelect = document.getElementById('editItemCategory');
-            categorySelect.innerHTML = Object.keys(CATEGORIES).map(cat => {
-                const data = CATEGORIES[cat];
+            categorySelect.innerHTML = Object.keys(state.categories).map(cat => {
+                const data = state.categories[cat];
                 return `<option value="${cat}" ${cat === item.category ? 'selected' : ''}>
                     ${data.icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </option>`;
@@ -2020,7 +2030,7 @@
             const container = document.getElementById('categoriesList');
             if (!container) return;
 
-            const categoriesArray = Object.entries(CATEGORIES);
+            const categoriesArray = Object.entries(state.categories);
             container.innerHTML = categoriesArray.map(([id, data]) => `
                 <div class="category-item">
                     <div class="category-item-info">
@@ -2062,7 +2072,7 @@
 
         function editCategory(categoryId) {
             currentEditingCategory = categoryId;
-            const category = CATEGORIES[categoryId];
+            const category = state.categories[categoryId];
             selectedIcon = category.icon;
 
             document.getElementById('categoryModalTitle').textContent = 'Modifier la catégorie';
@@ -2095,7 +2105,7 @@
             });
 
             // Supprimer la catégorie
-            delete CATEGORIES[categoryId];
+            delete state.categories[categoryId];
 
             // Retirer de l'ordre des catégories
             state.categoryOrder = state.categoryOrder.filter(cat => cat !== categoryId);
@@ -2124,13 +2134,13 @@
 
                 if (name !== oldCategoryId) {
                     // Renommer la catégorie
-                    CATEGORIES[name] = {
+                    state.categories[name] = {
                         icon: selectedIcon,
-                        color: CATEGORIES[oldCategoryId].color || 'var(--cat-autre)',
-                        keywords: CATEGORIES[oldCategoryId].keywords || []
+                        color: state.categories[oldCategoryId].color || 'var(--cat-autre)',
+                        keywords: state.categories[oldCategoryId].keywords || []
                     };
 
-                    delete CATEGORIES[oldCategoryId];
+                    delete state.categories[oldCategoryId];
 
                     // Mettre à jour tous les items
                     Object.values(state.lists).forEach(list => {
@@ -2157,16 +2167,16 @@
                     }
                 } else {
                     // Juste changer l'icône
-                    CATEGORIES[name].icon = selectedIcon;
+                    state.categories[name].icon = selectedIcon;
                 }
             } else {
                 // Nouvelle catégorie
-                if (CATEGORIES[name]) {
+                if (state.categories[name]) {
                     alert('Cette catégorie existe déjà');
                     return;
                 }
 
-                CATEGORIES[name] = {
+                state.categories[name] = {
                     icon: selectedIcon,
                     color: 'var(--cat-autre)',
                     keywords: []
