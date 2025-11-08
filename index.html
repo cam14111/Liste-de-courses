@@ -578,10 +578,29 @@
         }
 
         .favorites-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .favorite-category {
+            margin-bottom: 1rem;
+        }
+
+        .favorite-category-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .favorite-items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 0.75rem;
-            margin-bottom: 1rem;
         }
 
         .favorite-item {
@@ -968,7 +987,8 @@
             collapsedCategories: {},
             categoryOrder: ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
             history: {},
-            importData: null
+            importData: null,
+            favorites: []  // Liste persistante des favoris {name, category}
         };
 
         // ==================== UTILS ====================
@@ -1003,7 +1023,8 @@
                     collapsedCategories: loadedState.collapsedCategories || {},
                     categoryOrder: loadedState.categoryOrder || ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
                     history: loadedState.history || {},
-                    importData: loadedState.importData || null
+                    importData: loadedState.importData || null,
+                    favorites: loadedState.favorites || []
                 };
 
                 // Assurer que tous les items ont la propriété favorite
@@ -1016,6 +1037,30 @@
                         });
                     }
                 });
+
+                // Migration: extraire les favoris des items si state.favorites est vide
+                if (state.favorites.length === 0) {
+                    const favoritesSet = new Set();
+                    Object.values(state.lists).forEach(list => {
+                        if (list.items) {
+                            list.items.forEach(item => {
+                                if (item.favorite) {
+                                    const key = item.name.toLowerCase();
+                                    if (!favoritesSet.has(key)) {
+                                        favoritesSet.add(key);
+                                        state.favorites.push({
+                                            name: item.name,
+                                            category: item.category
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    if (state.favorites.length > 0) {
+                        saveToLocalStorage();
+                    }
+                }
             } else {
                 state.lists['courses'] = { name: 'Courses', items: [] };
             }
@@ -1102,13 +1147,17 @@
         // ==================== GESTION DES ARTICLES ====================
         function addItem(name, quantity = '', category = null) {
             const list = state.lists[state.currentList];
+
+            // Vérifier si l'article est dans les favoris
+            const isFavorite = state.favorites.some(f => f.name.toLowerCase() === name.trim().toLowerCase());
+
             const item = {
                 id: generateId(),
                 name: name.trim(),
                 quantity,
                 category: category || getCategory(name),
                 checked: false,
-                favorite: false,
+                favorite: isFavorite,
                 addedAt: Date.now()
             };
             list.items.push(item);
@@ -1152,6 +1201,22 @@
             const item = list.items.find(i => i.id === itemId);
             if (item) {
                 item.favorite = !item.favorite;
+
+                // Gérer la liste persistante des favoris
+                if (item.favorite) {
+                    // Ajouter aux favoris s'il n'y est pas déjà
+                    const exists = state.favorites.find(f => f.name.toLowerCase() === item.name.toLowerCase());
+                    if (!exists) {
+                        state.favorites.push({
+                            name: item.name,
+                            category: item.category
+                        });
+                    }
+                } else {
+                    // Retirer des favoris
+                    state.favorites = state.favorites.filter(f => f.name.toLowerCase() !== item.name.toLowerCase());
+                }
+
                 saveToLocalStorage();
                 renderItems();
                 renderFavorites();
@@ -1377,30 +1442,41 @@
 
         function renderFavorites() {
             const grid = document.getElementById('favoritesGrid');
-            const allFavorites = [];
 
-            Object.values(state.lists).forEach(list => {
-                list.items.forEach(item => {
-                    if (item.favorite) {
-                        const existing = allFavorites.find(f => f.name.toLowerCase() === item.name.toLowerCase());
-                        if (!existing) {
-                            allFavorites.push(item);
-                        }
-                    }
-                });
-            });
-
-            if (allFavorites.length === 0) {
+            if (state.favorites.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucun favori pour le moment</p>';
                 return;
             }
 
-            grid.innerHTML = allFavorites.map(item => {
-                const categoryData = CATEGORIES[item.category];
+            // Grouper les favoris par catégorie
+            const grouped = {};
+            state.favorites.forEach(item => {
+                if (!grouped[item.category]) {
+                    grouped[item.category] = [];
+                }
+                grouped[item.category].push(item);
+            });
+
+            // Trier selon l'ordre des catégories
+            const orderedCategories = state.categoryOrder
+                .filter(cat => grouped[cat])
+                .map(cat => [cat, grouped[cat]]);
+
+            grid.innerHTML = orderedCategories.map(([category, items]) => {
+                const categoryData = CATEGORIES[category];
                 return `
-                    <div class="favorite-item" onclick="addItemFromFavorite('${item.name}', '${item.category}')">
-                        <div class="favorite-icon">${categoryData.icon}</div>
-                        <div class="favorite-name">${item.name}</div>
+                    <div class="favorite-category">
+                        <div class="favorite-category-title">
+                            ${categoryData.icon} ${category.charAt(0).toUpperCase() + category.slice(1)}
+                        </div>
+                        <div class="favorite-items-grid">
+                            ${items.map(item => `
+                                <div class="favorite-item" onclick="addItemFromFavorite('${item.name}', '${item.category}')">
+                                    <div class="favorite-icon">${categoryData.icon}</div>
+                                    <div class="favorite-name">${item.name}</div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             }).join('');
