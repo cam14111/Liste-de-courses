@@ -2332,6 +2332,7 @@
         function adjustFontSize(delta) {
             state.settings.fontSize = Math.max(80, Math.min(150, state.settings.fontSize + delta));
             document.documentElement.style.setProperty('--font-size-base', `${state.settings.fontSize}%`);
+            document.documentElement.style.fontSize = `${state.settings.fontSize}%`;
             document.getElementById('fontSizeLabel').textContent = `${state.settings.fontSize}%`;
             saveToLocalStorage();
         }
@@ -2691,6 +2692,7 @@
                 document.getElementById('hideCheckedToggle').classList.add('active');
             }
             document.documentElement.style.setProperty('--font-size-base', `${state.settings.fontSize}%`);
+            document.documentElement.style.fontSize = `${state.settings.fontSize}%`;
             document.getElementById('fontSizeLabel').textContent = `${state.settings.fontSize}%`;
 
             renderListTabs();
