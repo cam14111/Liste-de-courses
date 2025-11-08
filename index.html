@@ -1200,12 +1200,24 @@
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (item) {
-                item.favorite = !item.favorite;
+                const newFavoriteState = !item.favorite;
+                const itemNameLower = item.name.toLowerCase();
+
+                // Mettre à jour l'état favori dans TOUTES les listes pour cet article
+                Object.values(state.lists).forEach(list => {
+                    if (list.items) {
+                        list.items.forEach(listItem => {
+                            if (listItem.name.toLowerCase() === itemNameLower) {
+                                listItem.favorite = newFavoriteState;
+                            }
+                        });
+                    }
+                });
 
                 // Gérer la liste persistante des favoris
-                if (item.favorite) {
+                if (newFavoriteState) {
                     // Ajouter aux favoris s'il n'y est pas déjà
-                    const exists = state.favorites.find(f => f.name.toLowerCase() === item.name.toLowerCase());
+                    const exists = state.favorites.find(f => f.name.toLowerCase() === itemNameLower);
                     if (!exists) {
                         state.favorites.push({
                             name: item.name,
@@ -1214,7 +1226,7 @@
                     }
                 } else {
                     // Retirer des favoris
-                    state.favorites = state.favorites.filter(f => f.name.toLowerCase() !== item.name.toLowerCase());
+                    state.favorites = state.favorites.filter(f => f.name.toLowerCase() !== itemNameLower);
                 }
 
                 saveToLocalStorage();
