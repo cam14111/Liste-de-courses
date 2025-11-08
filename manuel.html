@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Manuel utilisateur complet pour l'application Ma Liste de Courses">
+    <title>Manuel Utilisateur - Ma Liste de Courses</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --bg-code: #f8f9fa;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --border-color: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --link-color: #1976D2;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-code: #2a2a2a;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #404040;
+            --shadow: rgba(0, 0, 0, 0.3);
+            --link-color: #64B5F6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-secondary);
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 2rem 1rem;
+            box-shadow: 0 2px 8px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static !important;
+                height: auto !important;
+            }
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 90px;
+            height: calc(100vh - 110px);
+            overflow-y: auto;
+            background: var(--bg-primary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .sidebar h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .toc {
+            list-style: none;
+        }
+
+        .toc li {
+            margin-bottom: 0.5rem;
+        }
+
+        .toc a {
+            color: var(--text-primary);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        .toc a:hover {
+            background: var(--bg-secondary);
+            color: var(--primary);
+        }
+
+        .toc .sub-item {
+            margin-left: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .content {
+            background: var(--bg-primary);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .section {
+            margin-bottom: 3rem;
+        }
+
+        .section h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .section h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .section h4 {
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .section p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .section ul, .section ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-box {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .feature-box h4 {
+            margin-top: 0;
+            color: var(--primary);
+        }
+
+        .info-box {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        [data-theme="dark"] .info-box {
+            background: #1a3a52;
+            border-left-color: #64B5F6;
+        }
+
+        .warning-box {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        [data-theme="dark"] .warning-box {
+            background: #4a3520;
+            border-left-color: #FFB74D;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-primary);
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background: var(--bg-secondary);
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        code {
+            background: var(--bg-code);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .step-list {
+            counter-reset: step;
+            list-style: none;
+            margin-left: 0;
+        }
+
+        .step-list li {
+            counter-increment: step;
+            position: relative;
+            padding-left: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .step-list li::before {
+            content: counter(step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--primary);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+            margin-right: 0.5rem;
+        }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px var(--shadow);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .back-to-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+
+        .back-to-top.visible {
+            display: flex;
+        }
+
+        .footer {
+            background: var(--bg-primary);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .footer p {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .footer a {
+            color: var(--link-color);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1><span class="emoji">🛒</span> Manuel Utilisateur</h1>
+            <button class="theme-toggle" onclick="toggleTheme()">🌙 Mode Sombre</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h2>📑 Table des matières</h2>
+            <ul class="toc">
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#installation">Installation</a>
+                    <ul class="toc">
+                        <li class="sub-item"><a href="#install-mobile">Sur mobile</a></li>
+                        <li class="sub-item"><a href="#install-web">Sur ordinateur</a></li>
+                    </ul>
+                </li>
+                <li><a href="#demarrage">Démarrage rapide</a></li>
+                <li><a href="#fonctionnalites">Fonctionnalités</a>
+                    <ul class="toc">
+                        <li class="sub-item"><a href="#listes">Gestion des listes</a></li>
+                        <li class="sub-item"><a href="#articles">Gestion des articles</a></li>
+                        <li class="sub-item"><a href="#categories">Catégories</a></li>
+                        <li class="sub-item"><a href="#favoris">Favoris</a></li>
+                        <li class="sub-item"><a href="#suggestions">Suggestions</a></li>
+                        <li class="sub-item"><a href="#recherche">Recherche</a></li>
+                        <li class="sub-item"><a href="#partage">Partage</a></li>
+                        <li class="sub-item"><a href="#parametres">Paramètres</a></li>
+                    </ul>
+                </li>
+                <li><a href="#astuces">Astuces</a></li>
+                <li><a href="#problemes">Problèmes</a></li>
+            </ul>
+        </aside>
+
+        <main class="content">
+            <!-- INTRODUCTION -->
+            <section id="introduction" class="section">
+                <h2><span class="emoji">👋</span> Introduction</h2>
+                <p><strong>Ma Liste de Courses</strong> est une application web progressive (PWA) qui vous permet de gérer vos listes de courses de manière simple et efficace. L'application fonctionne 100% hors ligne, sans nécessiter de compte ou de connexion Internet après l'installation.</p>
+
+                <div class="feature-box">
+                    <h4>Caractéristiques principales</h4>
+                    <ul>
+                        <li>Gestion de listes multiples (courses, pharmacie, bricolage...)</li>
+                        <li>Catégorisation automatique des articles</li>
+                        <li>Système de favoris pour ajout rapide</li>
+                        <li>Suggestions intelligentes basées sur votre historique</li>
+                        <li>Partage de listes via QR code</li>
+                        <li>Mode sombre et personnalisation de l'affichage</li>
+                        <li>Fonctionne entièrement hors ligne</li>
+                        <li>Vos données restent privées sur votre appareil</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- INSTALLATION -->
+            <section id="installation" class="section">
+                <h2><span class="emoji">📦</span> Installation</h2>
+
+                <h3 id="install-web">Sur ordinateur (navigateur web)</h3>
+                <ol class="step-list">
+                    <li>Ouvrez le fichier <code>index.html</code> dans votre navigateur web</li>
+                    <li>L'application est prête à l'emploi immédiatement !</li>
+                </ol>
+
+                <h3 id="install-mobile">Sur mobile (installation comme application)</h3>
+
+                <h4>Sur iPhone/iPad (iOS)</h4>
+                <ol class="step-list">
+                    <li>Ouvrez l'application dans Safari</li>
+                    <li>Appuyez sur le bouton <strong>Partager</strong> (icône carrée avec flèche vers le haut)</li>
+                    <li>Faites défiler et sélectionnez <strong>Sur l'écran d'accueil</strong></li>
+                    <li>Appuyez sur <strong>Ajouter</strong></li>
+                    <li>L'application apparaît maintenant sur votre écran d'accueil comme une app native</li>
+                </ol>
+
+                <h4>Sur Android</h4>
+                <ol class="step-list">
+                    <li>Ouvrez l'application dans Chrome</li>
+                    <li>Appuyez sur le menu (3 points verticaux)</li>
+                    <li>Sélectionnez <strong>Ajouter à l'écran d'accueil</strong></li>
+                    <li>Confirmez en appuyant sur <strong>Ajouter</strong></li>
+                    <li>L'application apparaît sur votre écran d'accueil</li>
+                </ol>
+
+                <div class="info-box">
+                    <strong>💡 Astuce :</strong> Une fois installée, l'application fonctionne exactement comme une application native et peut être utilisée sans connexion Internet.
+                </div>
+            </section>
+
+            <!-- DÉMARRAGE RAPIDE -->
+            <section id="demarrage" class="section">
+                <h2><span class="emoji">🚀</span> Démarrage rapide</h2>
+
+                <h3>Première utilisation</h3>
+                <p>Au premier lancement, vous verrez une liste vide nommée "Courses".</p>
+
+                <div class="feature-box">
+                    <h4>Pour ajouter votre premier article</h4>
+                    <ol>
+                        <li>Tapez le nom de l'article dans le champ "Ajouter un article..."</li>
+                        <li>Appuyez sur <strong>Entrée</strong> ou cliquez sur <strong>Ajouter</strong></li>
+                        <li>L'article apparaît automatiquement dans la bonne catégorie</li>
+                    </ol>
+                </div>
+
+                <div class="feature-box">
+                    <h4>Pour cocher un article acheté</h4>
+                    <p>Cliquez sur le cercle ⭕ à gauche de l'article</p>
+                </div>
+
+                <div class="feature-box">
+                    <h4>Pour supprimer un article</h4>
+                    <p>Cliquez sur l'icône 🗑️ à droite de l'article</p>
+                </div>
+            </section>
+
+            <!-- FONCTIONNALITÉS -->
+            <section id="fonctionnalites" class="section">
+                <h2><span class="emoji">⚡</span> Fonctionnalités détaillées</h2>
+
+                <!-- LISTES -->
+                <h3 id="listes"><span class="emoji">📋</span> Gestion des listes</h3>
+
+                <h4>Créer une nouvelle liste</h4>
+                <ol class="step-list">
+                    <li>Cliquez sur le bouton <strong>➕</strong> en haut à droite</li>
+                    <li>Entrez le nom de la liste (ex: "Pharmacie", "Bricolage")</li>
+                    <li>Cliquez sur <strong>Créer</strong></li>
+                </ol>
+
+                <h4>Naviguer entre les listes</h4>
+                <p>Cliquez sur les onglets en haut de l'écran pour changer de liste active. Le nombre d'articles cochés/total est affiché sur chaque onglet.</p>
+
+                <h4>Actions sur les listes (appui long)</h4>
+                <p><strong>Sur mobile :</strong></p>
+                <ol>
+                    <li>Maintenez votre doigt appuyé sur un onglet de liste pendant 500ms</li>
+                    <li>Un menu d'actions apparaît avec 3 options</li>
+                </ol>
+                <p><strong>Sur ordinateur :</strong></p>
+                <ol>
+                    <li>Faites un clic droit sur un onglet de liste</li>
+                    <li>Le menu d'actions apparaît</li>
+                </ol>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Action</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>✏️ Renommer</td>
+                                <td>Modifie le nom de la liste</td>
+                            </tr>
+                            <tr>
+                                <td>📋 Dupliquer</td>
+                                <td>Crée une copie complète de la liste avec tous ses articles</td>
+                            </tr>
+                            <tr>
+                                <td>🗑️ Supprimer</td>
+                                <td>Supprime définitivement la liste (nécessite confirmation)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ARTICLES -->
+                <h3 id="articles"><span class="emoji">📝</span> Gestion des articles</h3>
+
+                <h4>Ajouter un article</h4>
+                <p><strong>Méthode 1 : Saisie manuelle</strong></p>
+                <ol>
+                    <li>Tapez le nom de l'article dans le champ principal</li>
+                    <li>Appuyez sur <strong>Entrée</strong> ou cliquez sur <strong>Ajouter</strong></li>
+                    <li>L'article est automatiquement catégorisé</li>
+                </ol>
+
+                <p><strong>Méthode 2 : Depuis les suggestions</strong></p>
+                <p>Cliquez sur une des suggestions affichées sous le champ de saisie (basées sur votre historique)</p>
+
+                <p><strong>Méthode 3 : Depuis les favoris</strong></p>
+                <ol>
+                    <li>Cliquez sur l'icône <strong>⭐ Favoris</strong> en haut à droite</li>
+                    <li>Parcourez vos favoris groupés par catégorie</li>
+                    <li>Cliquez sur un article pour l'ajouter instantanément</li>
+                </ol>
+
+                <h4>Modifier un article</h4>
+                <ol class="step-list">
+                    <li>Cliquez sur le <strong>nom de l'article</strong> dans la liste</li>
+                    <li>Une fenêtre de modification s'ouvre</li>
+                    <li>Modifiez le nom, la quantité (ex: "2kg", "3 unités") ou la catégorie</li>
+                    <li>Cliquez sur <strong>Enregistrer</strong></li>
+                </ol>
+
+                <h4>Marquer comme favori</h4>
+                <ol>
+                    <li>Cliquez sur l'étoile <strong>★</strong> à droite de l'article</li>
+                    <li>L'étoile devient dorée <strong>⭐</strong></li>
+                    <li>L'article est ajouté à votre panneau de favoris</li>
+                </ol>
+
+                <div class="info-box">
+                    <strong>💡 Note :</strong> Le statut favori est synchronisé dans toutes les listes. Marquez un article favori une fois, retrouvez-le partout.
+                </div>
+
+                <!-- CATÉGORIES -->
+                <h3 id="categories"><span class="emoji">🏷️</span> Catégories</h3>
+
+                <h4>Catégories par défaut</h4>
+                <p>L'application reconnaît automatiquement 12 catégories :</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Catégorie</th>
+                                <th>Icône</th>
+                                <th>Exemples d'articles</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Fruits</td><td>🍎</td><td>pomme, banane, orange, fraise</td></tr>
+                            <tr><td>Légumes</td><td>🥬</td><td>tomate, salade, carotte, courgette</td></tr>
+                            <tr><td>Viandes</td><td>🥩</td><td>poulet, boeuf, porc, steak</td></tr>
+                            <tr><td>Poissons</td><td>🐟</td><td>saumon, thon, crevette, moules</td></tr>
+                            <tr><td>Produits laitiers</td><td>🥛</td><td>lait, yaourt, fromage, beurre, œufs</td></tr>
+                            <tr><td>Boulangerie</td><td>🥖</td><td>pain, baguette, croissant, brioche</td></tr>
+                            <tr><td>Épicerie</td><td>🛍️</td><td>riz, pâtes, farine, sucre, huile</td></tr>
+                            <tr><td>Surgelés</td><td>❄️</td><td>pizza, glace, frites</td></tr>
+                            <tr><td>Boissons</td><td>🥤</td><td>eau, jus, soda, vin</td></tr>
+                            <tr><td>Hygiène</td><td>🧴</td><td>savon, shampoing, dentifrice</td></tr>
+                            <tr><td>Entretien</td><td>🧽</td><td>lessive, liquide vaisselle</td></tr>
+                            <tr><td>Autre</td><td>📦</td><td>tout le reste</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>Replier/déplier une catégorie</h4>
+                <p>Cliquez sur l'en-tête de la catégorie pour la replier et économiser de l'espace. Le nombre d'articles est affiché, par exemple : <code>Fruits (4)</code></p>
+
+                <h4>Réorganiser les catégories</h4>
+                <p><strong>Sur ordinateur :</strong></p>
+                <ol>
+                    <li>Cliquez et maintenez sur l'icône <strong>☰</strong> à gauche du nom de catégorie</li>
+                    <li>Glissez la catégorie vers le haut ou le bas</li>
+                    <li>Relâchez pour valider le nouvel ordre</li>
+                </ol>
+
+                <p><strong>Sur mobile :</strong></p>
+                <ol>
+                    <li>Touchez et maintenez l'icône <strong>☰</strong></li>
+                    <li>Déplacez votre doigt vers le haut ou le bas</li>
+                    <li>Relâchez pour valider</li>
+                </ol>
+
+                <h4>Gérer les catégories personnalisées</h4>
+                <p><strong>Créer une nouvelle catégorie :</strong></p>
+                <ol class="step-list">
+                    <li>Ouvrez <strong>⚙️ Paramètres</strong></li>
+                    <li>Descendez jusqu'à la section <strong>Catégories</strong></li>
+                    <li>Cliquez sur <strong>➕ Ajouter</strong></li>
+                    <li>Entrez le nom et sélectionnez une icône</li>
+                    <li>Cliquez sur <strong>Enregistrer</strong></li>
+                </ol>
+
+                <!-- FAVORIS -->
+                <h3 id="favoris"><span class="emoji">⭐</span> Système de favoris</h3>
+
+                <h4>Utiliser le panneau de favoris</h4>
+                <ol class="step-list">
+                    <li>Cliquez sur <strong>⭐</strong> en haut à droite</li>
+                    <li>Vos favoris sont groupés par catégorie</li>
+                    <li>Cliquez sur une catégorie pour la déployer</li>
+                    <li>Cliquez sur un article pour l'ajouter à la liste active</li>
+                    <li>Un effet visuel confirme l'ajout</li>
+                </ol>
+
+                <div class="info-box">
+                    <strong>💡 Astuce :</strong> Vous pouvez ajouter plusieurs favoris sans fermer la fenêtre, très pratique pour remplir rapidement votre liste !
+                </div>
+
+                <!-- SUGGESTIONS -->
+                <h3 id="suggestions"><span class="emoji">🎯</span> Suggestions intelligentes</h3>
+
+                <p>L'application analyse votre historique d'utilisation et vous suggère les articles que vous achetez régulièrement.</p>
+
+                <div class="feature-box">
+                    <h4>Caractéristiques</h4>
+                    <ul>
+                        <li>Affichées sous le champ de saisie</li>
+                        <li>Maximum 5 suggestions</li>
+                        <li>Basées sur la fréquence d'utilisation</li>
+                        <li>N'affiche pas les articles déjà dans la liste active</li>
+                        <li>Mise à jour automatique à chaque ajout</li>
+                    </ul>
+                </div>
+
+                <!-- RECHERCHE -->
+                <h3 id="recherche"><span class="emoji">🔍</span> Recherche</h3>
+
+                <ol>
+                    <li>Utilisez le champ <strong>🔍 Rechercher un article...</strong> en haut</li>
+                    <li>Tapez n'importe quel mot</li>
+                    <li>La liste filtre automatiquement les résultats en temps réel</li>
+                    <li>La recherche porte sur le nom et la quantité des articles</li>
+                </ol>
+
+                <!-- PARTAGE -->
+                <h3 id="partage"><span class="emoji">📤</span> Partage et import de listes</h3>
+
+                <h4>Partager une liste</h4>
+                <ol class="step-list">
+                    <li>Ouvrez <strong>⚙️ Paramètres</strong></li>
+                    <li>Cliquez sur <strong>📤 Partager la liste</strong></li>
+                    <li>Un QR code et un code texte sont générés</li>
+                    <li>Partagez le QR code ou cliquez sur <strong>📋 Copier le code</strong></li>
+                    <li>Envoyez-le par message, email, etc.</li>
+                </ol>
+
+                <h4>Importer une liste</h4>
+                <ol class="step-list">
+                    <li>Ouvrez <strong>⚙️ Paramètres</strong></li>
+                    <li>Cliquez sur <strong>📥 Importer une liste</strong></li>
+                    <li>Collez le code de partage dans le champ</li>
+                    <li>Cliquez sur <strong>Importer</strong></li>
+                    <li>Choisissez le mode d'import</li>
+                </ol>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mode</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>🔄 Remplacer</td>
+                                <td>Supprime tous les articles de la liste actuelle et les remplace</td>
+                            </tr>
+                            <tr>
+                                <td>🔀 Fusionner</td>
+                                <td>Ajoute les articles importés sans créer de doublons</td>
+                            </tr>
+                            <tr>
+                                <td>➕ Nouvelle liste</td>
+                                <td>Crée une nouvelle liste avec les articles importés</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PARAMÈTRES -->
+                <h3 id="parametres"><span class="emoji">⚙️</span> Paramètres et personnalisation</h3>
+
+                <h4>Mode sombre</h4>
+                <p>Activez/désactivez le mode sombre pour réduire la fatigue oculaire et économiser la batterie sur écrans OLED.</p>
+                <p><strong>Accès :</strong> Paramètres > Mode sombre</p>
+
+                <h4>Masquer les articles cochés</h4>
+                <p>Cachez les articles déjà achetés pour vous concentrer uniquement sur ce qu'il reste à acheter.</p>
+                <p><strong>Accès :</strong> Paramètres > Masquer articles cochés</p>
+
+                <h4>Taille de police</h4>
+                <p>Ajustez la taille du texte de 80% à 150% selon vos préférences.</p>
+                <p><strong>Accès :</strong> Paramètres > Taille de police (boutons A- et A+)</p>
+
+                <h4>Réinitialisation</h4>
+                <div class="warning-box">
+                    <strong>⚠️ ATTENTION :</strong> Cette action supprime TOUTES vos données de manière irréversible :
+                    <ul>
+                        <li>Toutes vos listes de courses</li>
+                        <li>Tous vos articles</li>
+                        <li>Tous vos favoris</li>
+                        <li>Toutes vos catégories personnalisées</li>
+                        <li>Tous vos paramètres</li>
+                    </ul>
+                    <p>Deux confirmations sont demandées pour éviter les erreurs.</p>
+                </div>
+            </section>
+
+            <!-- ASTUCES -->
+            <section id="astuces" class="section">
+                <h2><span class="emoji">💡</span> Astuces et bonnes pratiques</h2>
+
+                <div class="feature-box">
+                    <h4>Organisation optimale</h4>
+                    <ul>
+                        <li><strong>Créez des listes thématiques :</strong> Courses hebdomadaires, Pharmacie, Bricolage, Liste de Noël...</li>
+                        <li><strong>Utilisez les favoris intelligemment :</strong> Ajoutez vos articles de base (pain, lait, œufs...). Gardez 15-20 favoris maximum.</li>
+                        <li><strong>Profitez de la catégorisation :</strong> Réorganisez les catégories pour correspondre au parcours dans votre magasin.</li>
+                    </ul>
+                </div>
+
+                <div class="feature-box">
+                    <h4>Productivité</h4>
+                    <ul>
+                        <li><strong>Workflow efficace :</strong>
+                            <ol>
+                                <li>Ouvrez l'app au début de la semaine</li>
+                                <li>Ajoutez vos articles depuis les favoris</li>
+                                <li>Complétez avec des articles ponctuels</li>
+                                <li>Cochez au fur et à mesure de vos achats</li>
+                                <li>Effacez les articles cochés en fin de courses</li>
+                            </ol>
+                        </li>
+                        <li><strong>Partage familial :</strong> Une personne crée la liste, la partage via QR code, les autres importent et fusionnent.</li>
+                    </ul>
+                </div>
+
+                <div class="feature-box">
+                    <h4>Utilisation hors ligne</h4>
+                    <p>L'application fonctionne 100% offline après installation :</p>
+                    <ul>
+                        <li>Aucune connexion Internet requise</li>
+                        <li>Toutes les fonctionnalités disponibles</li>
+                        <li>Données sauvegardées localement</li>
+                        <li>Idéal en magasin sans réseau</li>
+                    </ul>
+                </div>
+
+                <div class="warning-box">
+                    <h4>Sauvegarde de vos données</h4>
+                    <p><strong>Important :</strong> Vos données sont stockées uniquement sur votre appareil.</p>
+                    <p><strong>Pour sauvegarder manuellement :</strong></p>
+                    <ol>
+                        <li>Partagez chaque liste importante</li>
+                        <li>Copiez le code de partage</li>
+                        <li>Sauvegardez-le dans un fichier texte ou email</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- PROBLÈMES -->
+            <section id="problemes" class="section">
+                <h2><span class="emoji">🔧</span> Résolution de problèmes</h2>
+
+                <h3>L'application ne se charge pas</h3>
+                <p><strong>Solutions :</strong></p>
+                <ol>
+                    <li>Vérifiez que JavaScript est activé dans votre navigateur</li>
+                    <li>Essayez un autre navigateur (Chrome, Firefox, Safari)</li>
+                    <li>Videz le cache de votre navigateur</li>
+                    <li>Réinstallez l'application</li>
+                </ol>
+
+                <h3>Mes données ont disparu</h3>
+                <p><strong>Causes possibles :</strong></p>
+                <ul>
+                    <li>Navigation privée : les données sont effacées à la fermeture</li>
+                    <li>Nettoyage du cache/cookies</li>
+                    <li>Désinstallation de l'app</li>
+                </ul>
+                <p><strong>Solutions :</strong></p>
+                <ul>
+                    <li>Utilisez toujours le mode normal (pas privé)</li>
+                    <li>Sauvegardez régulièrement via les codes de partage</li>
+                    <li>Ne nettoyez pas les données du site</li>
+                </ul>
+
+                <h3>Le QR code ne se génère pas</h3>
+                <p><strong>Solutions :</strong></p>
+                <ol>
+                    <li>Vérifiez votre connexion Internet (requise au premier chargement)</li>
+                    <li>Rechargez la page</li>
+                    <li>Utilisez le code texte à la place (fonctionne toujours)</li>
+                </ol>
+
+                <h3>Je ne peux pas installer l'app sur mon téléphone</h3>
+                <p><strong>iOS :</strong></p>
+                <ul>
+                    <li>Utilisez obligatoirement Safari (pas Chrome)</li>
+                    <li>Assurez-vous d'être sur iOS 14 ou supérieur</li>
+                </ul>
+                <p><strong>Android :</strong></p>
+                <ul>
+                    <li>Utilisez Chrome ou un navigateur basé sur Chromium</li>
+                    <li>Certains navigateurs ne supportent pas les PWA</li>
+                </ul>
+
+                <h3>Je veux récupérer une liste supprimée</h3>
+                <div class="warning-box">
+                    <p><strong>Malheureusement :</strong></p>
+                    <ul>
+                        <li>La suppression est définitive</li>
+                        <li>Aucune corbeille ou historique</li>
+                        <li><strong>Solution :</strong> Sauvegardez régulièrement vos listes importantes via le partage</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="footer">
+                <p>Version du manuel : 1.0 | Dernière mise à jour : 2025-01-08</p>
+                <p>Application : Ma Liste de Courses v2.0</p>
+                <p>Fait avec ❤️ pour simplifier vos courses</p>
+                <p><a href="index.html">← Retour à l'application</a> | <a href="README.md">Documentation</a></p>
+            </div>
+        </main>
+    </div>
+
+    <button class="back-to-top" onclick="scrollToTop()" title="Retour en haut">↑</button>
+
+    <script>
+        // Thème sombre/clair
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('manualTheme', newTheme);
+
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = newTheme === 'dark' ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+        }
+
+        // Charger le thème sauvegardé
+        const savedTheme = localStorage.getItem('manualTheme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        const btn = document.querySelector('.theme-toggle');
+        btn.textContent = savedTheme === 'dark' ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+
+        // Bouton retour en haut
+        const backToTop = document.querySelector('.back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Smooth scroll pour les liens d'ancrage
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    const offsetTop = target.offsetTop - 100;
+                    window.scrollTo({
+                        top: offsetTop,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Highlight lien actif dans la table des matières
+        const sections = document.querySelectorAll('.section');
+        const navLinks = document.querySelectorAll('.toc a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.scrollY >= (sectionTop - 150)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.style.fontWeight = '';
+                link.style.color = '';
+                if (link.getAttribute('href') === '#' + current) {
+                    link.style.fontWeight = '600';
+                    link.style.color = 'var(--primary)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

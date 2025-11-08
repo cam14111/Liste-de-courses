@@ -74,13 +74,20 @@ Déployez simplement les 3 fichiers sur n'importe quel hébergeur :
 
 Compatible avec : GitHub Pages, Netlify, Vercel, Apache, Nginx, etc.
 
+## 📚 Documentation
+
+Pour une utilisation optimale de l'application, consultez :
+- **[📖 Manuel Utilisateur (HTML)](manuel.html)** - Guide interactif détaillé pour les utilisateurs
+- **[Manuel Utilisateur (MD)](MANUEL_UTILISATEUR.md)** - Version Markdown du guide
+- **[Documentation Technique](DOCUMENTATION_TECHNIQUE.md)** - Architecture et détails techniques pour développeurs
+
 ## 🎯 Utilisation
 
 ### Gérer les listes
 - **Créer** : Bouton ➕ en haut à droite
 - **Changer** : Cliquez sur les onglets en haut
-- **Dupliquer** : Appui long sur un onglet → Confirmer
-- **Supprimer** : Appui long sur un onglet → Annuler
+- **Dupliquer/Renommer** : Appui long sur un onglet (mobile) ou clic droit (desktop)
+- **Supprimer** : Appui long sur un onglet → Supprimer
 
 ### Gérer les articles
 - **Ajouter** : Tapez le nom et appuyez sur Entrer ou "Ajouter"
@@ -89,7 +96,7 @@ Compatible avec : GitHub Pages, Netlify, Vercel, Apache, Nginx, etc.
 - **Favoris** : Étoile ⭐ sur l'article
 - **Supprimer** :
   - Bouton 🗑️ sur l'article
-  - Ou swipe vers la gauche (mobile)
+  - Ou bouton "Effacer cochés" en bas
 
 ### Catégories disponibles
 - 🍎 Fruits
@@ -106,10 +113,23 @@ Compatible avec : GitHub Pages, Netlify, Vercel, Apache, Nginx, etc.
 - 📦 Autre
 
 ### Partager une liste
-1. Cliquez sur "📤 Partager"
-2. Un QR code est généré
-3. L'autre personne scanne le QR code
-4. Choix : Remplacer / Fusionner / Nouvelle liste
+1. Ouvrez Paramètres ⚙️
+2. Cliquez sur "📤 Partager la liste"
+3. Un QR code et un code texte sont générés
+4. Partagez le QR code ou copiez le code texte
+5. L'autre personne importe via Paramètres > 📥 Importer
+6. Choix : Remplacer / Fusionner / Nouvelle liste
+
+### Utiliser les favoris
+1. Cliquez sur ⭐ en haut à droite
+2. Parcourez vos articles favoris groupés par catégorie
+3. Cliquez sur un article pour l'ajouter instantanément à votre liste
+4. Ajoutez plusieurs favoris sans fermer la fenêtre
+
+### Réorganiser les catégories
+- **Desktop** : Cliquez-glissez la poignée ☰ à gauche du nom de catégorie
+- **Mobile** : Touchez et maintenez la poignée ☰, puis déplacez
+- L'ordre est sauvegardé automatiquement
 
 ## 🛠️ Technologies
 
@@ -152,6 +172,39 @@ Ce projet est libre d'utilisation.
 
 N'hésitez pas à suggérer des améliorations ou signaler des bugs !
 
+### Pour les développeurs
+
+Consultez la [Documentation Technique](DOCUMENTATION_TECHNIQUE.md) pour :
+- Architecture détaillée de l'application
+- Structure des données et API
+- Guide de contribution
+- Roadmap des fonctionnalités
+
+## 🔍 Détails techniques
+
+### Architecture
+- **Fichier unique** : Tout le code HTML, CSS et JavaScript dans [index.html](index.html)
+- **Taille** : ~85KB non compressé, ~20KB gzippé
+- **Service Worker** : Cache pour fonctionnement offline
+- **LocalStorage** : Stockage persistant local
+
+### Catégories intelligentes
+L'application reconnaît automatiquement ~150 mots-clés répartis dans 12 catégories et place chaque article dans la bonne catégorie.
+
+### Système de favoris
+Les favoris sont partagés entre toutes vos listes. Marquez un article favori une fois, retrouvez-le partout.
+
+### Confidentialité
+- ✅ Zéro tracking, zéro analytics
+- ✅ Données stockées uniquement sur votre appareil
+- ✅ Aucune connexion serveur (hors CDN QRCode.js)
+- ✅ Code source ouvert et auditable
+
 ---
 
 Fait avec ❤️ pour simplifier vos courses
+
+**Liens utiles :**
+- [📖 Manuel Utilisateur (HTML)](manuel.html) - Guide complet interactif
+- [📄 Manuel Utilisateur (MD)](MANUEL_UTILISATEUR.md) - Version Markdown
+- [🔧 Documentation Technique](DOCUMENTATION_TECHNIQUE.md) - Pour les développeurs

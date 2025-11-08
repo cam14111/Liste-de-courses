@@ -1105,6 +1105,60 @@
         </div>
     </div>
 
+    <!-- Modal Actions Liste -->
+    <div class="modal" id="listActionsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Actions sur la liste</h2>
+                <button class="close-btn" id="closeListActionsModal">×</button>
+            </div>
+            <div class="merge-options">
+                <div class="merge-option" id="renameListOption">
+                    <div class="merge-option-title">✏️ Renommer</div>
+                    <div class="merge-option-desc">Modifier le nom de la liste</div>
+                </div>
+                <div class="merge-option" id="duplicateListOption">
+                    <div class="merge-option-title">📋 Dupliquer</div>
+                    <div class="merge-option-desc">Créer une copie de la liste</div>
+                </div>
+                <div class="merge-option" id="deleteListOption">
+                    <div class="merge-option-title" style="color: var(--danger);">🗑️ Supprimer</div>
+                    <div class="merge-option-desc">Supprimer définitivement la liste</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Renommer Liste -->
+    <div class="modal" id="renameListModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Renommer la liste</h2>
+                <button class="close-btn" id="closeRenameListModal">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nouveau nom</label>
+                <input type="text" class="form-input" id="renameListInput" placeholder="Entrez le nouveau nom...">
+            </div>
+            <button class="btn-primary" id="confirmRenameBtn">Renommer</button>
+        </div>
+    </div>
+
+    <!-- Modal Dupliquer Liste -->
+    <div class="modal" id="duplicateListModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Dupliquer la liste</h2>
+                <button class="close-btn" id="closeDuplicateListModal">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nom de la nouvelle liste</label>
+                <input type="text" class="form-input" id="duplicateListInput" placeholder="Entrez le nom...">
+            </div>
+            <button class="btn-primary" id="confirmDuplicateBtn">Dupliquer</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
         // ==================== CONSTANTES ====================
@@ -1412,8 +1466,28 @@
 
             // Event listeners
             container.querySelectorAll('.list-tab').forEach(tab => {
+                let longPressTimer = null;
+                let longPressTriggered = false;
+
+                // Gestion de l'appui long pour les appareils tactiles
+                tab.addEventListener('touchstart', (e) => {
+                    longPressTriggered = false;
+                    longPressTimer = setTimeout(() => {
+                        longPressTriggered = true;
+                        handleListContextMenu(e, tab.dataset.list);
+                    }, 500); // 500ms pour déclencher l'appui long
+                });
+
+                tab.addEventListener('touchend', () => {
+                    clearTimeout(longPressTimer);
+                });
+
+                tab.addEventListener('touchmove', () => {
+                    clearTimeout(longPressTimer);
+                });
+
                 tab.addEventListener('click', (e) => {
-                    if (!e.defaultPrevented) {
+                    if (!e.defaultPrevented && !longPressTriggered) {
                         state.currentList = tab.dataset.list;
                         renderListTabs();
                         renderItems();
@@ -1423,12 +1497,44 @@
             });
         }
 
+        let currentActionListId = null;
+
         function handleListContextMenu(event, listId) {
             event.preventDefault();
-            const action = confirm('Dupliquer cette liste ? (Annuler pour supprimer)');
-            if (action) {
-                duplicateList(listId);
-            } else {
+            currentActionListId = listId;
+            openModal('listActionsModal');
+        }
+
+        function renameList(listId, newName) {
+            if (!newName || !newName.trim()) {
+                alert('Veuillez entrer un nom pour la liste');
+                return;
+            }
+            state.lists[listId].name = newName.trim();
+            saveToLocalStorage();
+            renderListTabs();
+        }
+
+        function duplicateListWithName(listId, newName) {
+            const list = state.lists[listId];
+            const newId = generateId();
+            const listName = newName && newName.trim() ? newName.trim() : list.name + ' (copie)';
+            state.lists[newId] = {
+                name: listName,
+                items: JSON.parse(JSON.stringify(list.items))
+            };
+            state.currentList = newId;
+            saveToLocalStorage();
+            renderListTabs();
+            renderItems();
+        }
+
+        function confirmDeleteList(listId) {
+            if (Object.keys(state.lists).length === 1) {
+                alert('Vous devez avoir au moins une liste');
+                return;
+            }
+            if (confirm('Êtes-vous sûr de vouloir supprimer cette liste ?')) {
                 deleteList(listId);
             }
         }
@@ -2387,6 +2493,64 @@
         document.getElementById('closeImportModal').addEventListener('click', () => closeModal('importModal'));
         document.getElementById('closeImportManualModal').addEventListener('click', () => closeModal('importManualModal'));
         document.getElementById('closeCategoryModal').addEventListener('click', () => closeModal('categoryModal'));
+        document.getElementById('closeListActionsModal').addEventListener('click', () => closeModal('listActionsModal'));
+        document.getElementById('closeRenameListModal').addEventListener('click', () => closeModal('renameListModal'));
+        document.getElementById('closeDuplicateListModal').addEventListener('click', () => closeModal('duplicateListModal'));
+
+        // Gestionnaires pour les actions de liste
+        document.getElementById('renameListOption').addEventListener('click', () => {
+            closeModal('listActionsModal');
+            const currentList = state.lists[currentActionListId];
+            const input = document.getElementById('renameListInput');
+            input.value = currentList.name;
+            openModal('renameListModal');
+            setTimeout(() => {
+                input.focus();
+                input.select();
+            }, 100);
+        });
+
+        document.getElementById('duplicateListOption').addEventListener('click', () => {
+            closeModal('listActionsModal');
+            const currentList = state.lists[currentActionListId];
+            const input = document.getElementById('duplicateListInput');
+            input.value = currentList.name + ' (copie)';
+            openModal('duplicateListModal');
+            setTimeout(() => {
+                input.focus();
+                input.select();
+            }, 100);
+        });
+
+        document.getElementById('deleteListOption').addEventListener('click', () => {
+            closeModal('listActionsModal');
+            confirmDeleteList(currentActionListId);
+        });
+
+        document.getElementById('confirmRenameBtn').addEventListener('click', () => {
+            const newName = document.getElementById('renameListInput').value;
+            renameList(currentActionListId, newName);
+            closeModal('renameListModal');
+        });
+
+        document.getElementById('confirmDuplicateBtn').addEventListener('click', () => {
+            const newName = document.getElementById('duplicateListInput').value;
+            duplicateListWithName(currentActionListId, newName);
+            closeModal('duplicateListModal');
+        });
+
+        // Gestion de la touche Entrée pour les champs de saisie
+        document.getElementById('renameListInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('confirmRenameBtn').click();
+            }
+        });
+
+        document.getElementById('duplicateListInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('confirmDuplicateBtn').click();
+            }
+        });
 
         document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
         document.getElementById('saveCategoryBtn').addEventListener('click', saveCategory);
