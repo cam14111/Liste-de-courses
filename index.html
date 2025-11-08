@@ -1515,7 +1515,7 @@
                 const categoryData = CATEGORIES[category];
                 const isCollapsed = state.collapsedCategories[category];
                 return `
-                    <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="true">
+                    <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="false">
                         <div class="category-header" style="border-color: ${categoryData.color};" onclick="handleCategoryHeaderClick(event, '${category}')">
                             <span class="category-drag-handle" title="Réorganiser">☰</span>
                             <span class="category-icon">${categoryData.icon}</span>
@@ -1570,13 +1570,7 @@
 
             categories.forEach(category => {
                 category.addEventListener('dragstart', (e) => {
-                    // Vérifier si le drag a commencé sur la poignée
-                    if (!e.target.classList.contains('category-drag-handle') &&
-                        !e.target.closest('.category-drag-handle')) {
-                        e.preventDefault();
-                        return;
-                    }
-
+                    // Le filtrage est déjà fait par mousedown qui gère draggable
                     draggedElement = category;
                     draggedCategory = category.dataset.category;
                     category.classList.add('dragging');
@@ -1586,6 +1580,7 @@
                 category.addEventListener('dragend', () => {
                     if (draggedElement) {
                         draggedElement.classList.remove('dragging');
+                        draggedElement.draggable = false; // Réinitialiser après le drag
                         draggedElement = null;
                         draggedCategory = null;
                     }
