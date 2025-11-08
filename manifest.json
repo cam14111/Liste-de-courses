@@ -2,7 +2,7 @@
   "name": "Ma Liste de Courses",
   "short_name": "Courses",
   "description": "Application de liste de courses optimisée pour mobile avec stockage local",
-  "start_url": "/",
+  "start_url": "/Liste-de-courses/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4CAF50",
