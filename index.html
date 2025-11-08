@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="description" content="Application de liste de courses optimisée pour mobile">
+    <title>Ma Liste de Courses</title>
+    <link rel="manifest" href="manifest.json">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --danger: #f44336;
+            --warning: #ff9800;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f5f5f5;
+            --text-primary: #212121;
+            --text-secondary: #757575;
+            --border-color: #e0e0e0;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --font-size-base: 16px;
+
+            /* Catégories couleurs */
+            --cat-fruits: #FF6B6B;
+            --cat-legumes: #4ECDC4;
+            --cat-viandes: #E63946;
+            --cat-poissons: #457B9D;
+            --cat-laitiers: #F1FAEE;
+            --cat-epicerie: #E9C46A;
+            --cat-surgeles: #A8DADC;
+            --cat-boissons: #06D6A0;
+            --cat-hygiene: #B8B8D1;
+            --cat-entretien: #8338EC;
+            --cat-boulangerie: #D4A574;
+            --cat-autre: #95A5A6;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #404040;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: var(--font-size-base);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 4px var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .icon-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .list-selector {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+            scrollbar-width: none;
+        }
+
+        .list-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .list-tab {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .list-tab.active {
+            background: white;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .search-container {
+            background: var(--bg-primary);
+            padding: 1rem;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .add-item-container {
+            background: var(--bg-primary);
+            padding: 1rem;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .add-item-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .add-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .add-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            min-width: 80px;
+        }
+
+        .add-btn:active {
+            background: var(--primary-dark);
+        }
+
+        .suggestions {
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            padding: 0.5rem 0;
+            scrollbar-width: none;
+        }
+
+        .suggestions::-webkit-scrollbar {
+            display: none;
+        }
+
+        .suggestion-chip {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 16px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 80px;
+        }
+
+        .category-section {
+            background: var(--bg-primary);
+            margin: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .category-header {
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .category-icon {
+            font-size: 1.2rem;
+        }
+
+        .category-count {
+            margin-left: auto;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .items-list {
+            list-style: none;
+        }
+
+        .item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            background: var(--bg-primary);
+            transition: transform 0.2s, background 0.2s;
+            touch-action: pan-y;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item.checked {
+            opacity: 0.6;
+        }
+
+        .item.checked .item-text {
+            text-decoration: line-through;
+        }
+
+        .item.swiping {
+            transition: none;
+        }
+
+        .item-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .item.checked .item-checkbox {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .item-checkbox::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .item.checked .item-checkbox::after {
+            opacity: 1;
+        }
+
+        .item-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .item-text {
+            font-size: 1rem;
+            word-wrap: break-word;
+        }
+
+        .item-quantity {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 0.2rem;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .item-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            padding: 0.25rem;
+            transition: color 0.2s;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .item-btn:active {
+            color: var(--text-primary);
+        }
+
+        .favorite-btn.active {
+            color: #FFD700;
+        }
+
+        .delete-background {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: var(--danger);
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            font-weight: 600;
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-primary);
+            padding: 1rem;
+            box-shadow: 0 -2px 8px var(--shadow);
+            display: flex;
+            gap: 0.5rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .bottom-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-clear {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-clear:active {
+            background: #d32f2f;
+        }
+
+        .btn-share {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-share:active {
+            background: #f57c00;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .close-btn {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:active {
+            background: var(--primary-dark);
+        }
+
+        .favorites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .favorite-item {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .favorite-item:active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .favorite-icon {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .favorite-name {
+            font-size: 0.85rem;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .qr-code {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .settings-option {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-option:last-child {
+            border-bottom: none;
+        }
+
+        .font-size-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .font-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .toggle-switch.active {
+            background: var(--primary);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(22px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 1.1rem;
+        }
+
+        .merge-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .merge-option {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .merge-option:active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .merge-option-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .merge-option-desc {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.2rem;
+            }
+
+            .icon-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-top">
+            <h1>🛒 Mes Courses</h1>
+            <div class="header-actions">
+                <button class="icon-btn" id="favoritesBtn" title="Favoris">⭐</button>
+                <button class="icon-btn" id="settingsBtn" title="Paramètres">⚙️</button>
+                <button class="icon-btn" id="newListBtn" title="Nouvelle liste">➕</button>
+            </div>
+        </div>
+        <div class="list-selector" id="listSelector"></div>
+    </div>
+
+    <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Rechercher un article...">
+    </div>
+
+    <div class="add-item-container">
+        <form class="add-item-form" id="addItemForm">
+            <input type="text" class="add-input" id="itemInput" placeholder="Ajouter un article..." autocomplete="off">
+            <button type="submit" class="add-btn">Ajouter</button>
+        </form>
+        <div class="suggestions" id="suggestions"></div>
+    </div>
+
+    <div class="container" id="container"></div>
+
+    <div class="bottom-bar">
+        <button class="bottom-btn btn-clear" id="clearCheckedBtn">
+            🗑️ Effacer cochés
+        </button>
+        <button class="bottom-btn btn-share" id="shareBtn">
+            📤 Partager
+        </button>
+    </div>
+
+    <!-- Modal Édition Article -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Modifier l'article</h2>
+                <button class="close-btn" id="closeEditModal">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nom</label>
+                <input type="text" class="form-input" id="editItemName">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Quantité</label>
+                <input type="text" class="form-input" id="editItemQuantity" placeholder="Ex: 2kg, 3 unités...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Catégorie</label>
+                <select class="form-select" id="editItemCategory"></select>
+            </div>
+            <button class="btn-primary" id="saveEditBtn">Enregistrer</button>
+        </div>
+    </div>
+
+    <!-- Modal Favoris -->
+    <div class="modal" id="favoritesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Articles favoris</h2>
+                <button class="close-btn" id="closeFavoritesModal">×</button>
+            </div>
+            <div class="favorites-grid" id="favoritesGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal Paramètres -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Paramètres</h2>
+                <button class="close-btn" id="closeSettingsModal">×</button>
+            </div>
+            <div class="settings-option">
+                <span>Mode sombre</span>
+                <div class="toggle-switch" id="themeToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <div class="settings-option">
+                <span>Retour haptique</span>
+                <div class="toggle-switch active" id="hapticToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <div class="settings-option">
+                <span>Taille de police</span>
+                <div class="font-size-controls">
+                    <button class="font-btn" id="decreaseFontBtn">A-</button>
+                    <span id="fontSizeLabel">100%</span>
+                    <button class="font-btn" id="increaseFontBtn">A+</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nouvelle Liste -->
+    <div class="modal" id="newListModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Nouvelle liste</h2>
+                <button class="close-btn" id="closeNewListModal">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Nom de la liste</label>
+                <input type="text" class="form-input" id="newListName" placeholder="Ex: Pharmacie, Bricolage...">
+            </div>
+            <button class="btn-primary" id="createListBtn">Créer</button>
+        </div>
+    </div>
+
+    <!-- Modal Partage -->
+    <div class="modal" id="shareModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Partager la liste</h2>
+                <button class="close-btn" id="closeShareModal">×</button>
+            </div>
+            <div class="qr-container">
+                <div id="qrcode"></div>
+                <p style="margin-top: 1rem; color: var(--text-secondary);">
+                    Scannez ce QR code pour partager votre liste
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Import/Fusion -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importer une liste</h2>
+                <button class="close-btn" id="closeImportModal">×</button>
+            </div>
+            <p style="margin-bottom: 1rem;">
+                Une liste a été détectée. Comment souhaitez-vous l'importer ?
+            </p>
+            <div class="merge-options">
+                <div class="merge-option" data-action="replace">
+                    <div class="merge-option-title">🔄 Remplacer</div>
+                    <div class="merge-option-desc">Remplace la liste actuelle</div>
+                </div>
+                <div class="merge-option" data-action="merge">
+                    <div class="merge-option-title">🔀 Fusionner</div>
+                    <div class="merge-option-desc">Ajoute les articles sans doublon</div>
+                </div>
+                <div class="merge-option" data-action="new">
+                    <div class="merge-option-title">➕ Nouvelle liste</div>
+                    <div class="merge-option-desc">Crée une nouvelle liste</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        // ==================== CONSTANTES ====================
+        const CATEGORIES = {
+            'fruits': { icon: '🍎', color: 'var(--cat-fruits)', keywords: ['pomme', 'banane', 'orange', 'poire', 'fraise', 'raisin', 'kiwi', 'mangue', 'ananas', 'melon', 'pastèque', 'citron', 'pamplemousse', 'abricot', 'pêche', 'prune', 'cerise', 'framboise', 'myrtille'] },
+            'legumes': { icon: '🥬', color: 'var(--cat-legumes)', keywords: ['tomate', 'salade', 'carotte', 'courgette', 'poivron', 'oignon', 'ail', 'pomme de terre', 'haricot', 'petit pois', 'brocoli', 'chou', 'aubergine', 'concombre', 'radis', 'navet', 'poireau', 'épinard', 'champignon'] },
+            'viandes': { icon: '🥩', color: 'var(--cat-viandes)', keywords: ['poulet', 'boeuf', 'porc', 'agneau', 'veau', 'dinde', 'canard', 'steak', 'côtelette', 'rôti', 'escalope', 'saucisse', 'jambon', 'bacon', 'merguez'] },
+            'poissons': { icon: '🐟', color: 'var(--cat-poissons)', keywords: ['saumon', 'thon', 'cabillaud', 'dorade', 'truite', 'sardine', 'crevette', 'moule', 'huître', 'crabe', 'homard', 'calamar', 'poisson'] },
+            'laitiers': { icon: '🥛', color: 'var(--cat-laitiers)', keywords: ['lait', 'yaourt', 'fromage', 'beurre', 'crème', 'œuf', 'emmental', 'gruyère', 'camembert', 'chèvre', 'mozzarella', 'parmesan', 'roquefort'] },
+            'epicerie': { icon: '🛍️', color: 'var(--cat-epicerie)', keywords: ['riz', 'pâtes', 'farine', 'sucre', 'sel', 'poivre', 'huile', 'vinaigre', 'conserve', 'sauce', 'céréales', 'café', 'thé', 'chocolat', 'confiture', 'miel', 'biscuit'] },
+            'surgeles': { icon: '❄️', color: 'var(--cat-surgeles)', keywords: ['surgelé', 'glace', 'pizza', 'frite', 'poisson pané', 'légume surgelé'] },
+            'boissons': { icon: '🥤', color: 'var(--cat-boissons)', keywords: ['eau', 'jus', 'soda', 'vin', 'bière', 'coca', 'limonade', 'sirop'] },
+            'boulangerie': { icon: '🥖', color: 'var(--cat-boulangerie)', keywords: ['pain', 'baguette', 'croissant', 'brioche', 'gâteau', 'tarte', 'viennoiserie'] },
+            'hygiene': { icon: '🧴', color: 'var(--cat-hygiene)', keywords: ['savon', 'shampoing', 'dentifrice', 'brosse à dents', 'déodorant', 'gel douche', 'crème', 'papier toilette', 'mouchoir', 'coton'] },
+            'entretien': { icon: '🧽', color: 'var(--cat-entretien)', keywords: ['lessive', 'liquide vaisselle', 'éponge', 'nettoyant', 'javel', 'produit ménage', 'serpillière', 'balai'] },
+            'autre': { icon: '📦', color: 'var(--cat-autre)', keywords: [] }
+        };
+
+        const COMMON_ITEMS = [
+            { name: 'Pain', icon: '🥖', category: 'boulangerie' },
+            { name: 'Lait', icon: '🥛', category: 'laitiers' },
+            { name: 'Œufs', icon: '🥚', category: 'laitiers' },
+            { name: 'Eau', icon: '💧', category: 'boissons' },
+            { name: 'Pommes', icon: '🍎', category: 'fruits' },
+            { name: 'Bananes', icon: '🍌', category: 'fruits' },
+            { name: 'Tomates', icon: '🍅', category: 'legumes' },
+            { name: 'Pâtes', icon: '🍝', category: 'epicerie' },
+            { name: 'Riz', icon: '🍚', category: 'epicerie' },
+            { name: 'Poulet', icon: '🍗', category: 'viandes' },
+            { name: 'Fromage', icon: '🧀', category: 'laitiers' },
+            { name: 'Yaourt', icon: '🥛', category: 'laitiers' }
+        ];
+
+        // ==================== STATE ====================
+        let state = {
+            lists: {},
+            currentList: 'courses',
+            settings: {
+                theme: 'light',
+                haptic: true,
+                fontSize: 100
+            },
+            history: {},
+            importData: null
+        };
+
+        // ==================== UTILS ====================
+        function hapticFeedback() {
+            if (state.settings.haptic && navigator.vibrate) {
+                navigator.vibrate(10);
+            }
+        }
+
+        function getCategory(itemName) {
+            const name = itemName.toLowerCase();
+            for (const [category, data] of Object.entries(CATEGORIES)) {
+                if (data.keywords.some(keyword => name.includes(keyword))) {
+                    return category;
+                }
+            }
+            return 'autre';
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('shoppingListApp', JSON.stringify(state));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('shoppingListApp');
+            if (saved) {
+                state = JSON.parse(saved);
+            } else {
+                state.lists['courses'] = { name: 'Courses', items: [] };
+            }
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        // ==================== GESTION DES LISTES ====================
+        function createList(name) {
+            const id = generateId();
+            state.lists[id] = { name, items: [] };
+            state.currentList = id;
+            saveToLocalStorage();
+            renderListTabs();
+            renderItems();
+        }
+
+        function deleteList(listId) {
+            if (Object.keys(state.lists).length === 1) {
+                alert('Vous devez avoir au moins une liste');
+                return;
+            }
+            if (confirm('Supprimer cette liste ?')) {
+                delete state.lists[listId];
+                state.currentList = Object.keys(state.lists)[0];
+                saveToLocalStorage();
+                renderListTabs();
+                renderItems();
+            }
+        }
+
+        function duplicateList(listId) {
+            const list = state.lists[listId];
+            const newId = generateId();
+            state.lists[newId] = {
+                name: list.name + ' (copie)',
+                items: JSON.parse(JSON.stringify(list.items))
+            };
+            state.currentList = newId;
+            saveToLocalStorage();
+            renderListTabs();
+            renderItems();
+        }
+
+        function renderListTabs() {
+            const container = document.getElementById('listSelector');
+            container.innerHTML = Object.entries(state.lists).map(([id, list]) => {
+                const itemCount = list.items.length;
+                const checkedCount = list.items.filter(i => i.checked).length;
+                return `
+                    <button class="list-tab ${id === state.currentList ? 'active' : ''}"
+                            data-list="${id}"
+                            oncontextmenu="handleListContextMenu(event, '${id}')">
+                        ${list.name} ${itemCount > 0 ? `(${checkedCount}/${itemCount})` : ''}
+                    </button>
+                `;
+            }).join('');
+
+            // Event listeners
+            container.querySelectorAll('.list-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    if (!e.defaultPrevented) {
+                        state.currentList = tab.dataset.list;
+                        renderListTabs();
+                        renderItems();
+                        renderSuggestions();
+                    }
+                });
+            });
+        }
+
+        function handleListContextMenu(event, listId) {
+            event.preventDefault();
+            const action = confirm('Dupliquer cette liste ? (Annuler pour supprimer)');
+            if (action) {
+                duplicateList(listId);
+            } else {
+                deleteList(listId);
+            }
+        }
+
+        // ==================== GESTION DES ARTICLES ====================
+        function addItem(name, quantity = '', category = null) {
+            const list = state.lists[state.currentList];
+            const item = {
+                id: generateId(),
+                name: name.trim(),
+                quantity,
+                category: category || getCategory(name),
+                checked: false,
+                favorite: false,
+                addedAt: Date.now()
+            };
+            list.items.push(item);
+
+            // Historique
+            if (!state.history[name.toLowerCase()]) {
+                state.history[name.toLowerCase()] = 0;
+            }
+            state.history[name.toLowerCase()]++;
+
+            saveToLocalStorage();
+            renderItems();
+            renderSuggestions();
+            hapticFeedback();
+        }
+
+        function deleteItem(itemId) {
+            const list = state.lists[state.currentList];
+            list.items = list.items.filter(item => item.id !== itemId);
+            saveToLocalStorage();
+            renderItems();
+            hapticFeedback();
+        }
+
+        function toggleItem(itemId) {
+            const list = state.lists[state.currentList];
+            const item = list.items.find(i => i.id === itemId);
+            if (item) {
+                item.checked = !item.checked;
+                saveToLocalStorage();
+                renderItems();
+                hapticFeedback();
+            }
+        }
+
+        function toggleFavorite(itemId) {
+            const list = state.lists[state.currentList];
+            const item = list.items.find(i => i.id === itemId);
+            if (item) {
+                item.favorite = !item.favorite;
+                saveToLocalStorage();
+                renderItems();
+                renderFavorites();
+                hapticFeedback();
+            }
+        }
+
+        function editItem(itemId, name, quantity, category) {
+            const list = state.lists[state.currentList];
+            const item = list.items.find(i => i.id === itemId);
+            if (item) {
+                item.name = name;
+                item.quantity = quantity;
+                item.category = category;
+                saveToLocalStorage();
+                renderItems();
+            }
+        }
+
+        function clearCheckedItems() {
+            const list = state.lists[state.currentList];
+            const checkedCount = list.items.filter(i => i.checked).length;
+            if (checkedCount === 0) {
+                alert('Aucun article coché');
+                return;
+            }
+            if (confirm(`Supprimer ${checkedCount} article(s) coché(s) ?`)) {
+                list.items = list.items.filter(item => !item.checked);
+                saveToLocalStorage();
+                renderItems();
+                hapticFeedback();
+            }
+        }
+
+        // ==================== RENDU ====================
+        function renderItems() {
+            const list = state.lists[state.currentList];
+            const container = document.getElementById('container');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            let items = list.items;
+            if (searchTerm) {
+                items = items.filter(item =>
+                    item.name.toLowerCase().includes(searchTerm) ||
+                    item.quantity.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            // Grouper par catégorie
+            const grouped = {};
+            items.forEach(item => {
+                if (!grouped[item.category]) {
+                    grouped[item.category] = [];
+                }
+                grouped[item.category].push(item);
+            });
+
+            // Tri: non cochés d'abord
+            Object.keys(grouped).forEach(cat => {
+                grouped[cat].sort((a, b) => {
+                    if (a.checked === b.checked) return 0;
+                    return a.checked ? 1 : -1;
+                });
+            });
+
+            if (items.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">🛒</div>
+                        <div class="empty-text">
+                            ${searchTerm ? 'Aucun résultat' : 'Votre liste est vide'}
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = Object.entries(grouped).map(([category, items]) => {
+                const categoryData = CATEGORIES[category];
+                return `
+                    <div class="category-section">
+                        <div class="category-header" style="border-color: ${categoryData.color}">
+                            <span class="category-icon">${categoryData.icon}</span>
+                            <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+                            <span class="category-count">${items.length}</span>
+                        </div>
+                        <ul class="items-list">
+                            ${items.map(item => `
+                                <li class="item ${item.checked ? 'checked' : ''}"
+                                    data-id="${item.id}"
+                                    ontouchstart="handleTouchStart(event, '${item.id}')"
+                                    ontouchmove="handleTouchMove(event, '${item.id}')"
+                                    ontouchend="handleTouchEnd(event, '${item.id}')">
+                                    <div class="delete-background">Supprimer</div>
+                                    <div class="item-checkbox" onclick="toggleItem('${item.id}')"></div>
+                                    <div class="item-content" onclick="openEditModal('${item.id}')">
+                                        <div class="item-text">${item.name}</div>
+                                        ${item.quantity ? `<div class="item-quantity">${item.quantity}</div>` : ''}
+                                    </div>
+                                    <div class="item-actions">
+                                        <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}"
+                                                onclick="toggleFavorite('${item.id}')">⭐</button>
+                                        <button class="item-btn" onclick="deleteItem('${item.id}')">🗑️</button>
+                                    </div>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSuggestions() {
+            const container = document.getElementById('suggestions');
+
+            // Suggestions basées sur l'historique
+            const suggestions = Object.entries(state.history)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10)
+                .map(([name]) => name);
+
+            // Vérifier que l'article n'est pas déjà dans la liste
+            const list = state.lists[state.currentList];
+            const existingNames = list.items.map(i => i.name.toLowerCase());
+            const filtered = suggestions.filter(s => !existingNames.includes(s));
+
+            container.innerHTML = filtered.slice(0, 5).map(name =>
+                `<button class="suggestion-chip" onclick="addItemFromSuggestion('${name}')">${name}</button>`
+            ).join('');
+        }
+
+        function addItemFromSuggestion(name) {
+            addItem(name);
+            document.getElementById('itemInput').value = '';
+        }
+
+        function renderFavorites() {
+            const grid = document.getElementById('favoritesGrid');
+            const allFavorites = [];
+
+            Object.values(state.lists).forEach(list => {
+                list.items.forEach(item => {
+                    if (item.favorite) {
+                        const existing = allFavorites.find(f => f.name.toLowerCase() === item.name.toLowerCase());
+                        if (!existing) {
+                            allFavorites.push(item);
+                        }
+                    }
+                });
+            });
+
+            if (allFavorites.length === 0) {
+                grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucun favori pour le moment</p>';
+                return;
+            }
+
+            grid.innerHTML = allFavorites.map(item => {
+                const categoryData = CATEGORIES[item.category];
+                return `
+                    <div class="favorite-item" onclick="addItemFromFavorite('${item.name}', '${item.category}')">
+                        <div class="favorite-icon">${categoryData.icon}</div>
+                        <div class="favorite-name">${item.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addItemFromFavorite(name, category) {
+            addItem(name, '', category);
+            closeModal('favoritesModal');
+        }
+
+        // ==================== SWIPE GESTURES ====================
+        let touchStartX = 0;
+        let touchCurrentX = 0;
+        let isSwiping = false;
+        let swipingItemId = null;
+
+        function handleTouchStart(event, itemId) {
+            touchStartX = event.touches[0].clientX;
+            swipingItemId = itemId;
+        }
+
+        function handleTouchMove(event, itemId) {
+            if (swipingItemId !== itemId) return;
+
+            touchCurrentX = event.touches[0].clientX;
+            const diff = touchStartX - touchCurrentX;
+
+            if (diff > 10) {
+                isSwiping = true;
+                const item = document.querySelector(`[data-id="${itemId}"]`);
+                item.classList.add('swiping');
+                item.style.transform = `translateX(-${Math.min(diff, 100)}px)`;
+            }
+        }
+
+        function handleTouchEnd(event, itemId) {
+            if (swipingItemId !== itemId) return;
+
+            const diff = touchStartX - touchCurrentX;
+            const item = document.querySelector(`[data-id="${itemId}"]`);
+
+            if (diff > 100) {
+                deleteItem(itemId);
+            } else {
+                item.style.transform = '';
+                item.classList.remove('swiping');
+            }
+
+            isSwiping = false;
+            swipingItemId = null;
+        }
+
+        // ==================== MODALS ====================
+        let currentEditingId = null;
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function openEditModal(itemId) {
+            const list = state.lists[state.currentList];
+            const item = list.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            currentEditingId = itemId;
+            document.getElementById('editItemName').value = item.name;
+            document.getElementById('editItemQuantity').value = item.quantity;
+
+            const categorySelect = document.getElementById('editItemCategory');
+            categorySelect.innerHTML = Object.keys(CATEGORIES).map(cat => {
+                const data = CATEGORIES[cat];
+                return `<option value="${cat}" ${cat === item.category ? 'selected' : ''}>
+                    ${data.icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}
+                </option>`;
+            }).join('');
+
+            openModal('editModal');
+        }
+
+        function saveEdit() {
+            const name = document.getElementById('editItemName').value.trim();
+            const quantity = document.getElementById('editItemQuantity').value.trim();
+            const category = document.getElementById('editItemCategory').value;
+
+            if (name) {
+                editItem(currentEditingId, name, quantity, category);
+                closeModal('editModal');
+            }
+        }
+
+        // ==================== PARTAGE / QR CODE ====================
+        function generateQRCode() {
+            const list = state.lists[state.currentList];
+            const data = {
+                name: list.name,
+                items: list.items,
+                timestamp: Date.now()
+            };
+
+            const encoded = btoa(JSON.stringify(data));
+            const url = `${window.location.origin}${window.location.pathname}?import=${encoded}`;
+
+            document.getElementById('qrcode').innerHTML = '';
+            new QRCode(document.getElementById('qrcode'), {
+                text: url,
+                width: 256,
+                height: 256
+            });
+
+            openModal('shareModal');
+        }
+
+        function checkImportUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const importData = params.get('import');
+
+            if (importData) {
+                try {
+                    const decoded = JSON.parse(atob(importData));
+                    state.importData = decoded;
+                    openModal('importModal');
+
+                    // Nettoyer l'URL
+                    window.history.replaceState({}, '', window.location.pathname);
+                } catch (e) {
+                    console.error('Erreur import:', e);
+                }
+            }
+        }
+
+        function handleImport(action) {
+            if (!state.importData) return;
+
+            const list = state.lists[state.currentList];
+
+            if (action === 'replace') {
+                list.items = state.importData.items;
+            } else if (action === 'merge') {
+                const existingNames = list.items.map(i => i.name.toLowerCase());
+                state.importData.items.forEach(item => {
+                    if (!existingNames.includes(item.name.toLowerCase())) {
+                        item.id = generateId();
+                        list.items.push(item);
+                    }
+                });
+            } else if (action === 'new') {
+                createList(state.importData.name);
+                state.lists[state.currentList].items = state.importData.items;
+            }
+
+            state.importData = null;
+            saveToLocalStorage();
+            renderListTabs();
+            renderItems();
+            closeModal('importModal');
+        }
+
+        // ==================== PARAMÈTRES ====================
+        function toggleTheme() {
+            state.settings.theme = state.settings.theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', state.settings.theme);
+            document.getElementById('themeToggle').classList.toggle('active');
+            saveToLocalStorage();
+        }
+
+        function toggleHaptic() {
+            state.settings.haptic = !state.settings.haptic;
+            document.getElementById('hapticToggle').classList.toggle('active');
+            saveToLocalStorage();
+        }
+
+        function adjustFontSize(delta) {
+            state.settings.fontSize = Math.max(80, Math.min(150, state.settings.fontSize + delta));
+            document.documentElement.style.setProperty('--font-size-base', `${state.settings.fontSize}%`);
+            document.getElementById('fontSizeLabel').textContent = `${state.settings.fontSize}%`;
+            saveToLocalStorage();
+        }
+
+        // ==================== EVENT LISTENERS ====================
+        document.getElementById('addItemForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('itemInput');
+            const value = input.value.trim();
+            if (value) {
+                addItem(value);
+                input.value = '';
+            }
+        });
+
+        document.getElementById('searchInput').addEventListener('input', renderItems);
+
+        document.getElementById('clearCheckedBtn').addEventListener('click', clearCheckedItems);
+        document.getElementById('shareBtn').addEventListener('click', generateQRCode);
+
+        document.getElementById('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
+        document.getElementById('favoritesBtn').addEventListener('click', () => {
+            renderFavorites();
+            openModal('favoritesModal');
+        });
+        document.getElementById('newListBtn').addEventListener('click', () => openModal('newListModal'));
+
+        document.getElementById('closeEditModal').addEventListener('click', () => closeModal('editModal'));
+        document.getElementById('closeFavoritesModal').addEventListener('click', () => closeModal('favoritesModal'));
+        document.getElementById('closeSettingsModal').addEventListener('click', () => closeModal('settingsModal'));
+        document.getElementById('closeNewListModal').addEventListener('click', () => closeModal('newListModal'));
+        document.getElementById('closeShareModal').addEventListener('click', () => closeModal('shareModal'));
+        document.getElementById('closeImportModal').addEventListener('click', () => closeModal('importModal'));
+
+        document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
+
+        document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+        document.getElementById('hapticToggle').addEventListener('click', toggleHaptic);
+        document.getElementById('decreaseFontBtn').addEventListener('click', () => adjustFontSize(-10));
+        document.getElementById('increaseFontBtn').addEventListener('click', () => adjustFontSize(10));
+
+        document.getElementById('createListBtn').addEventListener('click', () => {
+            const name = document.getElementById('newListName').value.trim();
+            if (name) {
+                createList(name);
+                document.getElementById('newListName').value = '';
+                closeModal('newListModal');
+            }
+        });
+
+        document.querySelectorAll('.merge-option').forEach(option => {
+            option.addEventListener('click', () => {
+                handleImport(option.dataset.action);
+            });
+        });
+
+        // Fermer modals en cliquant en dehors
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+
+        // ==================== PWA ====================
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        }
+
+        // ==================== INITIALISATION ====================
+        function init() {
+            loadFromLocalStorage();
+            document.documentElement.setAttribute('data-theme', state.settings.theme);
+            if (state.settings.theme === 'dark') {
+                document.getElementById('themeToggle').classList.add('active');
+            }
+            if (!state.settings.haptic) {
+                document.getElementById('hapticToggle').classList.remove('active');
+            }
+            document.documentElement.style.setProperty('--font-size-base', `${state.settings.fontSize}%`);
+            document.getElementById('fontSizeLabel').textContent = `${state.settings.fontSize}%`;
+
+            renderListTabs();
+            renderItems();
+            renderSuggestions();
+            checkImportUrl();
+        }
+
+        init();
+    </script>
+</body>
+</html>
