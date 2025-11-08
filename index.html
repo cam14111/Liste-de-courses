@@ -380,6 +380,19 @@
             align-items: center;
             padding: 0 1.5rem;
             font-weight: 600;
+            width: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .item.swiping .delete-background {
+            width: 100px;
+            opacity: 1;
+        }
+
+        .item.hidden {
+            display: none;
         }
 
         .bottom-bar {
@@ -697,6 +710,7 @@
         <div class="header-top">
             <h1>🛒 Mes Courses</h1>
             <div class="header-actions">
+                <button class="icon-btn" id="importBtn" title="Importer">📥</button>
                 <button class="icon-btn" id="favoritesBtn" title="Favoris">⭐</button>
                 <button class="icon-btn" id="settingsBtn" title="Paramètres">⚙️</button>
                 <button class="icon-btn" id="newListBtn" title="Nouvelle liste">➕</button>
@@ -782,6 +796,12 @@
                 </div>
             </div>
             <div class="settings-option">
+                <span>Masquer articles cochés</span>
+                <div class="toggle-switch" id="hideCheckedToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+            </div>
+            <div class="settings-option">
                 <span>Taille de police</span>
                 <div class="font-size-controls">
                     <button class="font-btn" id="decreaseFontBtn">A-</button>
@@ -816,10 +836,30 @@
             </div>
             <div class="qr-container">
                 <div id="qrcode"></div>
-                <p style="margin-top: 1rem; color: var(--text-secondary);">
-                    Scannez ce QR code pour partager votre liste
+                <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                    Scannez ce QR code avec une app de scan, puis copiez le texte et importez-le dans l'autre appareil
                 </p>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label class="form-label">Ou copiez ce code :</label>
+                    <textarea class="form-input" id="shareCode" rows="3" readonly style="font-size: 0.75rem; font-family: monospace;"></textarea>
+                    <button class="btn-primary" style="margin-top: 0.5rem;" onclick="copyShareCode()">📋 Copier le code</button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Import manuel -->
+    <div class="modal" id="importManualModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importer une liste</h2>
+                <button class="close-btn" id="closeImportManualModal">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Collez le code de partage ici :</label>
+                <textarea class="form-input" id="importCode" rows="4" placeholder="Collez le code..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="processImportCode()">Importer</button>
         </div>
     </div>
 
@@ -827,11 +867,17 @@
     <div class="modal" id="importModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Importer une liste</h2>
+                <h2 class="modal-title">Importer la liste</h2>
                 <button class="close-btn" id="closeImportModal">×</button>
             </div>
+            <p style="margin-bottom: 0.5rem; font-weight: 600;">
+                Liste : <span id="importListName"></span>
+            </p>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                <span id="importItemCount"></span> articles détectés
+            </p>
             <p style="margin-bottom: 1rem;">
-                Une liste a été détectée. Comment souhaitez-vous l'importer ?
+                Comment souhaitez-vous l'importer ?
             </p>
             <div class="merge-options">
                 <div class="merge-option" data-action="replace">
@@ -840,7 +886,7 @@
                 </div>
                 <div class="merge-option" data-action="merge">
                     <div class="merge-option-title">🔀 Fusionner</div>
-                    <div class="merge-option-desc">Ajoute les articles sans doublon</div>
+                    <div class="merge-option-desc">Ajoute les articles sans doublon à la liste actuelle</div>
                 </div>
                 <div class="merge-option" data-action="new">
                     <div class="merge-option-title">➕ Nouvelle liste</div>
@@ -890,7 +936,8 @@
             settings: {
                 theme: 'light',
                 haptic: true,
-                fontSize: 100
+                fontSize: 100,
+                hideChecked: false
             },
             history: {},
             importData: null
@@ -1025,6 +1072,7 @@
             state.history[name.toLowerCase()]++;
 
             saveToLocalStorage();
+            renderListTabs();
             renderItems();
             renderSuggestions();
             hapticFeedback();
@@ -1034,6 +1082,7 @@
             const list = state.lists[state.currentList];
             list.items = list.items.filter(item => item.id !== itemId);
             saveToLocalStorage();
+            renderListTabs();
             renderItems();
             hapticFeedback();
         }
@@ -1044,6 +1093,7 @@
             if (item) {
                 item.checked = !item.checked;
                 saveToLocalStorage();
+                renderListTabs();
                 renderItems();
                 hapticFeedback();
             }
@@ -1069,6 +1119,7 @@
                 item.quantity = quantity;
                 item.category = category;
                 saveToLocalStorage();
+                renderListTabs();
                 renderItems();
             }
         }
@@ -1083,6 +1134,7 @@
             if (confirm(`Supprimer ${checkedCount} article(s) coché(s) ?`)) {
                 list.items = list.items.filter(item => !item.checked);
                 saveToLocalStorage();
+                renderListTabs();
                 renderItems();
                 hapticFeedback();
             }
@@ -1095,11 +1147,18 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
             let items = list.items;
+
+            // Filtrer selon la recherche
             if (searchTerm) {
                 items = items.filter(item =>
                     item.name.toLowerCase().includes(searchTerm) ||
                     item.quantity.toLowerCase().includes(searchTerm)
                 );
+            }
+
+            // Masquer les articles cochés si l'option est activée
+            if (state.settings.hideChecked) {
+                items = items.filter(item => !item.checked);
             }
 
             // Grouper par catégorie
@@ -1315,21 +1374,77 @@
             const list = state.lists[state.currentList];
             const data = {
                 name: list.name,
-                items: list.items,
+                items: list.items.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    category: item.category,
+                    checked: item.checked
+                })),
                 timestamp: Date.now()
             };
 
             const encoded = btoa(JSON.stringify(data));
-            const url = `${window.location.origin}${window.location.pathname}?import=${encoded}`;
 
+            // Générer le QR code avec les données directement
             document.getElementById('qrcode').innerHTML = '';
             new QRCode(document.getElementById('qrcode'), {
-                text: url,
+                text: encoded,
                 width: 256,
                 height: 256
             });
 
+            // Afficher le code dans le champ texte
+            document.getElementById('shareCode').value = encoded;
+
             openModal('shareModal');
+        }
+
+        function copyShareCode() {
+            const code = document.getElementById('shareCode');
+            code.select();
+            code.setSelectionRange(0, 99999); // Pour mobile
+
+            try {
+                document.execCommand('copy');
+                alert('Code copié !');
+                hapticFeedback();
+            } catch (e) {
+                // Fallback pour navigateurs modernes
+                navigator.clipboard.writeText(code.value).then(() => {
+                    alert('Code copié !');
+                    hapticFeedback();
+                }).catch(() => {
+                    alert('Erreur lors de la copie');
+                });
+            }
+        }
+
+        function processImportCode() {
+            const code = document.getElementById('importCode').value.trim();
+            if (!code) {
+                alert('Veuillez coller un code valide');
+                return;
+            }
+
+            try {
+                const decoded = JSON.parse(atob(code));
+                if (!decoded.name || !decoded.items) {
+                    throw new Error('Format invalide');
+                }
+
+                state.importData = decoded;
+
+                // Afficher les infos dans le modal d'import
+                document.getElementById('importListName').textContent = decoded.name;
+                document.getElementById('importItemCount').textContent = decoded.items.length;
+
+                closeModal('importManualModal');
+                openModal('importModal');
+                document.getElementById('importCode').value = '';
+            } catch (e) {
+                alert('Code invalide. Veuillez vérifier et réessayer.');
+                console.error('Erreur import:', e);
+            }
         }
 
         function checkImportUrl() {
@@ -1340,6 +1455,10 @@
                 try {
                     const decoded = JSON.parse(atob(importData));
                     state.importData = decoded;
+
+                    document.getElementById('importListName').textContent = decoded.name;
+                    document.getElementById('importItemCount').textContent = decoded.items.length;
+
                     openModal('importModal');
 
                     // Nettoyer l'URL
@@ -1356,18 +1475,36 @@
             const list = state.lists[state.currentList];
 
             if (action === 'replace') {
-                list.items = state.importData.items;
+                list.items = state.importData.items.map(item => ({
+                    ...item,
+                    id: generateId(),
+                    favorite: false,
+                    addedAt: Date.now()
+                }));
             } else if (action === 'merge') {
                 const existingNames = list.items.map(i => i.name.toLowerCase());
                 state.importData.items.forEach(item => {
                     if (!existingNames.includes(item.name.toLowerCase())) {
-                        item.id = generateId();
-                        list.items.push(item);
+                        list.items.push({
+                            ...item,
+                            id: generateId(),
+                            favorite: false,
+                            addedAt: Date.now()
+                        });
                     }
                 });
             } else if (action === 'new') {
-                createList(state.importData.name);
-                state.lists[state.currentList].items = state.importData.items;
+                const newId = generateId();
+                state.lists[newId] = {
+                    name: state.importData.name,
+                    items: state.importData.items.map(item => ({
+                        ...item,
+                        id: generateId(),
+                        favorite: false,
+                        addedAt: Date.now()
+                    }))
+                };
+                state.currentList = newId;
             }
 
             state.importData = null;
@@ -1375,6 +1512,7 @@
             renderListTabs();
             renderItems();
             closeModal('importModal');
+            hapticFeedback();
         }
 
         // ==================== PARAMÈTRES ====================
@@ -1389,6 +1527,13 @@
             state.settings.haptic = !state.settings.haptic;
             document.getElementById('hapticToggle').classList.toggle('active');
             saveToLocalStorage();
+        }
+
+        function toggleHideChecked() {
+            state.settings.hideChecked = !state.settings.hideChecked;
+            document.getElementById('hideCheckedToggle').classList.toggle('active');
+            saveToLocalStorage();
+            renderItems();
         }
 
         function adjustFontSize(delta) {
@@ -1414,6 +1559,7 @@
         document.getElementById('clearCheckedBtn').addEventListener('click', clearCheckedItems);
         document.getElementById('shareBtn').addEventListener('click', generateQRCode);
 
+        document.getElementById('importBtn').addEventListener('click', () => openModal('importManualModal'));
         document.getElementById('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
         document.getElementById('favoritesBtn').addEventListener('click', () => {
             renderFavorites();
@@ -1427,11 +1573,13 @@
         document.getElementById('closeNewListModal').addEventListener('click', () => closeModal('newListModal'));
         document.getElementById('closeShareModal').addEventListener('click', () => closeModal('shareModal'));
         document.getElementById('closeImportModal').addEventListener('click', () => closeModal('importModal'));
+        document.getElementById('closeImportManualModal').addEventListener('click', () => closeModal('importManualModal'));
 
         document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
 
         document.getElementById('themeToggle').addEventListener('click', toggleTheme);
         document.getElementById('hapticToggle').addEventListener('click', toggleHaptic);
+        document.getElementById('hideCheckedToggle').addEventListener('click', toggleHideChecked);
         document.getElementById('decreaseFontBtn').addEventListener('click', () => adjustFontSize(-10));
         document.getElementById('increaseFontBtn').addEventListener('click', () => adjustFontSize(10));
 
@@ -1473,6 +1621,9 @@
             }
             if (!state.settings.haptic) {
                 document.getElementById('hapticToggle').classList.remove('active');
+            }
+            if (state.settings.hideChecked) {
+                document.getElementById('hideCheckedToggle').classList.add('active');
             }
             document.documentElement.style.setProperty('--font-size-base', `${state.settings.fontSize}%`);
             document.getElementById('fontSizeLabel').textContent = `${state.settings.fontSize}%`;
