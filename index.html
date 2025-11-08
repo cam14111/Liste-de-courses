@@ -886,7 +886,6 @@
         <div class="header-top">
             <h1>🛒 Mes Courses</h1>
             <div class="header-actions">
-                <button class="icon-btn" id="importBtn" title="Importer">📥</button>
                 <button class="icon-btn" id="favoritesBtn" title="Favoris">⭐</button>
                 <button class="icon-btn" id="settingsBtn" title="Paramètres">⚙️</button>
                 <button class="icon-btn" id="newListBtn" title="Nouvelle liste">➕</button>
@@ -912,9 +911,6 @@
     <div class="bottom-bar">
         <button class="bottom-btn btn-clear" id="clearCheckedBtn">
             🗑️ Effacer cochés
-        </button>
-        <button class="bottom-btn btn-share" id="shareBtn">
-            📤 Partager
         </button>
     </div>
 
@@ -978,6 +974,14 @@
                     <span id="fontSizeLabel">100%</span>
                     <button class="font-btn" id="increaseFontBtn">A+</button>
                 </div>
+            </div>
+            <div class="settings-option" style="border-top: 2px solid var(--border-color); margin-top: 1rem; padding-top: 1rem;">
+                <span>Partager la liste</span>
+                <button class="font-btn" id="shareSettingsBtn" style="width: auto; padding: 0.5rem 1rem;">📤</button>
+            </div>
+            <div class="settings-option">
+                <span>Importer une liste</span>
+                <button class="font-btn" id="importSettingsBtn" style="width: auto; padding: 0.5rem 1rem;">📥</button>
             </div>
             <div class="settings-option" style="border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; display: block;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -2134,9 +2138,7 @@
         document.getElementById('searchInput').addEventListener('input', renderItems);
 
         document.getElementById('clearCheckedBtn').addEventListener('click', clearCheckedItems);
-        document.getElementById('shareBtn').addEventListener('click', generateQRCode);
 
-        document.getElementById('importBtn').addEventListener('click', () => openModal('importManualModal'));
         document.getElementById('settingsBtn').addEventListener('click', () => {
             renderCategoriesList();
             openModal('settingsModal');
@@ -2163,6 +2165,8 @@
         document.getElementById('hideCheckedToggle').addEventListener('click', toggleHideChecked);
         document.getElementById('decreaseFontBtn').addEventListener('click', () => adjustFontSize(-10));
         document.getElementById('increaseFontBtn').addEventListener('click', () => adjustFontSize(10));
+        document.getElementById('shareSettingsBtn').addEventListener('click', generateQRCode);
+        document.getElementById('importSettingsBtn').addEventListener('click', () => openModal('importManualModal'));
 
         document.getElementById('createListBtn').addEventListener('click', () => {
             const name = document.getElementById('newListName').value.trim();
