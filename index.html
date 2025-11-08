@@ -1109,18 +1109,18 @@
     <script>
         // ==================== CONSTANTES ====================
         const DEFAULT_CATEGORIES = {
-            'fruits': { icon: '🍎', color: 'var(--cat-fruits)', keywords: ['pomme', 'banane', 'orange', 'poire', 'fraise', 'raisin', 'kiwi', 'mangue', 'ananas', 'melon', 'pastèque', 'citron', 'pamplemousse', 'abricot', 'pêche', 'prune', 'cerise', 'framboise', 'myrtille'] },
-            'legumes': { icon: '🥬', color: 'var(--cat-legumes)', keywords: ['tomate', 'salade', 'carotte', 'courgette', 'poivron', 'oignon', 'ail', 'pomme de terre', 'haricot', 'petit pois', 'brocoli', 'chou', 'aubergine', 'concombre', 'radis', 'navet', 'poireau', 'épinard', 'champignon'] },
-            'viandes': { icon: '🥩', color: 'var(--cat-viandes)', keywords: ['poulet', 'boeuf', 'porc', 'agneau', 'veau', 'dinde', 'canard', 'steak', 'côtelette', 'rôti', 'escalope', 'saucisse', 'jambon', 'bacon', 'merguez'] },
-            'poissons': { icon: '🐟', color: 'var(--cat-poissons)', keywords: ['saumon', 'thon', 'cabillaud', 'dorade', 'truite', 'sardine', 'crevette', 'moule', 'huître', 'crabe', 'homard', 'calamar', 'poisson'] },
-            'laitiers': { icon: '🥛', color: 'var(--cat-laitiers)', keywords: ['lait', 'yaourt', 'fromage', 'beurre', 'crème', 'œuf', 'emmental', 'gruyère', 'camembert', 'chèvre', 'mozzarella', 'parmesan', 'roquefort'] },
-            'epicerie': { icon: '🛍️', color: 'var(--cat-epicerie)', keywords: ['riz', 'pâtes', 'farine', 'sucre', 'sel', 'poivre', 'huile', 'vinaigre', 'conserve', 'sauce', 'céréales', 'café', 'thé', 'chocolat', 'confiture', 'miel', 'biscuit'] },
-            'surgeles': { icon: '❄️', color: 'var(--cat-surgeles)', keywords: ['surgelé', 'glace', 'pizza', 'frite', 'poisson pané', 'légume surgelé'] },
-            'boissons': { icon: '🥤', color: 'var(--cat-boissons)', keywords: ['eau', 'jus', 'soda', 'vin', 'bière', 'coca', 'limonade', 'sirop'] },
-            'boulangerie': { icon: '🥖', color: 'var(--cat-boulangerie)', keywords: ['pain', 'baguette', 'croissant', 'brioche', 'gâteau', 'tarte', 'viennoiserie'] },
-            'hygiene': { icon: '🧴', color: 'var(--cat-hygiene)', keywords: ['savon', 'shampoing', 'dentifrice', 'brosse à dents', 'déodorant', 'gel douche', 'crème', 'papier toilette', 'mouchoir', 'coton'] },
-            'entretien': { icon: '🧽', color: 'var(--cat-entretien)', keywords: ['lessive', 'liquide vaisselle', 'éponge', 'nettoyant', 'javel', 'produit ménage', 'serpillière', 'balai'] },
-            'autre': { icon: '📦', color: 'var(--cat-autre)', keywords: [] }
+            'fruits': { id: 'default_fruits', icon: '🍎', color: 'var(--cat-fruits)', keywords: ['pomme', 'banane', 'orange', 'poire', 'fraise', 'raisin', 'kiwi', 'mangue', 'ananas', 'melon', 'pastèque', 'citron', 'pamplemousse', 'abricot', 'pêche', 'prune', 'cerise', 'framboise', 'myrtille'] },
+            'legumes': { id: 'default_legumes', icon: '🥬', color: 'var(--cat-legumes)', keywords: ['tomate', 'salade', 'carotte', 'courgette', 'poivron', 'oignon', 'ail', 'pomme de terre', 'haricot', 'petit pois', 'brocoli', 'chou', 'aubergine', 'concombre', 'radis', 'navet', 'poireau', 'épinard', 'champignon'] },
+            'viandes': { id: 'default_viandes', icon: '🥩', color: 'var(--cat-viandes)', keywords: ['poulet', 'boeuf', 'porc', 'agneau', 'veau', 'dinde', 'canard', 'steak', 'côtelette', 'rôti', 'escalope', 'saucisse', 'jambon', 'bacon', 'merguez'] },
+            'poissons': { id: 'default_poissons', icon: '🐟', color: 'var(--cat-poissons)', keywords: ['saumon', 'thon', 'cabillaud', 'dorade', 'truite', 'sardine', 'crevette', 'moule', 'huître', 'crabe', 'homard', 'calamar', 'poisson'] },
+            'laitiers': { id: 'default_laitiers', icon: '🥛', color: 'var(--cat-laitiers)', keywords: ['lait', 'yaourt', 'fromage', 'beurre', 'crème', 'œuf', 'emmental', 'gruyère', 'camembert', 'chèvre', 'mozzarella', 'parmesan', 'roquefort'] },
+            'epicerie': { id: 'default_epicerie', icon: '🛍️', color: 'var(--cat-epicerie)', keywords: ['riz', 'pâtes', 'farine', 'sucre', 'sel', 'poivre', 'huile', 'vinaigre', 'conserve', 'sauce', 'céréales', 'café', 'thé', 'chocolat', 'confiture', 'miel', 'biscuit'] },
+            'surgeles': { id: 'default_surgeles', icon: '❄️', color: 'var(--cat-surgeles)', keywords: ['surgelé', 'glace', 'pizza', 'frite', 'poisson pané', 'légume surgelé'] },
+            'boissons': { id: 'default_boissons', icon: '🥤', color: 'var(--cat-boissons)', keywords: ['eau', 'jus', 'soda', 'vin', 'bière', 'coca', 'limonade', 'sirop'] },
+            'boulangerie': { id: 'default_boulangerie', icon: '🥖', color: 'var(--cat-boulangerie)', keywords: ['pain', 'baguette', 'croissant', 'brioche', 'gâteau', 'tarte', 'viennoiserie'] },
+            'hygiene': { id: 'default_hygiene', icon: '🧴', color: 'var(--cat-hygiene)', keywords: ['savon', 'shampoing', 'dentifrice', 'brosse à dents', 'déodorant', 'gel douche', 'crème', 'papier toilette', 'mouchoir', 'coton'] },
+            'entretien': { id: 'default_entretien', icon: '🧽', color: 'var(--cat-entretien)', keywords: ['lessive', 'liquide vaisselle', 'éponge', 'nettoyant', 'javel', 'produit ménage', 'serpillière', 'balai'] },
+            'autre': { id: 'default_autre', icon: '📦', color: 'var(--cat-autre)', keywords: [] }
         };
 
         const COMMON_ITEMS = [
@@ -1199,8 +1199,22 @@
             const name = itemName.toLowerCase();
             for (const [category, data] of Object.entries(state.categories)) {
                 if (data.keywords.some(keyword => name.includes(keyword))) {
-                    return category;
+                    return data.id || category; // Retourner l'ID technique si disponible
                 }
+            }
+            return state.categories['autre']?.id || 'default_autre';
+        }
+
+        // Obtenir la clé de catégorie (nom) à partir de son ID
+        function getCategoryKeyById(categoryId) {
+            for (const [key, data] of Object.entries(state.categories)) {
+                if (data.id === categoryId) {
+                    return key;
+                }
+            }
+            // Si l'ID n'est pas trouvé, essayer de le traiter comme un ancien nom de catégorie
+            if (state.categories[categoryId]) {
+                return categoryId;
             }
             return 'autre';
         }
@@ -1225,13 +1239,17 @@
                         if (defaultCat) {
                             // Catégorie par défaut : préserver keywords et color, permettre modification de icon
                             categories[catKey] = {
+                                id: defaultCat.id, // S'assurer que l'ID par défaut est présent
                                 icon: savedCat.icon || defaultCat.icon,
                                 color: defaultCat.color,  // Toujours utiliser la couleur par défaut
                                 keywords: defaultCat.keywords  // Toujours utiliser les keywords par défaut
                             };
                         } else {
-                            // Catégorie personnalisée : utiliser telle quelle
-                            categories[catKey] = savedCat;
+                            // Catégorie personnalisée : s'assurer qu'elle a un ID
+                            categories[catKey] = {
+                                ...savedCat,
+                                id: savedCat.id || `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                            };
                         }
                     });
                 }
@@ -1254,16 +1272,33 @@
                     favorites: loadedState.favorites || []
                 };
 
-                // Assurer que tous les items ont la propriété favorite et une catégorie valide
+                // Migration: convertir les items avec des noms de catégories vers des IDs
                 Object.values(state.lists).forEach(list => {
                     if (list.items) {
                         list.items.forEach(item => {
                             if (item.favorite === undefined) {
                                 item.favorite = false;
                             }
-                            // Vérifier que la catégorie existe, sinon utiliser "autre"
-                            if (!state.categories[item.category]) {
-                                item.category = 'autre';
+
+                            // Migration: convertir le nom de catégorie vers l'ID technique
+                            // Si item.category est déjà un ID, vérifier qu'il existe
+                            let categoryFound = false;
+                            for (const [key, data] of Object.entries(state.categories)) {
+                                if (data.id === item.category) {
+                                    categoryFound = true;
+                                    break;
+                                }
+                            }
+
+                            // Si pas trouvé par ID, essayer de le traiter comme un ancien nom
+                            if (!categoryFound) {
+                                if (state.categories[item.category]) {
+                                    // Convertir le nom en ID
+                                    item.category = state.categories[item.category].id;
+                                } else {
+                                    // Catégorie inconnue, utiliser "autre"
+                                    item.category = state.categories['autre']?.id || 'default_autre';
+                                }
                             }
                         });
                     }
@@ -1293,10 +1328,26 @@
                     }
                 }
 
-                // Vérifier que tous les favoris ont une catégorie valide
+                // Migration: convertir les catégories des favoris vers des IDs
                 state.favorites.forEach(fav => {
-                    if (!state.categories[fav.category]) {
-                        fav.category = 'autre';
+                    // Vérifier si fav.category est déjà un ID
+                    let categoryFound = false;
+                    for (const [key, data] of Object.entries(state.categories)) {
+                        if (data.id === fav.category) {
+                            categoryFound = true;
+                            break;
+                        }
+                    }
+
+                    // Si pas trouvé par ID, essayer de le traiter comme un ancien nom
+                    if (!categoryFound) {
+                        if (state.categories[fav.category]) {
+                            // Convertir le nom en ID
+                            fav.category = state.categories[fav.category].id;
+                        } else {
+                            // Catégorie inconnue, utiliser "autre"
+                            fav.category = state.categories['autre']?.id || 'default_autre';
+                        }
                     }
                 });
             } else {
@@ -1522,13 +1573,14 @@
                 items = items.filter(item => !item.checked);
             }
 
-            // Grouper par catégorie
+            // Grouper par catégorie (utilise maintenant les IDs de catégorie)
             const grouped = {};
             items.forEach(item => {
-                if (!grouped[item.category]) {
-                    grouped[item.category] = [];
+                const categoryKey = getCategoryKeyById(item.category);
+                if (!grouped[categoryKey]) {
+                    grouped[categoryKey] = [];
                 }
-                grouped[item.category].push(item);
+                grouped[categoryKey].push(item);
             });
 
             // Tri: non cochés d'abord
@@ -1768,13 +1820,14 @@
                 return;
             }
 
-            // Grouper les favoris par catégorie
+            // Grouper les favoris par catégorie (utilise maintenant les IDs de catégorie)
             const grouped = {};
             state.favorites.forEach(item => {
-                if (!grouped[item.category]) {
-                    grouped[item.category] = [];
+                const categoryKey = getCategoryKeyById(item.category);
+                if (!grouped[categoryKey]) {
+                    grouped[categoryKey] = [];
                 }
-                grouped[item.category].push(item);
+                grouped[categoryKey].push(item);
             });
 
             // Trier selon l'ordre des catégories
@@ -1871,7 +1924,7 @@
             const categorySelect = document.getElementById('editItemCategory');
             categorySelect.innerHTML = Object.keys(state.categories).map(cat => {
                 const data = state.categories[cat];
-                return `<option value="${cat}" ${cat === item.category ? 'selected' : ''}>
+                return `<option value="${data.id}" ${data.id === item.category ? 'selected' : ''}>
                     ${data.icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </option>`;
             }).join('');
@@ -1894,11 +1947,12 @@
         function generateQRCode() {
             const list = state.lists[state.currentList];
             const data = {
+                version: 2, // Version 2 utilise les IDs techniques pour les catégories
                 name: list.name,
                 items: list.items.map(item => ({
                     name: item.name,
                     quantity: item.quantity,
-                    category: item.category,
+                    category: item.category, // Maintenant un ID technique (ex: default_fruits)
                     checked: item.checked
                 })),
                 timestamp: Date.now()
@@ -1988,13 +2042,45 @@
             }
         }
 
+        // Normaliser la catégorie d'un item importé
+        function normalizeCategoryOnImport(importedCategory) {
+            // Si la catégorie existe localement (par ID), la retourner
+            for (const [key, data] of Object.entries(state.categories)) {
+                if (data.id === importedCategory) {
+                    return data.id;
+                }
+            }
+
+            // Si c'est un ID de catégorie par défaut, chercher la catégorie par défaut correspondante
+            if (importedCategory && importedCategory.startsWith('default_')) {
+                const defaultKey = importedCategory.replace('default_', '');
+                if (state.categories[defaultKey] && state.categories[defaultKey].id === importedCategory) {
+                    return importedCategory;
+                }
+            }
+
+            // Si c'est un ancien format (nom au lieu d'ID), essayer de le convertir
+            if (state.categories[importedCategory]) {
+                return state.categories[importedCategory].id || importedCategory;
+            }
+
+            // Si la catégorie n'existe pas, utiliser "autre"
+            return state.categories['autre']?.id || 'default_autre';
+        }
+
         function handleImport(action) {
             if (!state.importData) return;
 
             const list = state.lists[state.currentList];
 
+            // Normaliser les catégories des items importés
+            const normalizedItems = state.importData.items.map(item => ({
+                ...item,
+                category: normalizeCategoryOnImport(item.category)
+            }));
+
             if (action === 'replace') {
-                list.items = state.importData.items.map(item => ({
+                list.items = normalizedItems.map(item => ({
                     ...item,
                     id: generateId(),
                     favorite: false,
@@ -2002,7 +2088,7 @@
                 }));
             } else if (action === 'merge') {
                 const existingNames = list.items.map(i => i.name.toLowerCase());
-                state.importData.items.forEach(item => {
+                normalizedItems.forEach(item => {
                     if (!existingNames.includes(item.name.toLowerCase())) {
                         list.items.push({
                             ...item,
@@ -2016,7 +2102,7 @@
                 const newId = generateId();
                 state.lists[newId] = {
                     name: state.importData.name,
-                    items: state.importData.items.map(item => ({
+                    items: normalizedItems.map(item => ({
                         ...item,
                         id: generateId(),
                         favorite: false,
@@ -2143,17 +2229,21 @@
             openModal('categoryModal');
         }
 
-        function deleteCategory(categoryId) {
-            if (!confirm(`Supprimer la catégorie "${categoryId}" ?\n\nLes articles de cette catégorie seront déplacés dans "autre".`)) {
+        function deleteCategory(categoryKey) {
+            if (!confirm(`Supprimer la catégorie "${categoryKey}" ?\n\nLes articles de cette catégorie seront déplacés dans "autre".`)) {
                 return;
             }
+
+            // Obtenir l'ID de la catégorie à supprimer
+            const categoryIdToDelete = state.categories[categoryKey]?.id;
+            const autreId = state.categories['autre']?.id || 'default_autre';
 
             // Déplacer tous les items de cette catégorie vers "autre"
             Object.values(state.lists).forEach(list => {
                 if (list.items) {
                     list.items.forEach(item => {
-                        if (item.category === categoryId) {
-                            item.category = 'autre';
+                        if (item.category === categoryIdToDelete) {
+                            item.category = autreId;
                         }
                     });
                 }
@@ -2161,16 +2251,16 @@
 
             // Mettre à jour les favoris
             state.favorites.forEach(fav => {
-                if (fav.category === categoryId) {
-                    fav.category = 'autre';
+                if (fav.category === categoryIdToDelete) {
+                    fav.category = autreId;
                 }
             });
 
             // Supprimer la catégorie
-            delete state.categories[categoryId];
+            delete state.categories[categoryKey];
 
             // Retirer de l'ordre des catégories
-            state.categoryOrder = state.categoryOrder.filter(cat => cat !== categoryId);
+            state.categoryOrder = state.categoryOrder.filter(cat => cat !== categoryKey);
 
             saveToLocalStorage();
             renderCategoriesList();
@@ -2195,8 +2285,9 @@
                 const oldCategoryId = currentEditingCategory;
 
                 if (name !== oldCategoryId) {
-                    // Renommer la catégorie
+                    // Renommer la catégorie (préserver l'ID)
                     state.categories[name] = {
+                        id: state.categories[oldCategoryId].id || `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                         icon: selectedIcon,
                         color: state.categories[oldCategoryId].color || 'var(--cat-autre)',
                         keywords: state.categories[oldCategoryId].keywords || []
@@ -2204,12 +2295,15 @@
 
                     delete state.categories[oldCategoryId];
 
-                    // Mettre à jour tous les items
+                    // Note: Avec le système d'IDs, les items stockent l'ID qui ne change pas lors du renommage
+                    // Ce code est conservé uniquement pour la compatibilité avec les anciennes données
+                    const categoryId = state.categories[name].id;
                     Object.values(state.lists).forEach(list => {
                         if (list.items) {
                             list.items.forEach(item => {
+                                // Mettre à jour si l'item utilise encore l'ancien nom (compatibilité)
                                 if (item.category === oldCategoryId) {
-                                    item.category = name;
+                                    item.category = categoryId;
                                 }
                             });
                         }
@@ -2218,7 +2312,7 @@
                     // Mettre à jour les favoris
                     state.favorites.forEach(fav => {
                         if (fav.category === oldCategoryId) {
-                            fav.category = name;
+                            fav.category = categoryId;
                         }
                     });
 
@@ -2239,6 +2333,7 @@
                 }
 
                 state.categories[name] = {
+                    id: `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                     icon: selectedIcon,
                     color: 'var(--cat-autre)',
                     keywords: []
