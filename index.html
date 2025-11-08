@@ -1026,7 +1026,21 @@
         function loadFromLocalStorage() {
             const saved = localStorage.getItem('shoppingListApp');
             if (saved) {
-                state = JSON.parse(saved);
+                const loadedState = JSON.parse(saved);
+                // Fusionner avec les valeurs par défaut pour assurer la compatibilité
+                state = {
+                    lists: loadedState.lists || {},
+                    currentList: loadedState.currentList || 'courses',
+                    settings: {
+                        theme: loadedState.settings?.theme || 'light',
+                        fontSize: loadedState.settings?.fontSize || 100,
+                        hideChecked: loadedState.settings?.hideChecked || false
+                    },
+                    collapsedCategories: loadedState.collapsedCategories || {},
+                    categoryOrder: loadedState.categoryOrder || ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
+                    history: loadedState.history || {},
+                    importData: loadedState.importData || null
+                };
             } else {
                 state.lists['courses'] = { name: 'Courses', items: [] };
             }
