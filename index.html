@@ -1323,12 +1323,12 @@
                 const isCollapsed = state.collapsedCategories[category];
                 return `
                     <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="true">
-                        <div class="category-header" style="border-color: ${categoryData.color}">
+                        <div class="category-header" style="border-color: ${categoryData.color};" onclick="handleCategoryHeaderClick(event, '${category}')">
                             <span class="category-drag-handle" title="Réorganiser">☰</span>
                             <span class="category-icon">${categoryData.icon}</span>
                             <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
                             <span class="category-count">${items.length}</span>
-                            <button class="category-toggle" onclick="toggleCategory('${category}')">▼</button>
+                            <button class="category-toggle">▼</button>
                         </div>
                         <ul class="items-list">
                             ${items.map(item => `
@@ -1353,6 +1353,15 @@
 
             // Ajouter les event listeners pour le drag & drop
             setupCategoryDragDrop();
+        }
+
+        function handleCategoryHeaderClick(event, category) {
+            // Ignorer si le clic vient de la poignée de drag
+            if (event.target.classList.contains('category-drag-handle') ||
+                event.target.closest('.category-drag-handle')) {
+                return;
+            }
+            toggleCategory(category);
         }
 
         function toggleCategory(category) {
