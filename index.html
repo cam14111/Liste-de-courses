@@ -255,16 +255,64 @@
             align-items: center;
             gap: 0.5rem;
             border-left: 4px solid var(--primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .category-drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            padding: 0 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .category-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .category-drag-handle:hover {
+            color: var(--text-primary);
         }
 
         .category-icon {
             font-size: 1.2rem;
         }
 
-        .category-count {
+        .category-toggle {
             margin-left: auto;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: transform 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-toggle:hover {
+            color: var(--text-primary);
+        }
+
+        .category-section.collapsed .category-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .category-count {
             font-size: 0.85rem;
             color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+
+        .category-section.collapsed .items-list {
+            display: none;
+        }
+
+        .category-section.dragging {
+            opacity: 0.5;
         }
 
         .items-list {
@@ -363,6 +411,10 @@
 
         .item-btn:active {
             color: var(--text-primary);
+        }
+
+        .favorite-btn {
+            color: #cccccc;
         }
 
         .favorite-btn.active {
@@ -692,6 +744,16 @@
             color: var(--text-secondary);
         }
 
+        .delete-btn {
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .delete-btn {
+                display: none;
+            }
+        }
+
         @media (max-width: 480px) {
             .header h1 {
                 font-size: 1.2rem;
@@ -786,12 +848,6 @@
             <div class="settings-option">
                 <span>Mode sombre</span>
                 <div class="toggle-switch" id="themeToggle">
-                    <div class="toggle-slider"></div>
-                </div>
-            </div>
-            <div class="settings-option">
-                <span>Retour haptique</span>
-                <div class="toggle-switch active" id="hapticToggle">
                     <div class="toggle-slider"></div>
                 </div>
             </div>
@@ -935,20 +991,16 @@
             currentList: 'courses',
             settings: {
                 theme: 'light',
-                haptic: true,
                 fontSize: 100,
                 hideChecked: false
             },
+            collapsedCategories: {},
+            categoryOrder: ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
             history: {},
             importData: null
         };
 
         // ==================== UTILS ====================
-        function hapticFeedback() {
-            if (state.settings.haptic && navigator.vibrate) {
-                navigator.vibrate(10);
-            }
-        }
 
         function getCategory(itemName) {
             const name = itemName.toLowerCase();
@@ -1075,7 +1127,6 @@
             renderListTabs();
             renderItems();
             renderSuggestions();
-            hapticFeedback();
         }
 
         function deleteItem(itemId) {
@@ -1084,7 +1135,6 @@
             saveToLocalStorage();
             renderListTabs();
             renderItems();
-            hapticFeedback();
         }
 
         function toggleItem(itemId) {
@@ -1095,8 +1145,7 @@
                 saveToLocalStorage();
                 renderListTabs();
                 renderItems();
-                hapticFeedback();
-            }
+                }
         }
 
         function toggleFavorite(itemId) {
@@ -1107,8 +1156,7 @@
                 saveToLocalStorage();
                 renderItems();
                 renderFavorites();
-                hapticFeedback();
-            }
+                }
         }
 
         function editItem(itemId, name, quantity, category) {
@@ -1136,8 +1184,7 @@
                 saveToLocalStorage();
                 renderListTabs();
                 renderItems();
-                hapticFeedback();
-            }
+                }
         }
 
         // ==================== RENDU ====================
@@ -1190,14 +1237,22 @@
                 return;
             }
 
-            container.innerHTML = Object.entries(grouped).map(([category, items]) => {
+            // Trier les catégories selon l'ordre défini
+            const orderedCategories = state.categoryOrder
+                .filter(cat => grouped[cat])
+                .map(cat => [cat, grouped[cat]]);
+
+            container.innerHTML = orderedCategories.map(([category, items]) => {
                 const categoryData = CATEGORIES[category];
+                const isCollapsed = state.collapsedCategories[category];
                 return `
-                    <div class="category-section">
+                    <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="true">
                         <div class="category-header" style="border-color: ${categoryData.color}">
+                            <span class="category-drag-handle" title="Réorganiser">☰</span>
                             <span class="category-icon">${categoryData.icon}</span>
                             <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
                             <span class="category-count">${items.length}</span>
+                            <button class="category-toggle" onclick="toggleCategory('${category}')">▼</button>
                         </div>
                         <ul class="items-list">
                             ${items.map(item => `
@@ -1215,7 +1270,7 @@
                                     <div class="item-actions">
                                         <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}"
                                                 onclick="toggleFavorite('${item.id}')">⭐</button>
-                                        <button class="item-btn" onclick="deleteItem('${item.id}')">🗑️</button>
+                                        <button class="item-btn delete-btn" onclick="deleteItem('${item.id}')">🗑️</button>
                                     </div>
                                 </li>
                             `).join('')}
@@ -1223,6 +1278,82 @@
                     </div>
                 `;
             }).join('');
+
+            // Ajouter les event listeners pour le drag & drop
+            setupCategoryDragDrop();
+        }
+
+        function toggleCategory(category) {
+            state.collapsedCategories[category] = !state.collapsedCategories[category];
+            saveToLocalStorage();
+            renderItems();
+        }
+
+        function setupCategoryDragDrop() {
+            const categories = document.querySelectorAll('.category-section');
+            let draggedElement = null;
+            let draggedCategory = null;
+
+            categories.forEach(category => {
+                category.addEventListener('dragstart', (e) => {
+                    // Vérifier si le drag a commencé sur la poignée
+                    if (!e.target.classList.contains('category-drag-handle') &&
+                        !e.target.closest('.category-drag-handle')) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    draggedElement = category;
+                    draggedCategory = category.dataset.category;
+                    category.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                category.addEventListener('dragend', () => {
+                    if (draggedElement) {
+                        draggedElement.classList.remove('dragging');
+                        draggedElement = null;
+                        draggedCategory = null;
+                    }
+                });
+
+                category.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!draggedElement || draggedElement === category) return;
+
+                    const rect = category.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+
+                    if (e.clientY < midpoint) {
+                        category.parentNode.insertBefore(draggedElement, category);
+                    } else {
+                        category.parentNode.insertBefore(draggedElement, category.nextSibling);
+                    }
+                });
+
+                category.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (!draggedCategory) return;
+
+                    // Mettre à jour l'ordre dans le state
+                    const newOrder = Array.from(document.querySelectorAll('.category-section'))
+                        .map(el => el.dataset.category);
+
+                    state.categoryOrder = newOrder;
+                    saveToLocalStorage();
+                });
+
+                // Empêcher le drag de s'activer ailleurs que sur la poignée
+                const header = category.querySelector('.category-header');
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('category-drag-handle') ||
+                        e.target.closest('.category-drag-handle')) {
+                        category.draggable = true;
+                    } else {
+                        category.draggable = false;
+                    }
+                });
+            });
         }
 
         function renderSuggestions() {
@@ -1407,13 +1538,11 @@
             try {
                 document.execCommand('copy');
                 alert('Code copié !');
-                hapticFeedback();
-            } catch (e) {
+                } catch (e) {
                 // Fallback pour navigateurs modernes
                 navigator.clipboard.writeText(code.value).then(() => {
                     alert('Code copié !');
-                    hapticFeedback();
-                }).catch(() => {
+                        }).catch(() => {
                     alert('Erreur lors de la copie');
                 });
             }
@@ -1512,7 +1641,6 @@
             renderListTabs();
             renderItems();
             closeModal('importModal');
-            hapticFeedback();
         }
 
         // ==================== PARAMÈTRES ====================
@@ -1520,12 +1648,6 @@
             state.settings.theme = state.settings.theme === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', state.settings.theme);
             document.getElementById('themeToggle').classList.toggle('active');
-            saveToLocalStorage();
-        }
-
-        function toggleHaptic() {
-            state.settings.haptic = !state.settings.haptic;
-            document.getElementById('hapticToggle').classList.toggle('active');
             saveToLocalStorage();
         }
 
@@ -1578,7 +1700,6 @@
         document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
 
         document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-        document.getElementById('hapticToggle').addEventListener('click', toggleHaptic);
         document.getElementById('hideCheckedToggle').addEventListener('click', toggleHideChecked);
         document.getElementById('decreaseFontBtn').addEventListener('click', () => adjustFontSize(-10));
         document.getElementById('increaseFontBtn').addEventListener('click', () => adjustFontSize(10));
@@ -1618,9 +1739,6 @@
             document.documentElement.setAttribute('data-theme', state.settings.theme);
             if (state.settings.theme === 'dark') {
                 document.getElementById('themeToggle').classList.add('active');
-            }
-            if (!state.settings.haptic) {
-                document.getElementById('hapticToggle').classList.remove('active');
             }
             if (state.settings.hideChecked) {
                 document.getElementById('hideCheckedToggle').classList.add('active');
