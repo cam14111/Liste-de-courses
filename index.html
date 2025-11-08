@@ -255,16 +255,64 @@
             align-items: center;
             gap: 0.5rem;
             border-left: 4px solid var(--primary);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .category-drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            padding: 0 0.25rem;
+            transition: color 0.2s;
+        }
+
+        .category-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .category-drag-handle:hover {
+            color: var(--text-primary);
         }
 
         .category-icon {
             font-size: 1.2rem;
         }
 
-        .category-count {
+        .category-toggle {
             margin-left: auto;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: transform 0.2s, color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-toggle:hover {
+            color: var(--text-primary);
+        }
+
+        .category-section.collapsed .category-toggle {
+            transform: rotate(-90deg);
+        }
+
+        .category-count {
             font-size: 0.85rem;
             color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+
+        .category-section.collapsed .items-list {
+            display: none;
+        }
+
+        .category-section.dragging {
+            opacity: 0.5;
         }
 
         .items-list {
@@ -293,10 +341,6 @@
 
         .item.checked .item-text {
             text-decoration: line-through;
-        }
-
-        .item.swiping {
-            transition: none;
         }
 
         .item-checkbox {
@@ -365,21 +409,16 @@
             color: var(--text-primary);
         }
 
+        .favorite-btn {
+            color: #cccccc;
+        }
+
         .favorite-btn.active {
             color: #FFD700;
         }
 
-        .delete-background {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            background: var(--danger);
-            color: white;
-            display: flex;
-            align-items: center;
-            padding: 0 1.5rem;
-            font-weight: 600;
+        .item.hidden {
+            display: none;
         }
 
         .bottom-bar {
@@ -392,8 +431,15 @@
             box-shadow: 0 -2px 8px var(--shadow);
             display: flex;
             gap: 0.5rem;
-            max-width: 800px;
-            margin: 0 auto;
+            z-index: 90;
+        }
+
+        @media (min-width: 800px) {
+            .bottom-bar {
+                left: 50%;
+                transform: translateX(-50%);
+                max-width: 800px;
+            }
         }
 
         .bottom-btn {
@@ -532,10 +578,29 @@
         }
 
         .favorites-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .favorite-category {
+            margin-bottom: 1rem;
+        }
+
+        .favorite-category-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .favorite-items-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             gap: 0.75rem;
-            margin-bottom: 1rem;
         }
 
         .favorite-item {
@@ -697,6 +762,7 @@
         <div class="header-top">
             <h1>🛒 Mes Courses</h1>
             <div class="header-actions">
+                <button class="icon-btn" id="importBtn" title="Importer">📥</button>
                 <button class="icon-btn" id="favoritesBtn" title="Favoris">⭐</button>
                 <button class="icon-btn" id="settingsBtn" title="Paramètres">⚙️</button>
                 <button class="icon-btn" id="newListBtn" title="Nouvelle liste">➕</button>
@@ -776,8 +842,8 @@
                 </div>
             </div>
             <div class="settings-option">
-                <span>Retour haptique</span>
-                <div class="toggle-switch active" id="hapticToggle">
+                <span>Masquer articles cochés</span>
+                <div class="toggle-switch" id="hideCheckedToggle">
                     <div class="toggle-slider"></div>
                 </div>
             </div>
@@ -816,10 +882,30 @@
             </div>
             <div class="qr-container">
                 <div id="qrcode"></div>
-                <p style="margin-top: 1rem; color: var(--text-secondary);">
-                    Scannez ce QR code pour partager votre liste
+                <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                    Scannez ce QR code avec une app de scan, puis copiez le texte et importez-le dans l'autre appareil
                 </p>
+                <div class="form-group" style="margin-top: 1.5rem;">
+                    <label class="form-label">Ou copiez ce code :</label>
+                    <textarea class="form-input" id="shareCode" rows="3" readonly style="font-size: 0.75rem; font-family: monospace;"></textarea>
+                    <button class="btn-primary" style="margin-top: 0.5rem;" onclick="copyShareCode()">📋 Copier le code</button>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Modal Import manuel -->
+    <div class="modal" id="importManualModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Importer une liste</h2>
+                <button class="close-btn" id="closeImportManualModal">×</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Collez le code de partage ici :</label>
+                <textarea class="form-input" id="importCode" rows="4" placeholder="Collez le code..."></textarea>
+            </div>
+            <button class="btn-primary" onclick="processImportCode()">Importer</button>
         </div>
     </div>
 
@@ -827,11 +913,17 @@
     <div class="modal" id="importModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Importer une liste</h2>
+                <h2 class="modal-title">Importer la liste</h2>
                 <button class="close-btn" id="closeImportModal">×</button>
             </div>
+            <p style="margin-bottom: 0.5rem; font-weight: 600;">
+                Liste : <span id="importListName"></span>
+            </p>
+            <p style="margin-bottom: 1rem; color: var(--text-secondary);">
+                <span id="importItemCount"></span> articles détectés
+            </p>
             <p style="margin-bottom: 1rem;">
-                Une liste a été détectée. Comment souhaitez-vous l'importer ?
+                Comment souhaitez-vous l'importer ?
             </p>
             <div class="merge-options">
                 <div class="merge-option" data-action="replace">
@@ -840,7 +932,7 @@
                 </div>
                 <div class="merge-option" data-action="merge">
                     <div class="merge-option-title">🔀 Fusionner</div>
-                    <div class="merge-option-desc">Ajoute les articles sans doublon</div>
+                    <div class="merge-option-desc">Ajoute les articles sans doublon à la liste actuelle</div>
                 </div>
                 <div class="merge-option" data-action="new">
                     <div class="merge-option-title">➕ Nouvelle liste</div>
@@ -889,19 +981,17 @@
             currentList: 'courses',
             settings: {
                 theme: 'light',
-                haptic: true,
-                fontSize: 100
+                fontSize: 100,
+                hideChecked: false
             },
+            collapsedCategories: {},
+            categoryOrder: ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
             history: {},
-            importData: null
+            importData: null,
+            favorites: []  // Liste persistante des favoris {name, category}
         };
 
         // ==================== UTILS ====================
-        function hapticFeedback() {
-            if (state.settings.haptic && navigator.vibrate) {
-                navigator.vibrate(10);
-            }
-        }
 
         function getCategory(itemName) {
             const name = itemName.toLowerCase();
@@ -920,7 +1010,57 @@
         function loadFromLocalStorage() {
             const saved = localStorage.getItem('shoppingListApp');
             if (saved) {
-                state = JSON.parse(saved);
+                const loadedState = JSON.parse(saved);
+                // Fusionner avec les valeurs par défaut pour assurer la compatibilité
+                state = {
+                    lists: loadedState.lists || {},
+                    currentList: loadedState.currentList || 'courses',
+                    settings: {
+                        theme: loadedState.settings?.theme || 'light',
+                        fontSize: loadedState.settings?.fontSize || 100,
+                        hideChecked: loadedState.settings?.hideChecked || false
+                    },
+                    collapsedCategories: loadedState.collapsedCategories || {},
+                    categoryOrder: loadedState.categoryOrder || ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
+                    history: loadedState.history || {},
+                    importData: loadedState.importData || null,
+                    favorites: loadedState.favorites || []
+                };
+
+                // Assurer que tous les items ont la propriété favorite
+                Object.values(state.lists).forEach(list => {
+                    if (list.items) {
+                        list.items.forEach(item => {
+                            if (item.favorite === undefined) {
+                                item.favorite = false;
+                            }
+                        });
+                    }
+                });
+
+                // Migration: extraire les favoris des items si state.favorites est vide
+                if (state.favorites.length === 0) {
+                    const favoritesSet = new Set();
+                    Object.values(state.lists).forEach(list => {
+                        if (list.items) {
+                            list.items.forEach(item => {
+                                if (item.favorite) {
+                                    const key = item.name.toLowerCase();
+                                    if (!favoritesSet.has(key)) {
+                                        favoritesSet.add(key);
+                                        state.favorites.push({
+                                            name: item.name,
+                                            category: item.category
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                    if (state.favorites.length > 0) {
+                        saveToLocalStorage();
+                    }
+                }
             } else {
                 state.lists['courses'] = { name: 'Courses', items: [] };
             }
@@ -1007,13 +1147,17 @@
         // ==================== GESTION DES ARTICLES ====================
         function addItem(name, quantity = '', category = null) {
             const list = state.lists[state.currentList];
+
+            // Vérifier si l'article est dans les favoris
+            const isFavorite = state.favorites.some(f => f.name.toLowerCase() === name.trim().toLowerCase());
+
             const item = {
                 id: generateId(),
                 name: name.trim(),
                 quantity,
                 category: category || getCategory(name),
                 checked: false,
-                favorite: false,
+                favorite: isFavorite,
                 addedAt: Date.now()
             };
             list.items.push(item);
@@ -1025,17 +1169,20 @@
             state.history[name.toLowerCase()]++;
 
             saveToLocalStorage();
+            renderListTabs();
             renderItems();
             renderSuggestions();
-            hapticFeedback();
         }
 
         function deleteItem(itemId) {
+            if (!confirm('Supprimer cet article ?')) {
+                return;
+            }
             const list = state.lists[state.currentList];
             list.items = list.items.filter(item => item.id !== itemId);
             saveToLocalStorage();
+            renderListTabs();
             renderItems();
-            hapticFeedback();
         }
 
         function toggleItem(itemId) {
@@ -1044,8 +1191,8 @@
             if (item) {
                 item.checked = !item.checked;
                 saveToLocalStorage();
+                renderListTabs();
                 renderItems();
-                hapticFeedback();
             }
         }
 
@@ -1053,11 +1200,38 @@
             const list = state.lists[state.currentList];
             const item = list.items.find(i => i.id === itemId);
             if (item) {
-                item.favorite = !item.favorite;
+                const newFavoriteState = !item.favorite;
+                const itemNameLower = item.name.toLowerCase();
+
+                // Mettre à jour l'état favori dans TOUTES les listes pour cet article
+                Object.values(state.lists).forEach(list => {
+                    if (list.items) {
+                        list.items.forEach(listItem => {
+                            if (listItem.name.toLowerCase() === itemNameLower) {
+                                listItem.favorite = newFavoriteState;
+                            }
+                        });
+                    }
+                });
+
+                // Gérer la liste persistante des favoris
+                if (newFavoriteState) {
+                    // Ajouter aux favoris s'il n'y est pas déjà
+                    const exists = state.favorites.find(f => f.name.toLowerCase() === itemNameLower);
+                    if (!exists) {
+                        state.favorites.push({
+                            name: item.name,
+                            category: item.category
+                        });
+                    }
+                } else {
+                    // Retirer des favoris
+                    state.favorites = state.favorites.filter(f => f.name.toLowerCase() !== itemNameLower);
+                }
+
                 saveToLocalStorage();
                 renderItems();
                 renderFavorites();
-                hapticFeedback();
             }
         }
 
@@ -1069,6 +1243,7 @@
                 item.quantity = quantity;
                 item.category = category;
                 saveToLocalStorage();
+                renderListTabs();
                 renderItems();
             }
         }
@@ -1083,8 +1258,8 @@
             if (confirm(`Supprimer ${checkedCount} article(s) coché(s) ?`)) {
                 list.items = list.items.filter(item => !item.checked);
                 saveToLocalStorage();
+                renderListTabs();
                 renderItems();
-                hapticFeedback();
             }
         }
 
@@ -1095,11 +1270,18 @@
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
 
             let items = list.items;
+
+            // Filtrer selon la recherche
             if (searchTerm) {
                 items = items.filter(item =>
                     item.name.toLowerCase().includes(searchTerm) ||
                     item.quantity.toLowerCase().includes(searchTerm)
                 );
+            }
+
+            // Masquer les articles cochés si l'option est activée
+            if (state.settings.hideChecked) {
+                items = items.filter(item => !item.checked);
             }
 
             // Grouper par catégorie
@@ -1131,23 +1313,26 @@
                 return;
             }
 
-            container.innerHTML = Object.entries(grouped).map(([category, items]) => {
+            // Trier les catégories selon l'ordre défini
+            const orderedCategories = state.categoryOrder
+                .filter(cat => grouped[cat])
+                .map(cat => [cat, grouped[cat]]);
+
+            container.innerHTML = orderedCategories.map(([category, items]) => {
                 const categoryData = CATEGORIES[category];
+                const isCollapsed = state.collapsedCategories[category];
                 return `
-                    <div class="category-section">
-                        <div class="category-header" style="border-color: ${categoryData.color}">
+                    <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="true">
+                        <div class="category-header" style="border-color: ${categoryData.color};" onclick="handleCategoryHeaderClick(event, '${category}')">
+                            <span class="category-drag-handle" title="Réorganiser">☰</span>
                             <span class="category-icon">${categoryData.icon}</span>
                             <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
                             <span class="category-count">${items.length}</span>
+                            <button class="category-toggle">▼</button>
                         </div>
                         <ul class="items-list">
                             ${items.map(item => `
-                                <li class="item ${item.checked ? 'checked' : ''}"
-                                    data-id="${item.id}"
-                                    ontouchstart="handleTouchStart(event, '${item.id}')"
-                                    ontouchmove="handleTouchMove(event, '${item.id}')"
-                                    ontouchend="handleTouchEnd(event, '${item.id}')">
-                                    <div class="delete-background">Supprimer</div>
+                                <li class="item ${item.checked ? 'checked' : ''}" data-id="${item.id}">
                                     <div class="item-checkbox" onclick="toggleItem('${item.id}')"></div>
                                     <div class="item-content" onclick="openEditModal('${item.id}')">
                                         <div class="item-text">${item.name}</div>
@@ -1155,8 +1340,9 @@
                                     </div>
                                     <div class="item-actions">
                                         <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}"
-                                                onclick="toggleFavorite('${item.id}')">⭐</button>
-                                        <button class="item-btn" onclick="deleteItem('${item.id}')">🗑️</button>
+                                                onclick="toggleFavorite('${item.id}')">★</button>
+                                        <button class="item-btn delete-btn"
+                                                onclick="deleteItem('${item.id}')">🗑️</button>
                                     </div>
                                 </li>
                             `).join('')}
@@ -1164,6 +1350,91 @@
                     </div>
                 `;
             }).join('');
+
+            // Ajouter les event listeners pour le drag & drop
+            setupCategoryDragDrop();
+        }
+
+        function handleCategoryHeaderClick(event, category) {
+            // Ignorer si le clic vient de la poignée de drag
+            if (event.target.classList.contains('category-drag-handle') ||
+                event.target.closest('.category-drag-handle')) {
+                return;
+            }
+            toggleCategory(category);
+        }
+
+        function toggleCategory(category) {
+            state.collapsedCategories[category] = !state.collapsedCategories[category];
+            saveToLocalStorage();
+            renderItems();
+        }
+
+        function setupCategoryDragDrop() {
+            const categories = document.querySelectorAll('.category-section');
+            let draggedElement = null;
+            let draggedCategory = null;
+
+            categories.forEach(category => {
+                category.addEventListener('dragstart', (e) => {
+                    // Vérifier si le drag a commencé sur la poignée
+                    if (!e.target.classList.contains('category-drag-handle') &&
+                        !e.target.closest('.category-drag-handle')) {
+                        e.preventDefault();
+                        return;
+                    }
+
+                    draggedElement = category;
+                    draggedCategory = category.dataset.category;
+                    category.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+
+                category.addEventListener('dragend', () => {
+                    if (draggedElement) {
+                        draggedElement.classList.remove('dragging');
+                        draggedElement = null;
+                        draggedCategory = null;
+                    }
+                });
+
+                category.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    if (!draggedElement || draggedElement === category) return;
+
+                    const rect = category.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+
+                    if (e.clientY < midpoint) {
+                        category.parentNode.insertBefore(draggedElement, category);
+                    } else {
+                        category.parentNode.insertBefore(draggedElement, category.nextSibling);
+                    }
+                });
+
+                category.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    if (!draggedCategory) return;
+
+                    // Mettre à jour l'ordre dans le state
+                    const newOrder = Array.from(document.querySelectorAll('.category-section'))
+                        .map(el => el.dataset.category);
+
+                    state.categoryOrder = newOrder;
+                    saveToLocalStorage();
+                });
+
+                // Empêcher le drag de s'activer ailleurs que sur la poignée
+                const header = category.querySelector('.category-header');
+                header.addEventListener('mousedown', (e) => {
+                    if (e.target.classList.contains('category-drag-handle') ||
+                        e.target.closest('.category-drag-handle')) {
+                        category.draggable = true;
+                    } else {
+                        category.draggable = false;
+                    }
+                });
+            });
         }
 
         function renderSuggestions() {
@@ -1192,30 +1463,41 @@
 
         function renderFavorites() {
             const grid = document.getElementById('favoritesGrid');
-            const allFavorites = [];
 
-            Object.values(state.lists).forEach(list => {
-                list.items.forEach(item => {
-                    if (item.favorite) {
-                        const existing = allFavorites.find(f => f.name.toLowerCase() === item.name.toLowerCase());
-                        if (!existing) {
-                            allFavorites.push(item);
-                        }
-                    }
-                });
-            });
-
-            if (allFavorites.length === 0) {
+            if (state.favorites.length === 0) {
                 grid.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Aucun favori pour le moment</p>';
                 return;
             }
 
-            grid.innerHTML = allFavorites.map(item => {
-                const categoryData = CATEGORIES[item.category];
+            // Grouper les favoris par catégorie
+            const grouped = {};
+            state.favorites.forEach(item => {
+                if (!grouped[item.category]) {
+                    grouped[item.category] = [];
+                }
+                grouped[item.category].push(item);
+            });
+
+            // Trier selon l'ordre des catégories
+            const orderedCategories = state.categoryOrder
+                .filter(cat => grouped[cat])
+                .map(cat => [cat, grouped[cat]]);
+
+            grid.innerHTML = orderedCategories.map(([category, items]) => {
+                const categoryData = CATEGORIES[category];
                 return `
-                    <div class="favorite-item" onclick="addItemFromFavorite('${item.name}', '${item.category}')">
-                        <div class="favorite-icon">${categoryData.icon}</div>
-                        <div class="favorite-name">${item.name}</div>
+                    <div class="favorite-category">
+                        <div class="favorite-category-title">
+                            ${categoryData.icon} ${category.charAt(0).toUpperCase() + category.slice(1)}
+                        </div>
+                        <div class="favorite-items-grid">
+                            ${items.map(item => `
+                                <div class="favorite-item" onclick="addItemFromFavorite('${item.name}', '${item.category}')">
+                                    <div class="favorite-icon">${categoryData.icon}</div>
+                                    <div class="favorite-name">${item.name}</div>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -1224,48 +1506,6 @@
         function addItemFromFavorite(name, category) {
             addItem(name, '', category);
             closeModal('favoritesModal');
-        }
-
-        // ==================== SWIPE GESTURES ====================
-        let touchStartX = 0;
-        let touchCurrentX = 0;
-        let isSwiping = false;
-        let swipingItemId = null;
-
-        function handleTouchStart(event, itemId) {
-            touchStartX = event.touches[0].clientX;
-            swipingItemId = itemId;
-        }
-
-        function handleTouchMove(event, itemId) {
-            if (swipingItemId !== itemId) return;
-
-            touchCurrentX = event.touches[0].clientX;
-            const diff = touchStartX - touchCurrentX;
-
-            if (diff > 10) {
-                isSwiping = true;
-                const item = document.querySelector(`[data-id="${itemId}"]`);
-                item.classList.add('swiping');
-                item.style.transform = `translateX(-${Math.min(diff, 100)}px)`;
-            }
-        }
-
-        function handleTouchEnd(event, itemId) {
-            if (swipingItemId !== itemId) return;
-
-            const diff = touchStartX - touchCurrentX;
-            const item = document.querySelector(`[data-id="${itemId}"]`);
-
-            if (diff > 100) {
-                deleteItem(itemId);
-            } else {
-                item.style.transform = '';
-                item.classList.remove('swiping');
-            }
-
-            isSwiping = false;
-            swipingItemId = null;
         }
 
         // ==================== MODALS ====================
@@ -1315,21 +1555,75 @@
             const list = state.lists[state.currentList];
             const data = {
                 name: list.name,
-                items: list.items,
+                items: list.items.map(item => ({
+                    name: item.name,
+                    quantity: item.quantity,
+                    category: item.category,
+                    checked: item.checked
+                })),
                 timestamp: Date.now()
             };
 
             const encoded = btoa(JSON.stringify(data));
-            const url = `${window.location.origin}${window.location.pathname}?import=${encoded}`;
 
+            // Générer le QR code avec les données directement
             document.getElementById('qrcode').innerHTML = '';
             new QRCode(document.getElementById('qrcode'), {
-                text: url,
+                text: encoded,
                 width: 256,
                 height: 256
             });
 
+            // Afficher le code dans le champ texte
+            document.getElementById('shareCode').value = encoded;
+
             openModal('shareModal');
+        }
+
+        function copyShareCode() {
+            const code = document.getElementById('shareCode');
+            code.select();
+            code.setSelectionRange(0, 99999); // Pour mobile
+
+            try {
+                document.execCommand('copy');
+                alert('Code copié !');
+            } catch (e) {
+                // Fallback pour navigateurs modernes
+                navigator.clipboard.writeText(code.value).then(() => {
+                    alert('Code copié !');
+                }).catch(() => {
+                    alert('Erreur lors de la copie');
+                });
+            }
+        }
+
+        function processImportCode() {
+            const code = document.getElementById('importCode').value.trim();
+            if (!code) {
+                alert('Veuillez coller un code valide');
+                return;
+            }
+
+            try {
+                const decoded = JSON.parse(atob(code));
+                if (!decoded.name || !decoded.items) {
+                    throw new Error('Format invalide');
+                }
+
+                state.importData = decoded;
+
+                // Afficher les infos dans le modal d'import
+                document.getElementById('importListName').textContent = decoded.name;
+                document.getElementById('importItemCount').textContent = decoded.items.length;
+
+                closeModal('importManualModal');
+                openModal('importModal');
+                document.getElementById('importCode').value = '';
+            } catch (e) {
+                alert('Code invalide. Veuillez vérifier et réessayer.');
+                console.error('Erreur import:', e);
+            }
         }
 
         function checkImportUrl() {
@@ -1340,6 +1634,10 @@
                 try {
                     const decoded = JSON.parse(atob(importData));
                     state.importData = decoded;
+
+                    document.getElementById('importListName').textContent = decoded.name;
+                    document.getElementById('importItemCount').textContent = decoded.items.length;
+
                     openModal('importModal');
 
                     // Nettoyer l'URL
@@ -1356,18 +1654,36 @@
             const list = state.lists[state.currentList];
 
             if (action === 'replace') {
-                list.items = state.importData.items;
+                list.items = state.importData.items.map(item => ({
+                    ...item,
+                    id: generateId(),
+                    favorite: false,
+                    addedAt: Date.now()
+                }));
             } else if (action === 'merge') {
                 const existingNames = list.items.map(i => i.name.toLowerCase());
                 state.importData.items.forEach(item => {
                     if (!existingNames.includes(item.name.toLowerCase())) {
-                        item.id = generateId();
-                        list.items.push(item);
+                        list.items.push({
+                            ...item,
+                            id: generateId(),
+                            favorite: false,
+                            addedAt: Date.now()
+                        });
                     }
                 });
             } else if (action === 'new') {
-                createList(state.importData.name);
-                state.lists[state.currentList].items = state.importData.items;
+                const newId = generateId();
+                state.lists[newId] = {
+                    name: state.importData.name,
+                    items: state.importData.items.map(item => ({
+                        ...item,
+                        id: generateId(),
+                        favorite: false,
+                        addedAt: Date.now()
+                    }))
+                };
+                state.currentList = newId;
             }
 
             state.importData = null;
@@ -1385,10 +1701,11 @@
             saveToLocalStorage();
         }
 
-        function toggleHaptic() {
-            state.settings.haptic = !state.settings.haptic;
-            document.getElementById('hapticToggle').classList.toggle('active');
+        function toggleHideChecked() {
+            state.settings.hideChecked = !state.settings.hideChecked;
+            document.getElementById('hideCheckedToggle').classList.toggle('active');
             saveToLocalStorage();
+            renderItems();
         }
 
         function adjustFontSize(delta) {
@@ -1414,6 +1731,7 @@
         document.getElementById('clearCheckedBtn').addEventListener('click', clearCheckedItems);
         document.getElementById('shareBtn').addEventListener('click', generateQRCode);
 
+        document.getElementById('importBtn').addEventListener('click', () => openModal('importManualModal'));
         document.getElementById('settingsBtn').addEventListener('click', () => openModal('settingsModal'));
         document.getElementById('favoritesBtn').addEventListener('click', () => {
             renderFavorites();
@@ -1427,11 +1745,12 @@
         document.getElementById('closeNewListModal').addEventListener('click', () => closeModal('newListModal'));
         document.getElementById('closeShareModal').addEventListener('click', () => closeModal('shareModal'));
         document.getElementById('closeImportModal').addEventListener('click', () => closeModal('importModal'));
+        document.getElementById('closeImportManualModal').addEventListener('click', () => closeModal('importManualModal'));
 
         document.getElementById('saveEditBtn').addEventListener('click', saveEdit);
 
         document.getElementById('themeToggle').addEventListener('click', toggleTheme);
-        document.getElementById('hapticToggle').addEventListener('click', toggleHaptic);
+        document.getElementById('hideCheckedToggle').addEventListener('click', toggleHideChecked);
         document.getElementById('decreaseFontBtn').addEventListener('click', () => adjustFontSize(-10));
         document.getElementById('increaseFontBtn').addEventListener('click', () => adjustFontSize(10));
 
@@ -1471,8 +1790,8 @@
             if (state.settings.theme === 'dark') {
                 document.getElementById('themeToggle').classList.add('active');
             }
-            if (!state.settings.haptic) {
-                document.getElementById('hapticToggle').classList.remove('active');
+            if (state.settings.hideChecked) {
+                document.getElementById('hideCheckedToggle').classList.add('active');
             }
             document.documentElement.style.setProperty('--font-size-base', `${state.settings.fontSize}%`);
             document.getElementById('fontSizeLabel').textContent = `${state.settings.fontSize}%`;
