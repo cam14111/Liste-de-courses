@@ -1469,6 +1469,13 @@
         let swipingItemId = null;
 
         function handleTouchStart(event, itemId) {
+            // Ignorer si le touch commence sur un bouton ou dans item-actions
+            const target = event.target;
+            if (target.closest('.item-btn') || target.closest('.item-actions') || target.closest('button')) {
+                swipingItemId = null;
+                return;
+            }
+
             touchStartX = event.touches[0].clientX;
             swipingItemId = itemId;
         }
