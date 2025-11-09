@@ -1737,6 +1737,11 @@
             let touchStartY = 0;
             let touchCurrentY = 0;
             let isTouchDragging = false;
+            let touchStartTimer = null;
+            let touchStartX = 0;
+            let isPendingDrag = false;
+            const DRAG_DELAY = 500; // Délai en ms avant d'activer le drag
+            const MOVEMENT_THRESHOLD = 10; // Seuil de mouvement pour annuler le drag (en pixels)
 
             categories.forEach(category => {
                 // === ÉVÉNEMENTS SOURIS (Desktop) ===
@@ -1799,20 +1804,46 @@
 
                 handle.addEventListener('touchstart', (e) => {
                     e.stopPropagation(); // Empêcher la propagation
-                    isTouchDragging = true;
-                    draggedElement = category;
-                    draggedCategory = category.dataset.category;
+
+                    // Stocker la position initiale
                     touchStartY = e.touches[0].clientY;
-                    // Vibration feedback si disponible
-                    if (navigator.vibrate) {
-                        navigator.vibrate(50);
-                    }
-                    category.classList.add('dragging');
+                    touchStartX = e.touches[0].clientX;
+                    isPendingDrag = true;
+
+                    // Temporisation avant d'activer le drag (500ms)
+                    touchStartTimer = setTimeout(() => {
+                        if (isPendingDrag) {
+                            // Activer le drag après le délai
+                            isTouchDragging = true;
+                            draggedElement = category;
+                            draggedCategory = category.dataset.category;
+
+                            // Vibration feedback au moment de l'activation du drag
+                            if (navigator.vibrate) {
+                                navigator.vibrate(50);
+                            }
+
+                            category.classList.add('dragging');
+                        }
+                    }, DRAG_DELAY);
                 }, { passive: true });
             });
 
             // Événements tactiles globaux (en dehors de la boucle pour éviter les doublons)
             document.addEventListener('touchmove', (e) => {
+                // Si le drag est en attente (avant la temporisation)
+                if (isPendingDrag && !isTouchDragging) {
+                    const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+                    const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+
+                    // Annuler le drag si l'utilisateur bouge trop (probable scroll)
+                    if (deltaX > MOVEMENT_THRESHOLD || deltaY > MOVEMENT_THRESHOLD) {
+                        clearTimeout(touchStartTimer);
+                        isPendingDrag = false;
+                    }
+                    return;
+                }
+
                 if (!isTouchDragging || !draggedElement) return;
 
                 e.preventDefault(); // Empêcher le scroll pendant le drag
@@ -1838,6 +1869,13 @@
             }, { passive: false });
 
             document.addEventListener('touchend', (e) => {
+                // Si le drag était en attente (avant la temporisation), annuler
+                if (isPendingDrag && !isTouchDragging) {
+                    clearTimeout(touchStartTimer);
+                    isPendingDrag = false;
+                    return;
+                }
+
                 if (!isTouchDragging) return;
 
                 if (draggedElement) {
@@ -1855,8 +1893,10 @@
                 }
 
                 isTouchDragging = false;
+                isPendingDrag = false;
                 touchStartY = 0;
                 touchCurrentY = 0;
+                touchStartX = 0;
             }, { passive: true });
         }
 
@@ -1872,9 +1912,23 @@
                 let longPressTimer = null;
                 let isLongPress = false;
 
+                // Variables pour détecter le défilement vs tap
+                let touchStartX = 0;
+                let touchStartY = 0;
+                let hasMoved = false;
+                const MOVEMENT_THRESHOLD = 10; // pixels
+
                 // Fonction pour démarrer le timer d'appui long
                 const startLongPress = (e) => {
                     isLongPress = false;
+                    hasMoved = false;
+
+                    // Enregistrer la position initiale du touch
+                    if (e.touches && e.touches.length > 0) {
+                        touchStartX = e.touches[0].clientX;
+                        touchStartY = e.touches[0].clientY;
+                    }
+
                     longPressTimer = setTimeout(() => {
                         isLongPress = true;
                         // Vibration feedback si disponible
@@ -1883,6 +1937,29 @@
                         }
                         openEditModal(itemId);
                     }, 500); // 500ms pour considérer comme appui long
+                };
+
+                // Fonction pour détecter le mouvement
+                const detectMovement = (e) => {
+                    if (e.touches && e.touches.length > 0) {
+                        const touchCurrentX = e.touches[0].clientX;
+                        const touchCurrentY = e.touches[0].clientY;
+
+                        // Calculer la distance parcourue
+                        const deltaX = Math.abs(touchCurrentX - touchStartX);
+                        const deltaY = Math.abs(touchCurrentY - touchStartY);
+
+                        // Si le mouvement dépasse le seuil, marquer comme défilement
+                        if (deltaX > MOVEMENT_THRESHOLD || deltaY > MOVEMENT_THRESHOLD) {
+                            hasMoved = true;
+                        }
+                    }
+
+                    // Annuler le timer de long press si mouvement détecté
+                    if (hasMoved && longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
                 };
 
                 // Fonction pour annuler le timer d'appui long
@@ -1895,10 +1972,11 @@
 
                 // Fonction pour gérer le clic/touch
                 const handleClick = (e) => {
-                    if (!isLongPress) {
+                    if (!isLongPress && !hasMoved) {
                         toggleItem(itemId);
                     }
                     isLongPress = false;
+                    hasMoved = false;
                 };
 
                 // === ÉVÉNEMENTS SOURIS (Desktop) ===
@@ -1931,7 +2009,7 @@
                         cancelLongPress();
                         handleClick(e);
                     });
-                    checkbox.addEventListener('touchmove', cancelLongPress, { passive: true });
+                    checkbox.addEventListener('touchmove', detectMovement, { passive: true });
                 }
 
                 // Sur le contenu (nom de l'article)
@@ -1942,7 +2020,7 @@
                         cancelLongPress();
                         handleClick(e);
                     });
-                    content.addEventListener('touchmove', cancelLongPress, { passive: true });
+                    content.addEventListener('touchmove', detectMovement, { passive: true });
                 }
             });
         }
