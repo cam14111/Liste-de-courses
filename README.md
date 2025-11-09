@@ -21,6 +21,7 @@ Application web standalone de liste de courses optimisée pour mobile avec stock
 - 🔀 Tri automatique par catégorie
 - 🌈 Code couleur par catégorie
 - 🖼️ Icônes pour chaque catégorie
+- 📊 Compteur de progression (x/y articles cochés) par catégorie
 
 ### ⭐ Favoris et suggestions
 - 📌 Marquer des articles comme favoris

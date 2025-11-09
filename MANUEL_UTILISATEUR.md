@@ -21,6 +21,7 @@
 - Suggestions intelligentes basées sur votre historique
 - Partage de listes via QR code
 - Mode sombre et personnalisation de l'affichage
+- Retour haptique (vibrations) sur les interactions principales
 - Fonctionne entièrement hors ligne
 - Vos données restent privées sur votre appareil
 
@@ -92,7 +93,8 @@ Au premier lancement, vous verrez une liste vide nommée "Courses".
 
 **Sur mobile :**
 1. Maintenez votre doigt appuyé sur un onglet de liste pendant 500ms
-2. Un menu d'actions apparaît avec 3 options
+2. Une légère vibration confirme la détection de l'appui long
+3. Un menu d'actions apparaît avec 3 options
 
 **Sur ordinateur :**
 1. Faites un clic droit sur un onglet de liste
@@ -153,6 +155,7 @@ Chaque onglet affiche : `Nom de la liste (cochés/total)`
 #### Cocher/décocher un article
 
 - Cliquez sur le **cercle** à gauche de l'article
+- Une légère vibration confirme l'action (sur appareils compatibles)
 - L'article coché apparaît grisé et barré
 - Les articles cochés descendent en bas de leur catégorie
 
@@ -210,7 +213,7 @@ L'application analyse le nom de chaque article et le place automatiquement dans 
 1. Cliquez sur l'en-tête de la catégorie
 2. La catégorie se replie pour économiser de l'espace
 3. Cliquez à nouveau pour la déplier
-4. Le nombre d'articles est affiché : `Fruits (4)`
+4. Un compteur de progression est affiché : `2/4` (2 articles cochés sur 4 au total)
 
 #### Réorganiser les catégories
 
@@ -220,10 +223,11 @@ L'application analyse le nom de chaque article et le place automatiquement dans 
 3. Relâchez pour valider le nouvel ordre
 
 **Sur mobile :**
-1. Touchez et maintenez l'icône **☰** pendant 500ms
-2. Déplacez votre doigt vers le haut ou le bas
-3. La catégorie se déplace en temps réel
-4. Relâchez pour valider
+1. Touchez et maintenez l'icône **☰**
+2. Une légère vibration confirme la prise de la catégorie
+3. Déplacez votre doigt vers le haut ou le bas
+4. La catégorie se déplace en temps réel
+5. Relâchez pour valider
 
 L'ordre est sauvegardé automatiquement.
 
@@ -275,7 +279,7 @@ L'ordre est sauvegardé automatiquement.
 
 - Les favoris sont groupés par catégorie
 - Une seule catégorie peut être déployée à la fois (comportement accordion)
-- Le nombre d'articles est affiché : `Fruits (5)`
+- Le nombre total d'articles favoris est affiché : `Fruits (5)`
 - L'ordre suit celui défini dans vos catégories
 
 #### Retirer un article des favoris
@@ -514,6 +518,25 @@ La réinitialisation supprime :
 - Les autres membres importent et fusionnent
 - Chacun peut ajouter ses besoins
 
+### Retour haptique (vibrations)
+
+**Fonctionnement :**
+L'application utilise de légères vibrations (50ms) pour confirmer certaines actions importantes :
+
+**Interactions concernées :**
+1. **Appui long sur une liste** : Vibration après 500ms pour confirmer l'ouverture du menu
+2. **Appui long sur un article** : Vibration après 500ms pour confirmer l'ouverture de l'édition
+3. **Validation d'un article** : Vibration à chaque fois que vous cochez/décochez un article
+4. **Glisser-déposer de catégories** : Vibration quand vous saisissez la poignée ☰
+
+**Compatibilité :**
+- iOS Safari 13+ (iPhone, iPad)
+- Chrome Android 32+
+- Firefox Android 16+
+- Non supporté sur ordinateurs (sauf certains PC tactiles)
+
+**Note :** Si votre appareil ne supporte pas les vibrations, l'application fonctionne normalement sans vibrations.
+
 ### Utilisation hors ligne
 
 **L'application fonctionne 100% offline après installation :**
@@ -626,6 +649,30 @@ La réinitialisation supprime :
 - Aucune corbeille ou historique
 - Solution : sauvegardez régulièrement vos listes importantes via le partage
 
+### Les vibrations ne fonctionnent pas
+
+**Causes possibles :**
+
+1. **Appareil non compatible**
+   - Les vibrations ne sont pas supportées sur tous les appareils
+   - Les ordinateurs de bureau ne vibrent généralement pas
+   - Vérifiez la liste de compatibilité dans la section [Retour haptique](#retour-haptique-vibrations)
+
+2. **Mode silencieux activé (iOS)**
+   - Sur iPhone/iPad, le mode silencieux peut désactiver les vibrations dans certaines apps
+   - Essayez de désactiver le mode silencieux
+
+3. **Vibrations désactivées dans les paramètres système**
+   - Android : Paramètres > Sons et vibrations > Intensité des vibrations
+   - iOS : Réglages > Sons et vibrations
+
+4. **Navigateur non compatible**
+   - iOS : utilisez Safari (Chrome iOS ne supporte pas l'API Vibration)
+   - Android : utilisez Chrome ou Firefox
+   - Desktop : non supporté sur la plupart des navigateurs
+
+**Note :** L'absence de vibrations n'affecte pas le fonctionnement de l'application. Toutes les fonctionnalités restent disponibles.
+
 ---
 
 ## Besoin d'aide ?
@@ -642,6 +689,6 @@ Cette application est open source. N'hésitez pas à :
 
 ---
 
-**Version du manuel :** 1.0
-**Dernière mise à jour :** 2025-01-08
-**Application :** Ma Liste de Courses v2.0
+**Version du manuel :** 1.1
+**Dernière mise à jour :** 2025-01-09
+**Application :** Ma Liste de Courses v2.1

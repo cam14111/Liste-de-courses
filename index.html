@@ -1425,6 +1425,10 @@
                     longPressTriggered = false;
                     longPressTimer = setTimeout(() => {
                         longPressTriggered = true;
+                        // Vibration feedback si disponible
+                        if (navigator.vibrate) {
+                            navigator.vibrate(50);
+                        }
                         handleListContextMenu(e, tab.dataset.list);
                     }, 500); // 500ms pour déclencher l'appui long
                 });
@@ -1536,6 +1540,10 @@
             const item = list.items.find(i => i.id === itemId);
             if (item) {
                 item.checked = !item.checked;
+                // Vibration feedback si disponible
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
                 saveToLocalStorage();
                 renderListTabs();
                 renderItems();
@@ -1668,13 +1676,14 @@
             container.innerHTML = orderedCategories.map(([category, items]) => {
                 const categoryData = state.categories[category];
                 const isCollapsed = state.collapsedCategories[category];
+                const checkedCount = items.filter(i => i.checked).length;
                 return `
                     <div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="false">
                         <div class="category-header" style="border-color: ${categoryData.color};" onclick="handleCategoryHeaderClick(event, '${category}')">
                             <span class="category-drag-handle" title="Réorganiser">☰</span>
                             <span class="category-icon">${categoryData.icon}</span>
                             <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
-                            <span class="category-count">${items.length}</span>
+                            <span class="category-count">${checkedCount}/${items.length}</span>
                             <button class="category-toggle">▼</button>
                         </div>
                         <ul class="items-list">
@@ -1794,6 +1803,10 @@
                     draggedElement = category;
                     draggedCategory = category.dataset.category;
                     touchStartY = e.touches[0].clientY;
+                    // Vibration feedback si disponible
+                    if (navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
                     category.classList.add('dragging');
                 }, { passive: true });
             });

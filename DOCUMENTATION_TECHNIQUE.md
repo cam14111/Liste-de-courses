@@ -104,6 +104,7 @@ Liste-de-courses-main/
 - **History API** : Gestion des paramètres URL
 - **Drag & Drop API** : Réorganisation des catégories
 - **Touch Events API** : Interactions tactiles
+- **Vibration API** : Retour haptique sur les interactions principales
 
 ### Compatibilité navigateurs
 - Chrome/Edge 90+
@@ -291,7 +292,117 @@ function renderSuggestions() {
 }
 ```
 
-### 5. Drag & Drop de catégories
+### 5. Compteur de progression des catégories
+
+**Fonctionnalité :**
+Chaque header de catégorie affiche un compteur de progression au format `x/y` où :
+- `x` = nombre d'articles cochés dans la catégorie
+- `y` = nombre total d'articles dans la catégorie
+
+**Implémentation :**
+```javascript
+container.innerHTML = orderedCategories.map(([category, items]) => {
+    const categoryData = state.categories[category];
+    const isCollapsed = state.collapsedCategories[category];
+    const checkedCount = items.filter(i => i.checked).length;
+    return `
+        <span class="category-count">${checkedCount}/${items.length}</span>
+    `;
+});
+```
+
+**Mise à jour en temps réel :**
+- Le compteur est recalculé à chaque appel de `renderItems()`
+- Mise à jour automatique lors du cochage/décochage d'un article
+- Mise à jour lors de l'ajout/suppression d'articles
+
+**Exemple :**
+- `0/4` : Aucun article coché sur 4
+- `2/5` : 2 articles cochés sur 5
+- `4/4` : Tous les articles cochés
+
+### 6. Retour haptique (Vibration API)
+
+**Implémentation uniforme :**
+
+L'application utilise le retour haptique pour améliorer l'expérience utilisateur sur les interactions principales :
+
+```javascript
+// Fonction standard de vibration (50ms)
+if (navigator.vibrate) {
+    navigator.vibrate(50);
+}
+```
+
+**Points de déclenchement :**
+
+**1. Appui long sur une liste (500ms)**
+```javascript
+tab.addEventListener('touchstart', (e) => {
+    longPressTimer = setTimeout(() => {
+        // Vibration feedback si disponible
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+        handleListContextMenu(e, tab.dataset.list);
+    }, 500);
+});
+```
+
+**2. Glisser-déposer des catégories**
+```javascript
+handle.addEventListener('touchstart', (e) => {
+    // Vibration feedback si disponible
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+    draggedElement = category;
+    category.classList.add('dragging');
+});
+```
+
+**3. Validation d'un article (cocher/décocher)**
+```javascript
+function toggleItem(itemId) {
+    const item = list.items.find(i => i.id === itemId);
+    if (item) {
+        item.checked = !item.checked;
+        // Vibration feedback si disponible
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+        saveToLocalStorage();
+        renderItems();
+    }
+}
+```
+
+**4. Appui long sur un article (500ms)**
+```javascript
+longPressTimer = setTimeout(() => {
+    isLongPress = true;
+    // Vibration feedback si disponible
+    if (navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+    openEditModal(itemId);
+}, 500);
+```
+
+**Caractéristiques :**
+- Durée uniforme : **50ms** pour tous les événements
+- Vérification de compatibilité : `if (navigator.vibrate)`
+- Pas de déclenchement multiple grâce aux flags existants
+- Compatible avec iOS Safari 13+, Chrome 32+, Firefox 16+
+- Graceful degradation : fonctionne silencieusement si non supporté
+
+**Avantages UX :**
+- Confirmation tactile des interactions
+- Améliore la perception de réactivité
+- Cohérence avec les standards mobiles natifs
+- Économe en batterie (vibrations courtes)
+
+### 7. Drag & Drop de catégories
 
 **Support double (souris + tactile) :**
 
@@ -330,7 +441,7 @@ state.categoryOrder = newOrder;
 saveToLocalStorage();
 ```
 
-### 6. Partage via QR Code
+### 8. Partage via QR Code
 
 **Génération :**
 ```javascript
@@ -975,7 +1086,7 @@ function nouvelleFonction(itemId) {
 
 **Court terme :**
 - [ ] Swipe pour supprimer (mobile)
-- [ ] Retour haptique (vibrations)
+- [x] Retour haptique (vibrations) - ✅ Implémenté
 - [ ] Undo/Redo
 - [ ] Recherche avancée (par catégorie)
 - [ ] Export CSV/PDF
@@ -1073,7 +1184,13 @@ function nouvelleFonction(itemId) {
 
 ## Changelog
 
-### Version 2.0 (Actuelle)
+### Version 2.1 (Actuelle)
+- ✅ Retour haptique uniforme sur toutes les interactions principales
+- ✅ Vibration sur appui long (listes et articles)
+- ✅ Vibration sur glisser-déposer des catégories
+- ✅ Vibration sur validation d'articles
+
+### Version 2.0
 - ✅ Système d'IDs techniques pour catégories
 - ✅ Migration automatique depuis V1
 - ✅ Favoris persistants globaux
@@ -1105,6 +1222,6 @@ Projet open source communautaire
 
 ---
 
-**Version de la documentation :** 1.0
-**Dernière mise à jour :** 2025-01-08
-**Application :** Ma Liste de Courses v2.0
+**Version de la documentation :** 1.1
+**Dernière mise à jour :** 2025-01-09
+**Application :** Ma Liste de Courses v2.1
