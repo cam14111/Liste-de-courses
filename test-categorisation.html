@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de catégorisation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .test-pass {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+        }
+        .test-fail {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .summary {
+            font-size: 1.2em;
+            font-weight: bold;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .summary.pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        .summary.fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test de Catégorisation - Correctif Faux Positifs</h1>
+
+    <div id="results"></div>
+
+    <script>
+        // Copie des constantes et fonctions depuis index.html
+        const DEFAULT_CATEGORIES = {
+            'fruits': { id: 'default_fruits', icon: '🍎', color: 'var(--cat-fruits)', priority: 2, keywords: ['pomme', 'banane', 'orange', 'poire', 'fraise', 'raisin', 'kiwi', 'mangue', 'ananas', 'melon', 'pastèque', 'citron', 'pamplemousse', 'abricot', 'pêche', 'prune', 'cerise', 'framboise', 'myrtille', 'clémentine', 'mandarine', 'fruit', 'nectarine', 'grenade', 'figue', 'litchi', 'papaye', 'fruit de la passion', 'noix de coco', 'avocat', 'cassis', 'groseille', 'mûre'] },
+            'legumes': { id: 'default_legumes', icon: '🥬', color: 'var(--cat-legumes)', priority: 2, keywords: ['tomate', 'salade', 'carotte', 'courgette', 'poivron', 'oignon', 'ail', 'pomme de terre', 'haricot', 'petit pois', 'brocoli', 'chou', 'aubergine', 'concombre', 'radis', 'navet', 'poireau', 'épinard', 'champignon', 'légume', 'échalote', 'céleri', 'laitue', 'mâche', 'endive', 'artichaut', 'asperge', 'betterave', 'chou-fleur', 'fenouil', 'patate', 'citrouille', 'courge', 'potiron', 'maïs', 'persil', 'basilic', 'coriandre', 'ciboulette'] },
+            'boissons': { id: 'default_boissons', icon: '🥤', color: 'var(--cat-boissons)', priority: 1, keywords: ['eau', 'jus', 'soda', 'vin', 'bière', 'coca', 'limonade', 'sirop', 'boisson', 'pepsi', 'fanta', 'sprite', 'orangina', 'perrier', 'vittel', 'evian', 'badoit', 'thé glacé', 'ice tea', 'nectar', 'smoothie', 'champagne', 'rosé', 'rouge', 'blanc', 'cidre', 'pastis', 'whisky', 'rhum', 'vodka', 'gin', 'apéritif', 'digestif', 'liqueur'] },
+            'boulangerie': { id: 'default_boulangerie', icon: '🥖', color: 'var(--cat-boulangerie)', priority: 2, keywords: ['pain', 'baguette', 'croissant', 'brioche', 'gâteau', 'tarte', 'viennoiserie', 'pain de mie', 'pain complet', 'pain de campagne', 'ficelle', 'pain au chocolat', 'chocolatine', 'chausson aux pommes', 'éclair', 'religieuse', 'mille-feuille', 'chouquette', 'macaron', 'financier', 'madeleine', 'cookie', 'brownie', 'muffin', 'donut', 'cupcake'] },
+            'epicerie': { id: 'default_epicerie', icon: '🛍️', color: 'var(--cat-epicerie)', priority: 2, keywords: ['riz', 'pâtes', 'farine', 'sucre', 'sel', 'poivre', 'huile', 'vinaigre', 'conserve', 'sauce', 'céréales', 'café', 'thé', 'chocolat', 'confiture', 'miel', 'biscuit', 'spaghetti', 'macaroni', 'coquillette', 'tagliatelle', 'nouille', 'semoule', 'quinoa', 'boulgour', 'lentille', 'pois chiche', 'haricot sec', 'levure', 'chapelure', 'maïzena', 'purée', 'ketchup', 'mayonnaise', 'moutarde', 'cornichon', 'olive', 'câpre', 'épice', 'herbe', 'bouillon cube', 'soupe', 'barre de céréale', 'compote', 'nutella'] },
+            'bricolage': { id: 'default_bricolage', icon: '🔨', color: 'var(--cat-bricolage)', priority: 2, keywords: ['marteau', 'tournevis', 'vis', 'clou', 'scie', 'perceuse', 'pince', 'clé', 'tenaille', 'niveau', 'mètre', 'lime', 'rabot', 'serre-joint', 'clé à molette', 'pinceau', 'rouleau', 'peinture', 'vernis', 'planche', 'bois', 'ciment', 'ruban adhésif', 'câble', 'fil électrique', 'ampoule', 'douille', 'interrupteur', 'chevilles', 'écrou', 'boulon', 'rondelle'] },
+            'autre': { id: 'default_autre', icon: '📦', color: 'var(--cat-autre)', priority: 0, keywords: [] }
+        };
+
+        let state = {
+            categories: DEFAULT_CATEGORIES
+        };
+
+        // Fonction de normalisation
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+        }
+
+        // Fonction de tokenisation
+        function tokenize(text) {
+            return normalizeText(text)
+                .split(/[\s\-''_,;:.!?()[\]{}]+/)
+                .filter(token => token.length > 0);
+        }
+
+        // Fonction pour obtenir les variantes d'un mot (singulier/pluriel)
+        function getWordVariants(word) {
+            const variants = [word];
+
+            // Si le mot se termine par 's' et fait plus de 3 caractères, ajouter la forme sans 's'
+            if (word.length > 3 && word.endsWith('s') && !word.endsWith('ss')) {
+                variants.push(word.slice(0, -1));
+            }
+
+            // Si le mot se termine par 'x' et fait plus de 3 caractères, essayer la forme sans 'x'
+            if (word.length > 3 && word.endsWith('x')) {
+                variants.push(word.slice(0, -1));
+            }
+
+            // Ajouter la forme plurielle si elle n'existe pas déjà
+            if (!word.endsWith('s') && !word.endsWith('x')) {
+                variants.push(word + 's');
+                // Certains mots prennent 'x' au pluriel (gâteau → gâteaux)
+                if (word.endsWith('au') || word.endsWith('eau')) {
+                    variants.push(word + 'x');
+                }
+            }
+
+            return variants;
+        }
+
+        // Vérifie si un mot correspond exactement à un token du texte
+        function matchesWord(normalizedItemTokens, normalizedKeyword) {
+            const keywordTokens = tokenize(normalizedKeyword);
+
+            if (keywordTokens.length === 1) {
+                // Mot simple : doit matcher exactement un token (ou ses variantes pluriel/singulier)
+                const keywordVariants = getWordVariants(keywordTokens[0]);
+
+                for (const itemToken of normalizedItemTokens) {
+                    const itemVariants = getWordVariants(itemToken);
+
+                    // Vérifier si une variante du mot-clé correspond à une variante de l'item
+                    for (const keywordVariant of keywordVariants) {
+                        if (itemVariants.includes(keywordVariant)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            } else {
+                // Expression multi-mots : cherche une correspondance consécutive avec support des variantes
+                for (let i = 0; i <= normalizedItemTokens.length - keywordTokens.length; i++) {
+                    let match = true;
+                    for (let j = 0; j < keywordTokens.length; j++) {
+                        const itemVariants = getWordVariants(normalizedItemTokens[i + j]);
+                        const keywordVariants = getWordVariants(keywordTokens[j]);
+
+                        let tokenMatch = false;
+                        for (const keywordVariant of keywordVariants) {
+                            if (itemVariants.includes(keywordVariant)) {
+                                tokenMatch = true;
+                                break;
+                            }
+                        }
+
+                        if (!tokenMatch) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) return true;
+                }
+                return false;
+            }
+        }
+
+        function getCategory(itemName) {
+            const normalizedItemTokens = tokenize(itemName);
+            const matches = [];
+
+            for (const [category, data] of Object.entries(state.categories)) {
+                if (!data.keywords || data.keywords.length === 0) continue;
+
+                for (const keyword of data.keywords) {
+                    if (matchesWord(normalizedItemTokens, keyword)) {
+                        matches.push({
+                            category: category,
+                            id: data.id || category,
+                            priority: data.priority || 0,
+                            keyword: keyword
+                        });
+                        break;
+                    }
+                }
+            }
+
+            if (matches.length > 0) {
+                matches.sort((a, b) => b.priority - a.priority);
+                return matches[0].id;
+            }
+
+            return state.categories['autre']?.id || 'default_autre';
+        }
+
+        function getCategoryName(categoryId) {
+            for (const [key, data] of Object.entries(state.categories)) {
+                if (data.id === categoryId) {
+                    return key;
+                }
+            }
+            return 'autre';
+        }
+
+        // Tests
+        const testCases = {
+            "Cas positifs - Doivent être catégorisés correctement": [
+                { item: "eau", expected: "boissons", description: "Le mot 'eau' seul doit être catégorisé en Boissons" },
+                { item: "Eau", expected: "boissons", description: "Test de casse : 'Eau' doit être catégorisé en Boissons" },
+                { item: "eau minérale", expected: "boissons", description: "'eau minérale' doit être catégorisé en Boissons" },
+                { item: "marteau", expected: "bricolage", description: "'marteau' doit être catégorisé en Bricolage" },
+                { item: "gâteau", expected: "boulangerie", description: "'gâteau' doit être catégorisé en Boulangerie" },
+                { item: "gâteaux", expected: "boulangerie", description: "'gâteaux' (pluriel) doit être catégorisé en Boulangerie" },
+                { item: "gateau", expected: "boulangerie", description: "'gateau' (sans accent) doit être catégorisé en Boulangerie" },
+                { item: "thé", expected: "epicerie", description: "'thé' doit être catégorisé en Épicerie" },
+                { item: "café", expected: "epicerie", description: "'café' doit être catégorisé en Épicerie" },
+                { item: "jus", expected: "boissons", description: "'jus' doit être catégorisé en Boissons" },
+                { item: "vin", expected: "boissons", description: "'vin' doit être catégorisé en Boissons" }
+            ],
+            "Faux positifs - NE DOIVENT PAS être catégorisés en Boissons": [
+                { item: "rideau", notExpected: "boissons", description: "'rideau' contient 'eau' mais NE doit PAS être en Boissons" },
+                { item: "château", notExpected: "boissons", description: "'château' contient 'eau' mais NE doit PAS être en Boissons" },
+                { item: "couteau", notExpected: "boissons", description: "'couteau' contient 'eau' mais NE doit PAS être en Boissons" },
+                { item: "bureau", notExpected: "boissons", description: "'bureau' contient 'eau' mais NE doit PAS être en Boissons" },
+                { item: "seau", notExpected: "boissons", description: "'seau' contient 'eau' mais NE doit PAS être en Boissons" },
+                { item: "bateau", notExpected: "boissons", description: "'bateau' contient 'eau' mais NE doit PAS être en Boissons" },
+                { item: "peau", notExpected: "boissons", description: "'peau' contient 'eau' mais NE doit PAS être en Boissons" },
+                { item: "beauté", notExpected: "boissons", description: "'beauté' contient 'eau' mais NE doit PAS être en Boissons" }
+            ],
+            "Variantes et pluriels": [
+                { item: "pommes", expected: "fruits", description: "'pommes' (pluriel) doit être catégorisé en Fruits" },
+                { item: "TOMATE", expected: "legumes", description: "'TOMATE' (majuscules) doit être catégorisé en Légumes" },
+                { item: "Café", expected: "epicerie", description: "'Café' (casse mixte) doit être catégorisé en Épicerie" }
+            ]
+        };
+
+        // Exécuter les tests
+        let totalTests = 0;
+        let passedTests = 0;
+        let results = document.getElementById('results');
+
+        for (const [sectionName, tests] of Object.entries(testCases)) {
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = `<h2>${sectionName}</h2>`;
+
+            tests.forEach(test => {
+                totalTests++;
+                const categoryId = getCategory(test.item);
+                const categoryName = getCategoryName(categoryId);
+
+                let passed = false;
+                let message = '';
+
+                if (test.expected) {
+                    passed = categoryName === test.expected;
+                    message = `"${test.item}" → ${categoryName} ${passed ? '✓' : '✗ (attendu: ' + test.expected + ')'}`;
+                } else if (test.notExpected) {
+                    passed = categoryName !== test.notExpected;
+                    message = `"${test.item}" → ${categoryName} ${passed ? '✓' : '✗ (ne devrait PAS être: ' + test.notExpected + ')'}`;
+                }
+
+                if (passed) passedTests++;
+
+                const testItem = document.createElement('div');
+                testItem.className = `test-item ${passed ? 'test-pass' : 'test-fail'}`;
+                testItem.innerHTML = `
+                    <strong>${message}</strong><br>
+                    <small>${test.description}</small>
+                `;
+                section.appendChild(testItem);
+            });
+
+            results.appendChild(section);
+        }
+
+        // Résumé
+        const summary = document.createElement('div');
+        const allPassed = passedTests === totalTests;
+        summary.className = `summary ${allPassed ? 'pass' : 'fail'}`;
+        summary.innerHTML = `
+            <strong>Résumé des tests : ${passedTests}/${totalTests} réussis (${Math.round(passedTests/totalTests*100)}%)</strong><br>
+            ${allPassed ? '✅ Tous les tests sont passés ! La catégorisation fonctionne correctement.' : '❌ Certains tests ont échoué. Vérifiez la logique de catégorisation.'}
+        `;
+        results.insertBefore(summary, results.firstChild);
+    </script>
+</body>
+</html>

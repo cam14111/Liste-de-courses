@@ -42,6 +42,17 @@
             --cat-hygiene: #B8B8D1;
             --cat-entretien: #8338EC;
             --cat-boulangerie: #D4A574;
+            --cat-bricolage: #FF9933;
+            --cat-pharmacie: #00BFA5;
+            --cat-vetements: #9C27B0;
+            --cat-animaux: #8B4513;
+            --cat-jeux: #FF69B4;
+            --cat-scolaire: #4169E1;
+            --cat-electromenager: #708090;
+            --cat-auto: #2F4F4F;
+            --cat-fetes: #FFD700;
+            --cat-sport: #32CD32;
+            --cat-voyage: #20B2AA;
             --cat-autre: #95A5A6;
         }
 
@@ -1114,18 +1125,29 @@
     <script>
         // ==================== CONSTANTES ====================
         const DEFAULT_CATEGORIES = {
-            'fruits': { id: 'default_fruits', icon: '🍎', color: 'var(--cat-fruits)', keywords: ['pomme', 'banane', 'orange', 'poire', 'fraise', 'raisin', 'kiwi', 'mangue', 'ananas', 'melon', 'pastèque', 'citron', 'pamplemousse', 'abricot', 'pêche', 'prune', 'cerise', 'framboise', 'myrtille'] },
-            'legumes': { id: 'default_legumes', icon: '🥬', color: 'var(--cat-legumes)', keywords: ['tomate', 'salade', 'carotte', 'courgette', 'poivron', 'oignon', 'ail', 'pomme de terre', 'haricot', 'petit pois', 'brocoli', 'chou', 'aubergine', 'concombre', 'radis', 'navet', 'poireau', 'épinard', 'champignon'] },
-            'viandes': { id: 'default_viandes', icon: '🥩', color: 'var(--cat-viandes)', keywords: ['poulet', 'boeuf', 'porc', 'agneau', 'veau', 'dinde', 'canard', 'steak', 'côtelette', 'rôti', 'escalope', 'saucisse', 'jambon', 'bacon', 'merguez'] },
-            'poissons': { id: 'default_poissons', icon: '🐟', color: 'var(--cat-poissons)', keywords: ['saumon', 'thon', 'cabillaud', 'dorade', 'truite', 'sardine', 'crevette', 'moule', 'huître', 'crabe', 'homard', 'calamar', 'poisson'] },
-            'laitiers': { id: 'default_laitiers', icon: '🥛', color: 'var(--cat-laitiers)', keywords: ['lait', 'yaourt', 'fromage', 'beurre', 'crème', 'œuf', 'emmental', 'gruyère', 'camembert', 'chèvre', 'mozzarella', 'parmesan', 'roquefort'] },
-            'epicerie': { id: 'default_epicerie', icon: '🛍️', color: 'var(--cat-epicerie)', keywords: ['riz', 'pâtes', 'farine', 'sucre', 'sel', 'poivre', 'huile', 'vinaigre', 'conserve', 'sauce', 'céréales', 'café', 'thé', 'chocolat', 'confiture', 'miel', 'biscuit'] },
-            'surgeles': { id: 'default_surgeles', icon: '❄️', color: 'var(--cat-surgeles)', keywords: ['surgelé', 'glace', 'pizza', 'frite', 'poisson pané', 'légume surgelé'] },
-            'boissons': { id: 'default_boissons', icon: '🥤', color: 'var(--cat-boissons)', keywords: ['eau', 'jus', 'soda', 'vin', 'bière', 'coca', 'limonade', 'sirop'] },
-            'boulangerie': { id: 'default_boulangerie', icon: '🥖', color: 'var(--cat-boulangerie)', keywords: ['pain', 'baguette', 'croissant', 'brioche', 'gâteau', 'tarte', 'viennoiserie'] },
-            'hygiene': { id: 'default_hygiene', icon: '🧴', color: 'var(--cat-hygiene)', keywords: ['savon', 'shampoing', 'dentifrice', 'brosse à dents', 'déodorant', 'gel douche', 'crème', 'papier toilette', 'mouchoir', 'coton'] },
-            'entretien': { id: 'default_entretien', icon: '🧽', color: 'var(--cat-entretien)', keywords: ['lessive', 'liquide vaisselle', 'éponge', 'nettoyant', 'javel', 'produit ménage', 'serpillière', 'balai'] },
-            'autre': { id: 'default_autre', icon: '📦', color: 'var(--cat-autre)', keywords: [] }
+            'fruits': { id: 'default_fruits', icon: '🍎', color: 'var(--cat-fruits)', priority: 2, keywords: ['pomme', 'banane', 'orange', 'poire', 'fraise', 'raisin', 'kiwi', 'mangue', 'ananas', 'melon', 'pastèque', 'citron', 'pamplemousse', 'abricot', 'pêche', 'prune', 'cerise', 'framboise', 'myrtille', 'clémentine', 'mandarine', 'fruit', 'nectarine', 'grenade', 'figue', 'litchi', 'papaye', 'fruit de la passion', 'noix de coco', 'avocat', 'cassis', 'groseille', 'mûre'] },
+            'legumes': { id: 'default_legumes', icon: '🥬', color: 'var(--cat-legumes)', priority: 2, keywords: ['tomate', 'salade', 'carotte', 'courgette', 'poivron', 'oignon', 'ail', 'pomme de terre', 'haricot', 'petit pois', 'brocoli', 'chou', 'aubergine', 'concombre', 'radis', 'navet', 'poireau', 'épinard', 'champignon', 'légume', 'échalote', 'céleri', 'laitue', 'mâche', 'endive', 'artichaut', 'asperge', 'betterave', 'chou-fleur', 'fenouil', 'patate', 'citrouille', 'courge', 'potiron', 'maïs', 'persil', 'basilic', 'coriandre', 'ciboulette'] },
+            'viandes': { id: 'default_viandes', icon: '🥩', color: 'var(--cat-viandes)', priority: 2, keywords: ['poulet', 'boeuf', 'porc', 'agneau', 'veau', 'dinde', 'canard', 'steak', 'côtelette', 'rôti', 'escalope', 'saucisse', 'jambon', 'bacon', 'merguez', 'viande', 'hachée', 'haché', 'bifteck', 'entrecôte', 'filet', 'gigot', 'lapin', 'pintade', 'caille', 'boudin', 'paupiette', 'émincé', 'brochette', 'chipolata', 'andouillette', 'blanc de poulet', 'cuisse de poulet', 'magret'] },
+            'poissons': { id: 'default_poissons', icon: '🐟', color: 'var(--cat-poissons)', priority: 2, keywords: ['saumon', 'thon', 'cabillaud', 'dorade', 'truite', 'sardine', 'crevette', 'moule', 'huître', 'crabe', 'homard', 'calamar', 'poisson', 'lieu', 'colin', 'merlan', 'sole', 'bar', 'loup', 'maquereau', 'anchois', 'hareng', 'raie', 'fruits de mer', 'coquille saint-jacques', 'bulot', 'bigorneaux', 'langoustine', 'poulpe', 'seiche', 'surimi'] },
+            'laitiers': { id: 'default_laitiers', icon: '🥛', color: 'var(--cat-laitiers)', priority: 2, keywords: ['lait', 'yaourt', 'fromage', 'beurre', 'crème', 'œuf', 'emmental', 'gruyère', 'camembert', 'chèvre', 'mozzarella', 'parmesan', 'roquefort', 'fromage blanc', 'crème fraîche', 'mascarpone', 'ricotta', 'feta', 'brie', 'comté', 'cantal', 'reblochon', 'raclette', 'gouda', 'mimolette', 'petit-suisse', 'faisselle', 'babybel', 'kiri', 'boursin', 'philadelphia', 'crème anglaise'] },
+            'epicerie': { id: 'default_epicerie', icon: '🛍️', color: 'var(--cat-epicerie)', priority: 2, keywords: ['riz', 'pâtes', 'farine', 'sucre', 'sel', 'poivre', 'huile', 'vinaigre', 'conserve', 'sauce', 'céréales', 'café', 'thé', 'chocolat', 'confiture', 'miel', 'biscuit', 'spaghetti', 'macaroni', 'coquillette', 'tagliatelle', 'nouille', 'semoule', 'quinoa', 'boulgour', 'lentille', 'pois chiche', 'haricot sec', 'levure', 'chapelure', 'maïzena', 'purée', 'ketchup', 'mayonnaise', 'moutarde', 'cornichon', 'olive', 'câpre', 'épice', 'herbe', 'bouillon cube', 'soupe', 'barre de céréale', 'compote', 'nutella'] },
+            'surgeles': { id: 'default_surgeles', icon: '❄️', color: 'var(--cat-surgeles)', priority: 2, keywords: ['surgelé', 'glace', 'pizza', 'frite', 'poisson pané', 'légume surgelé', 'sorbet', 'crème glacée', 'esquimau', 'cornet', 'glaçon', 'fruit surgelé', 'nugget', 'plat préparé', 'lasagne', 'gratin', 'quiche', 'tarte flambée', 'croûte pizza'] },
+            'boissons': { id: 'default_boissons', icon: '🥤', color: 'var(--cat-boissons)', priority: 1, keywords: ['eau', 'jus', 'soda', 'vin', 'bière', 'coca', 'limonade', 'sirop', 'boisson', 'pepsi', 'fanta', 'sprite', 'orangina', 'perrier', 'vittel', 'evian', 'badoit', 'thé glacé', 'ice tea', 'nectar', 'smoothie', 'champagne', 'rosé', 'rouge', 'blanc', 'cidre', 'pastis', 'whisky', 'rhum', 'vodka', 'gin', 'apéritif', 'digestif', 'liqueur'] },
+            'boulangerie': { id: 'default_boulangerie', icon: '🥖', color: 'var(--cat-boulangerie)', priority: 2, keywords: ['pain', 'baguette', 'croissant', 'brioche', 'gâteau', 'tarte', 'viennoiserie', 'pain de mie', 'pain complet', 'pain de campagne', 'ficelle', 'pain au chocolat', 'chocolatine', 'chausson aux pommes', 'éclair', 'religieuse', 'mille-feuille', 'chouquette', 'macaron', 'financier', 'madeleine', 'cookie', 'brownie', 'muffin', 'donut', 'cupcake'] },
+            'hygiene': { id: 'default_hygiene', icon: '🧴', color: 'var(--cat-hygiene)', priority: 2, keywords: ['savon', 'shampoing', 'dentifrice', 'brosse à dents', 'déodorant', 'gel douche', 'papier toilette', 'mouchoir', 'coton', 'coton-tige', 'après-shampoing', 'masque capillaire', 'laque', 'gel coiffant', 'mousse', 'parfum', 'eau de toilette', 'rasoir', 'mousse à raser', 'lame', 'crème à raser', 'serviette hygiénique', 'tampon', 'protège-slip', 'lingette', 'démaquillant', 'eau micellaire', 'crème visage', 'crème mains', 'bain de bouche', 'fil dentaire'] },
+            'entretien': { id: 'default_entretien', icon: '🧽', color: 'var(--cat-entretien)', priority: 2, keywords: ['lessive', 'liquide vaisselle', 'éponge', 'nettoyant', 'javel', 'produit ménage', 'serpillière', 'balai', 'adoucissant', 'détachant', 'tablette', 'capsule', 'produit vaisselle', 'lave-vitre', 'nettoyant sol', 'désinfectant', 'spray', 'multi-usage', 'sac poubelle', 'lavette', 'chiffon', 'essuie-tout', 'papier absorbant', 'scotch-brite', 'brosse', 'pelle', 'anti-calcaire', 'déboucheur', 'wc', 'canard wc'] },
+            'bricolage': { id: 'default_bricolage', icon: '🔨', color: 'var(--cat-bricolage)', priority: 2, keywords: ['marteau', 'tournevis', 'vis', 'clou', 'scie', 'perceuse', 'pince', 'clé', 'tenaille', 'niveau', 'mètre', 'lime', 'rabot', 'serre-joint', 'clé à molette', 'pinceau', 'rouleau', 'peinture', 'vernis', 'planche', 'bois', 'ciment', 'ruban adhésif', 'câble', 'fil électrique', 'ampoule', 'douille', 'interrupteur', 'chevilles', 'écrou', 'boulon', 'rondelle'] },
+            'pharmacie': { id: 'default_pharmacie', icon: '💊', color: 'var(--cat-pharmacie)', priority: 2, keywords: ['doliprane', 'aspirine', 'paracétamol', 'ibuprofène', 'pansement', 'compresse', 'alcool', 'thermomètre', 'seringue', 'bétadine', 'antibiotique', 'cachets', 'gélule', 'médicament', 'crème hydratante', 'arnica', 'biafine', 'antiseptique', 'bandage', 'sparadrap', 'vitamine', 'complément alimentaire', 'homéopathie', 'granules', 'spray nasal', 'collyre', 'pastille'] },
+            'vetements': { id: 'default_vetements', icon: '👕', color: 'var(--cat-vetements)', priority: 2, keywords: ['jupe', 'pantalon', 'chemise', 'chaussure', 'pull', 'veste', 'robe', 'short', 't-shirt', 'tee-shirt', 'jean', 'manteau', 'blouson', 'gilet', 'cardigan', 'sweat', 'polo', 'chemisier', 'costume', 'cravate', 'écharpe', 'bonnet', 'chapeau', 'casquette', 'gant', 'chaussette', 'collant', 'sous-vêtement', 'soutien-gorge', 'culotte', 'slip', 'caleçon', 'pyjama', 'basket', 'botte', 'sandale', 'espadrille', 'ceinture'] },
+            'animaux': { id: 'default_animaux', icon: '🐾', color: 'var(--cat-animaux)', priority: 2, keywords: ['croquette', 'pâtée', 'friandise', 'litière', 'couchage', 'gamelle', 'jouet pour chat', 'jouet pour chien', 'laisse', 'collier', 'harnais', 'cage', 'aquarium', 'nourriture poisson', 'nourriture chat', 'nourriture chien', 'nourriture oiseau', 'foin', 'shampoing animal', 'antiparasitaire', 'vermifuge', 'brosse animal', 'peigne animal', 'arbre à chat', 'griffoir', 'os à mâcher', 'balle pour chien', 'canne à pêche chat'] },
+            'jeux': { id: 'default_jeux', icon: '🎮', color: 'var(--cat-jeux)', priority: 2, keywords: ['lego', 'poupée', 'puzzle', 'livre', 'jeu de société', 'carte', 'jeu de carte', 'figurine', 'peluche', 'construction', 'playmobil', 'coloriage', 'crayon de couleur', 'peinture enfant', 'pâte à modeler', 'slime', 'bille', 'toupie', 'yo-yo', 'console', 'jeu vidéo', 'manette', 'barbie', 'voiture miniature', 'train jouet', 'kapla', 'duplo', 'livre enfant', 'album jeunesse', 'bd', 'manga', 'roman', 'conte'] },
+            'scolaire': { id: 'default_scolaire', icon: '📚', color: 'var(--cat-scolaire)', priority: 2, keywords: ['cahier', 'stylo', 'crayon', 'gomme', 'trousse', 'sac à dos', 'cartable', 'classeur', 'feuille', 'copie double', 'agenda', 'règle', 'équerre', 'compas', 'rapporteur', 'taille-crayon', 'correcteur', 'blanco', 'surligneur', 'stabilo', 'feutre', 'marqueur', 'colle', 'ciseaux', 'scotch', 'agrafeuse', 'agrafe', 'perforatrice', 'pochette plastique', 'protège-cahier', 'intercalaire', 'calculatrice', 'dictionnaire', 'cahier de texte', 'ardoise', 'porte-vue', 'chemise carton', 'trombones', 'post-it', 'cahier de brouillon'] },
+            'electromenager': { id: 'default_electromenager', icon: '💻', color: 'var(--cat-electromenager)', priority: 2, keywords: ['souris', 'clavier', 'clé usb', 'câble hdmi', 'chargeur', 'coque', 'écouteur', 'câble usb-c', 'aspirateur', 'grille-pain', 'bouilloire', 'micro-onde', 'batterie', 'pile', 'chargeur téléphone', 'adaptateur', 'multiprise', 'rallonge', 'casque audio', 'enceinte', 'bluetooth', 'webcam', 'micro', 'souris sans fil', 'tapis de souris', 'disque dur', 'ssd', 'carte sd', 'filtre café', 'sac aspirateur', 'cafetière', 'mixeur', 'blender', 'robot cuisine', 'fer à repasser', 'planche à repasser', 'sèche-cheveux', 'lisseur', 'rasoir électrique', 'brosse à dent électrique', 'balance', 'ventilateur', 'radiateur', 'lampe', 'ampoule led'] },
+            'auto': { id: 'default_auto', icon: '🚗', color: 'var(--cat-auto)', priority: 2, keywords: ['huile moteur', 'lave-glace', 'balai essuie-glace', 'essuie-glace', 'ampoule h7', 'ampoule auto', 'tapis voiture', 'gilet jaune', 'triangle', 'support téléphone', 'chargeur voiture', 'liquide refroidissement', 'antigel', 'dégivrant', 'grattoir', 'brosse neige', 'éponge voiture', 'shampooing auto', 'polish', 'cire', 'lustrant', 'nettoyant jante', 'parfum voiture', 'désodorisant', 'filtre habitacle', 'filtre air', 'balai coffre', 'câble démarrage', 'compresseur', 'gonfleur', 'cric', 'manomètre', 'bidon', 'jerrican', 'kit réparation', 'antivol', 'cadenas'] },
+            'fetes': { id: 'default_fetes', icon: '🎁', color: 'var(--cat-fetes)', priority: 2, keywords: ['bougie anniversaire', 'ruban', 'papier cadeau', 'carte anniversaire', 'carte vœux', 'enveloppe', 'ballon gonflable', 'guirlande', 'décoration', 'serpentin', 'confetti', 'nappe jetable', 'assiette jetable', 'gobelet jetable', 'paille', 'bougie', 'bougie parfumée', 'bougeoir', 'photophore', 'nœud', 'bolduc', 'sachet cadeau', 'boîte cadeau', 'étiquette cadeau', 'déguisement', 'masque', 'perruque', 'maquillage', 'paillettes', 'cotillon', 'pinata', 'ballon hélium', 'cadre photo', 'album photo'] },
+            'sport': { id: 'default_sport', icon: '⚽', color: 'var(--cat-sport)', priority: 2, keywords: ['ballon', 'corde à sauter', 'gourde', 'sac de sport', 'raquette', 'balle', 'tapis yoga', 'tapis sport', 'élastique', 'haltère', 'poids', 'vélo', 'casque vélo', 'antivol vélo', 'pompe vélo', 'chambre à air', 'rustine', 'bidon vélo', 'protège-tibias', 'genouillère', 'coudière', 'sangle', 'short sport', 'legging', 'brassière', 'chaussure sport', 'basket sport', 'running', 'chaussette sport', 't-shirt sport', 'maillot', 'serviette sport', 'tente', 'sac de couchage', 'matelas gonflable', 'lampe frontale', 'briquet', 'allumette', 'gourde randonnée', 'bâton randonnée', 'sac à dos randonnée', 'carte ign', 'boussole', 'jumelle', 'camping'] },
+            'voyage': { id: 'default_voyage', icon: '✈️', color: 'var(--cat-voyage)', priority: 2, keywords: ['valise', 'adaptateur prise', 'cadenas valise', 'étiquette bagage', 'oreiller voyage', 'coussin voyage', 'masque nuit', 'bouchon oreille', 'trousse toilette', 'fiole voyage', 'flacon voyage', 'mini format', 'passeport', 'porte-passeport', 'porte-carte', 'ceinture voyage', 'pochette voyage', 'sac voyage', 'housse valise', 'balance bagage', 'cadenas tsa', 'convertisseur', 'guide voyage', 'carte routière', 'atlas', 'anti-moustique', 'crème solaire', 'lunette soleil', 'chapeau soleil', 'paréo', 'maillot de bain', 'tong', 'sandale plage', 'serviette plage', 'sac plage', 'bouée', 'brassard', 'tuba', 'masque plongée', 'palme'] },
+            'autre': { id: 'default_autre', icon: '📦', color: 'var(--cat-autre)', priority: 0, keywords: [] }
         };
 
         const COMMON_ITEMS = [
@@ -1192,7 +1214,7 @@
             collapsedCategories: {},
             collapsedFavoriteCategories: {},  // Catégories de favoris repliées
             categories: JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)),  // Copie profonde des catégories
-            categoryOrder: ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
+            categoryOrder: ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'bricolage', 'pharmacie', 'vetements', 'animaux', 'jeux', 'scolaire', 'electromenager', 'auto', 'fetes', 'sport', 'voyage', 'autre'],
             history: {},
             importData: null,
             favorites: []  // Liste persistante des favoris {name, category}
@@ -1200,13 +1222,127 @@
 
         // ==================== UTILS ====================
 
-        function getCategory(itemName) {
-            const name = itemName.toLowerCase();
-            for (const [category, data] of Object.entries(state.categories)) {
-                if (data.keywords.some(keyword => name.includes(keyword))) {
-                    return data.id || category; // Retourner l'ID technique si disponible
+        // Fonction de normalisation : enlève les accents, met en minuscules et trim
+        function normalizeText(text) {
+            return text.toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim();
+        }
+
+        // Fonction de tokenisation : sépare le texte en mots (tokens)
+        function tokenize(text) {
+            // Sépare sur les espaces, tirets, apostrophes, etc.
+            return normalizeText(text)
+                .split(/[\s\-''_,;:.!?()[\]{}]+/)
+                .filter(token => token.length > 0);
+        }
+
+        // Fonction pour obtenir les variantes d'un mot (singulier/pluriel)
+        function getWordVariants(word) {
+            const variants = [word];
+
+            // Si le mot se termine par 's' et fait plus de 3 caractères, ajouter la forme sans 's'
+            if (word.length > 3 && word.endsWith('s') && !word.endsWith('ss')) {
+                variants.push(word.slice(0, -1));
+            }
+
+            // Si le mot se termine par 'x' et fait plus de 3 caractères, essayer la forme sans 'x'
+            if (word.length > 3 && word.endsWith('x')) {
+                variants.push(word.slice(0, -1));
+            }
+
+            // Ajouter la forme plurielle si elle n'existe pas déjà
+            if (!word.endsWith('s') && !word.endsWith('x')) {
+                variants.push(word + 's');
+                // Certains mots prennent 'x' au pluriel (gâteau → gâteaux)
+                if (word.endsWith('au') || word.endsWith('eau')) {
+                    variants.push(word + 'x');
                 }
             }
+
+            return variants;
+        }
+
+        // Vérifie si un mot correspond exactement à un token du texte
+        function matchesWord(normalizedItemTokens, normalizedKeyword) {
+            // Le mot-clé peut contenir des espaces (ex: "pain de mie")
+            const keywordTokens = tokenize(normalizedKeyword);
+
+            // Vérifie si tous les tokens du mot-clé apparaissent consécutivement
+            if (keywordTokens.length === 1) {
+                // Mot simple : doit matcher exactement un token (ou ses variantes pluriel/singulier)
+                const keywordVariants = getWordVariants(keywordTokens[0]);
+
+                for (const itemToken of normalizedItemTokens) {
+                    const itemVariants = getWordVariants(itemToken);
+
+                    // Vérifier si une variante du mot-clé correspond à une variante de l'item
+                    for (const keywordVariant of keywordVariants) {
+                        if (itemVariants.includes(keywordVariant)) {
+                            return true;
+                        }
+                    }
+                }
+                return false;
+            } else {
+                // Expression multi-mots : cherche une correspondance consécutive avec support des variantes
+                for (let i = 0; i <= normalizedItemTokens.length - keywordTokens.length; i++) {
+                    let match = true;
+                    for (let j = 0; j < keywordTokens.length; j++) {
+                        const itemVariants = getWordVariants(normalizedItemTokens[i + j]);
+                        const keywordVariants = getWordVariants(keywordTokens[j]);
+
+                        let tokenMatch = false;
+                        for (const keywordVariant of keywordVariants) {
+                            if (itemVariants.includes(keywordVariant)) {
+                                tokenMatch = true;
+                                break;
+                            }
+                        }
+
+                        if (!tokenMatch) {
+                            match = false;
+                            break;
+                        }
+                    }
+                    if (match) return true;
+                }
+                return false;
+            }
+        }
+
+        function getCategory(itemName) {
+            const normalizedItemTokens = tokenize(itemName);
+
+            // Collecter toutes les catégories qui correspondent
+            const matches = [];
+
+            for (const [category, data] of Object.entries(state.categories)) {
+                if (!data.keywords || data.keywords.length === 0) continue;
+
+                // Vérifier si un mot-clé correspond
+                for (const keyword of data.keywords) {
+                    if (matchesWord(normalizedItemTokens, keyword)) {
+                        matches.push({
+                            category: category,
+                            id: data.id || category,
+                            priority: data.priority || 0,
+                            keyword: keyword
+                        });
+                        break; // Un seul match par catégorie suffit
+                    }
+                }
+            }
+
+            // Si plusieurs catégories correspondent, prendre celle avec la priorité la plus haute
+            if (matches.length > 0) {
+                // Trier par priorité décroissante (priorité plus haute = plus spécifique)
+                matches.sort((a, b) => b.priority - a.priority);
+                return matches[0].id;
+            }
+
+            // Aucune catégorie ne correspond, retourner "autre"
             return state.categories['autre']?.id || 'default_autre';
         }
 
@@ -1242,21 +1378,43 @@
                         const savedCat = loadedState.categories[catKey];
 
                         if (defaultCat) {
-                            // Catégorie par défaut : préserver keywords et color, permettre modification de icon
+                            // Catégorie par défaut : préserver keywords, color et priority, permettre modification de icon
                             categories[catKey] = {
                                 id: defaultCat.id, // S'assurer que l'ID par défaut est présent
                                 icon: savedCat.icon || defaultCat.icon,
                                 color: defaultCat.color,  // Toujours utiliser la couleur par défaut
-                                keywords: defaultCat.keywords  // Toujours utiliser les keywords par défaut
+                                keywords: defaultCat.keywords,  // Toujours utiliser les keywords par défaut
+                                priority: defaultCat.priority || 0  // Toujours utiliser la priorité par défaut
                             };
                         } else {
-                            // Catégorie personnalisée : s'assurer qu'elle a un ID
+                            // Catégorie personnalisée : s'assurer qu'elle a un ID et une priorité par défaut
                             categories[catKey] = {
                                 ...savedCat,
-                                id: savedCat.id || `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                                id: savedCat.id || `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                                priority: savedCat.priority || 2  // Priorité moyenne par défaut pour les catégories personnalisées
                             };
                         }
                     });
+                }
+
+                // Migrer categoryOrder : fusionner l'ancien ordre avec les nouvelles catégories
+                const defaultCategoryOrder = ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'bricolage', 'pharmacie', 'vetements', 'animaux', 'jeux', 'scolaire', 'electromenager', 'auto', 'fetes', 'sport', 'voyage', 'autre'];
+                let categoryOrder = loadedState.categoryOrder || defaultCategoryOrder;
+
+                // Ajouter les nouvelles catégories qui n'étaient pas dans l'ancien ordre
+                const missingCategories = defaultCategoryOrder.filter(cat => !categoryOrder.includes(cat));
+                if (missingCategories.length > 0) {
+                    // Insérer les nouvelles catégories avant "autre"
+                    const autreIndex = categoryOrder.indexOf('autre');
+                    if (autreIndex !== -1) {
+                        categoryOrder = [
+                            ...categoryOrder.slice(0, autreIndex),
+                            ...missingCategories.filter(cat => cat !== 'autre'),
+                            ...categoryOrder.slice(autreIndex)
+                        ];
+                    } else {
+                        categoryOrder = [...categoryOrder, ...missingCategories];
+                    }
                 }
 
                 // Fusionner avec les valeurs par défaut pour assurer la compatibilité
@@ -1271,7 +1429,7 @@
                     collapsedCategories: loadedState.collapsedCategories || {},
                     collapsedFavoriteCategories: loadedState.collapsedFavoriteCategories || {},
                     categories: categories,
-                    categoryOrder: loadedState.categoryOrder || ['fruits', 'legumes', 'viandes', 'poissons', 'laitiers', 'boulangerie', 'epicerie', 'surgeles', 'boissons', 'hygiene', 'entretien', 'autre'],
+                    categoryOrder: categoryOrder,
                     history: loadedState.history || {},
                     importData: loadedState.importData || null,
                     favorites: loadedState.favorites || []
