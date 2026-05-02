@@ -1,26 +1,37 @@
 # Changelog
 
-## [Unreleased] — Phase 1 (fondations)
+## [Unreleased] — Phase 1 complète
 
-### Added
-- **Vite + TypeScript** : `package.json`, `tsconfig.json`, `vite.config.ts` avec `vite-plugin-singlefile` pour produire un `dist/index.html` auto-contenu.
-- **TypeScript strict** : `tsconfig.json` avec `strict`, `noUnusedLocals`, `noUnusedParameters`.
-- **Modules extraits** :
-  - `src/types.ts` — interfaces `Item`, `ShoppingList`, `Category`, `AppState`, `Favorite`, `AppSettings`.
-  - `src/constants.ts` — `STORAGE_KEY`, `SCHEMA_VERSION`, `DEFAULT_CATEGORIES`, `DEFAULT_CATEGORY_ORDER`.
-  - `src/categorize.ts` — `normalizeText`, `tokenize`, `getWordVariants`, `matchesWord`, `getCategory`, `getCategoryKeyById` (purs, sans dépendance au DOM).
-- **Tests Vitest** : `tests/categorize.test.ts` couvrant la normalisation, tokenisation, variantes singulier/pluriel, matching multi-mots, résolution par priorité, accents.
-- **Outillage** : ESLint + Prettier + scripts npm (`lint`, `typecheck`, `test`, `build`, `dev`, `format`).
-- **CI GitHub Actions** : `.github/workflows/ci.yml` (lint + typecheck + test + build sur push / PR).
-- **Build script** : `scripts/post-build.mjs` copie `manifest.json`, `service-worker.js`, `.nojekyll` dans `dist/`.
+### Added (commit initial)
+- **Vite + TypeScript strict** : `package.json`, `tsconfig.json`, `vite.config.ts` avec `vite-plugin-singlefile`.
+- **CI GitHub Actions** : lint + typecheck + test + build.
+- **Tests Vitest** : 21 tests sur `categorize.ts`.
 
-### Notes
-- L'ancien `index.html` (2907 lignes) reste inchangé et reste l'artefact déployable actuel pour assurer la rétro-compatibilité.
-- Les modules extraits constituent une **fondation testable** et seront réutilisés par les phases suivantes.
-- Le bundle Vite sera intégré progressivement dans les prochaines phases (extraction de `state.ts`, `items.ts`, `lists.ts`, `render/*`, `share.ts`, etc.).
+### Added (refactor complet)
+- **Extraction complète** de `index.html` (2907 lignes) en 17 modules TypeScript :
+  - `src/types.ts`, `src/constants.ts` (DEFAULT_CATEGORIES, AVAILABLE_ICONS).
+  - `src/categorize.ts` — pur, testé.
+  - `src/state.ts` — store + load/save + migration unifiée (`migrateState`).
+  - `src/items.ts`, `src/lists.ts` — CRUD typés.
+  - `src/modals.ts`, `src/settings.ts`, `src/share.ts`.
+  - `src/render/items.ts`, `src/render/tabs.ts`, `src/render/suggestions.ts`, `src/render/favorites.ts`, `src/render/categories.ts`.
+  - `src/dragdrop.ts`, `src/interactions.ts`.
+  - `src/main.ts` — init + wire-up complet du DOM.
+  - `src/styles.css` — tout le CSS extrait.
+- **`index.html` réduit de 2907 lignes à 270 lignes** (squelette HTML pur + `<script type="module" src="/src/main.ts">`).
+- **Migration localStorage unifiée** dans `migrateState()` (au lieu d'être éparpillée 3× dans le code).
+- **Service Worker bumpé v2 → v3** pour invalider l'ancien cache au déploiement.
+- **Bundle de production** : `dist/index.html` self-contained (Vite + `vite-plugin-singlefile`), 65 KB (vs 124 KB avant), gzip 18.75 KB.
 
-### À venir (selon roadmap)
-- Phase 1 (suite) : extraction complète de l'état, du rendu et des interactions DOM en modules TS, slim-down de `index.html`.
+### Changed
+- Suppression des handlers `onclick="resetApp()"` / `onclick="copyShareCode()"` / `onclick="processImportCode()"` / `onclick="openAddCategoryModal()"` inline (remplacés par `id` + `addEventListener` dans `main.ts`).
+- Les `onclick` restants (générés dynamiquement par les renders) appellent désormais `window.X()` (fonctions exposées explicitement dans `main.ts`).
+
+### Backwards compatibility
+- Le localStorage existant (`shoppingListApp`) est lu et migré silencieusement : items avec ancien format catégorie (nom au lieu d'ID), favoris extraits depuis les items, ordre de catégories complété avec les nouvelles défauts.
+- Catégorisation v2.2 préservée à l'identique (21 tests le verrouillent).
+
+### À venir
 - Phase 2 (a11y) : retrait du `maximum-scale=1.0`, ARIA labels, focus trap, skip-link.
 - Phase 3 (UX) : toast system, custom confirm, undo suppression, raccourcis clavier.
 - Phase 4 (perf) : debounce localStorage, rendu incrémental, SW stale-while-revalidate, validation Zod.
