@@ -243,6 +243,39 @@ body {
   min-width: 80px;
 }
 
+.voice-btn {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.voice-btn:hover {
+  background: var(--border-color);
+}
+
+.voice-btn.recording {
+  background: var(--danger);
+  color: white;
+  border-color: var(--danger);
+  animation: voicePulse 1.2s ease-in-out infinite;
+}
+
+@keyframes voicePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.6);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(244, 67, 54, 0);
+  }
+}
+
 .add-btn:active {
   background: var(--primary-dark);
 }
@@ -427,10 +460,57 @@ body {
   word-wrap: break-word;
 }
 
+.item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
 .item-quantity {
   color: var(--text-secondary);
+}
+
+.item-price {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.totals-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--bg-primary);
+  border-top: 2px solid var(--primary);
+  box-shadow: 0 -2px 8px var(--shadow);
+  font-size: 0.95rem;
+  align-items: center;
+}
+
+.totals-remaining strong {
+  color: var(--primary);
+  font-size: 1.05rem;
+}
+
+.totals-total {
+  color: var(--text-secondary);
   font-size: 0.85rem;
-  margin-top: 0.2rem;
+}
+
+.totals-note {
+  font-style: italic;
+}
+
+#mainContent.has-totals {
+  padding-bottom: 60px;
 }
 
 .item-actions {
@@ -877,6 +957,86 @@ body {
     height: 36px;
     font-size: 1rem;
   }
+}
+
+/* ==================== Supermarket mode ==================== */
+.supermarket-exit {
+  position: fixed;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 200;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  font-size: 0.9rem;
+}
+
+body.supermarket-mode .header,
+body.supermarket-mode .search-container,
+body.supermarket-mode .add-item-container,
+body.supermarket-mode #totalsBar {
+  display: none !important;
+}
+
+body.supermarket-mode {
+  background: var(--bg-primary);
+}
+
+body.supermarket-mode .container {
+  max-width: 720px;
+  padding-bottom: 100px;
+  padding-top: 0.5rem;
+}
+
+body.supermarket-mode .category-section {
+  margin: 0.5rem;
+  border-radius: 8px;
+  box-shadow: none;
+  border: 1px solid var(--border-color);
+}
+
+body.supermarket-mode .category-header {
+  font-size: 1.1rem;
+  padding: 0.6rem 0.75rem;
+}
+
+body.supermarket-mode .category-drag-handle,
+body.supermarket-mode .category-toggle {
+  display: none;
+}
+
+body.supermarket-mode .item {
+  padding: 1.25rem 1rem;
+  font-size: 1.1rem;
+  gap: 1.25rem;
+}
+
+body.supermarket-mode .item-checkbox {
+  width: 36px;
+  height: 36px;
+  border-width: 3px;
+}
+
+body.supermarket-mode .item-checkbox::after {
+  font-size: 1.4rem;
+}
+
+body.supermarket-mode .item-text {
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+body.supermarket-mode .item-actions {
+  display: none;
+}
+
+body.supermarket-mode .item.checked {
+  opacity: 0.45;
 }
 
 /* ==================== Toast ==================== */

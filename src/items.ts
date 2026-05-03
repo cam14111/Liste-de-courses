@@ -8,7 +8,12 @@ import { renderFavorites } from './render/favorites';
 import { showToast } from './toast';
 import { confirmDialog } from './confirm';
 
-export function addItem(name: string, quantity = '', category: string | null = null): void {
+export function addItem(
+  name: string,
+  quantity = '',
+  category: string | null = null,
+  price?: number,
+): void {
   const list = getCurrentList();
   const trimmed = name.trim();
   const isFavorite = state.favorites.some((f) => f.name.toLowerCase() === trimmed.toLowerCase());
@@ -21,6 +26,7 @@ export function addItem(name: string, quantity = '', category: string | null = n
     checked: false,
     favorite: isFavorite,
     addedAt: Date.now(),
+    ...(typeof price === 'number' && !Number.isNaN(price) ? { price } : {}),
   };
   list.items.push(item);
 
@@ -98,13 +104,24 @@ export function toggleFavorite(itemId: string): void {
   renderFavorites();
 }
 
-export function editItem(itemId: string, name: string, quantity: string, category: string): void {
+export function editItem(
+  itemId: string,
+  name: string,
+  quantity: string,
+  category: string,
+  price?: number,
+): void {
   const list = getCurrentList();
   const item = list.items.find((i) => i.id === itemId);
   if (!item) return;
   item.name = name;
   item.quantity = quantity;
   item.category = category;
+  if (typeof price === 'number' && !Number.isNaN(price)) {
+    item.price = price;
+  } else {
+    delete item.price;
+  }
   saveToLocalStorage();
   renderListTabs();
   renderItems();

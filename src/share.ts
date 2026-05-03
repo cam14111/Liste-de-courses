@@ -19,13 +19,14 @@ declare global {
 export function generateQRCode(): void {
   const list = getCurrentList();
   const data = {
-    version: 2,
+    version: 3,
     name: list.name,
     items: list.items.map((item) => ({
       name: item.name,
       quantity: item.quantity,
       category: item.category,
       checked: item.checked,
+      ...(typeof item.price === 'number' ? { price: item.price } : {}),
     })),
     timestamp: Date.now(),
   };
@@ -141,6 +142,7 @@ export function handleImport(action: 'replace' | 'merge' | 'new'): void {
     checked: raw.checked ?? false,
     favorite: false,
     addedAt: Date.now(),
+    ...(typeof raw.price === 'number' ? { price: raw.price } : {}),
   });
 
   if (action === 'replace') {

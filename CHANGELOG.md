@@ -1,6 +1,37 @@
 # Changelog
 
-## [Unreleased] — Phase E (perf & robustesse)
+## [Unreleased] — Phase D (features utilisateur)
+
+### Added — Prix & budget
+- Champ `price` (optionnel, en €) sur chaque article. Édité dans le modal d'édition (input `type="number"` step 0.01, virgule ou point acceptés).
+- Affichage du prix sur chaque ligne d'article (à côté de la quantité).
+- **Barre de totaux** flottante en bas de l'écran (visible uniquement s'il y a au moins un prix) :
+  - "Reste à payer" (somme des items non cochés avec prix)
+  - "Total" estimé + indication des items sans prix
+- Format `Intl.NumberFormat('fr-FR', currency: 'EUR')`.
+- `src/utils/price.ts` (parsePrice, formatPrice, computeTotals) + 8 tests Vitest.
+- Le QR code de partage embarque désormais `price` (version 3 du payload).
+- `ImportItemSchema` (Zod) accepte `price` optionnel non-négatif (≤ 100 000).
+
+### Added — Saisie vocale
+- `src/voice.ts` — wrapper `SpeechRecognition` / `webkitSpeechRecognition` (langue `fr-FR`, `interimResults` off).
+- Bouton micro 🎤 à côté du champ d'ajout : appui = écoute, appui à nouveau = stop. Animation pulse rouge en cours d'enregistrement.
+- Le bouton n'apparaît pas du tout si l'API n'est pas supportée (Firefox desktop, Safari iOS jusqu'à v14, etc.).
+- Erreurs de reconnaissance affichées via toast (sauf `no-speech` / `aborted` — silencieux).
+
+### Added — Mode supermarché
+- Bouton 🛒 dans le header (toggle, `aria-pressed` synchronisé).
+- Vue plein-écran : header / search / form / barre de totaux masqués.
+- Articles plus grands (1.15 rem), checkboxes 36×36 px avec border 3 px (cible tactile largement au-dessus des 44×44 recommandés WCAG via le padding du `.item`).
+- Drag handle, toggle de catégorie, boutons d'item masqués (focus sur l'action principale : cocher).
+- Items cochés à 45 % d'opacité (au lieu de 60 %).
+- Bouton "✕ Quitter mode courses" flottant en haut à droite.
+- Focus géré : entré → focus sur le bouton de sortie ; sortie → focus sur le bouton d'entrée.
+
+### Tests
+- 40 tests Vitest au total (vs 32) : +8 sur `price`.
+
+## [Released aa736b6] — Phase E (perf & robustesse)
 
 ### Added
 - **Debounce** sur `saveToLocalStorage` (200 ms) : un batch d'actions ne déclenche plus N writes synchrones.

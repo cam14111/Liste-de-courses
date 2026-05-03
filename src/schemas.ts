@@ -5,6 +5,7 @@ export const ImportItemSchema = z.object({
   quantity: z.string().max(50).optional().default(''),
   category: z.string().min(1).max(100),
   checked: z.boolean().optional().default(false),
+  price: z.number().nonnegative().max(100000).optional(),
 });
 
 export const ImportPayloadSchema = z.object({

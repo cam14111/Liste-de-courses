@@ -18,6 +18,7 @@
             <h1>🛒 Mes Courses</h1>
             <nav class="header-actions" aria-label="Actions principales">
                 <a href="manuel.html" class="icon-btn" title="Manuel utilisateur" aria-label="Ouvrir le manuel utilisateur" style="text-decoration: none;">📖</a>
+                <button class="icon-btn" id="supermarketBtn" title="Mode supermarché" aria-label="Activer le mode supermarché" aria-pressed="false">🛒</button>
                 <button class="icon-btn" id="clearCheckedBtn" title="Effacer les articles cochés" aria-label="Effacer les articles cochés">🗑️</button>
                 <button class="icon-btn" id="favoritesBtn" title="Favoris" aria-label="Ouvrir les favoris">⭐</button>
                 <button class="icon-btn" id="settingsBtn" title="Paramètres" aria-label="Ouvrir les paramètres">⚙️</button>
@@ -37,6 +38,7 @@
         <form class="add-item-form" id="addItemForm" aria-label="Ajouter un article">
             <label for="itemInput" class="visually-hidden">Nom de l'article à ajouter</label>
             <input type="text" class="add-input" id="itemInput" placeholder="Ajouter un article..." autocomplete="off" aria-label="Nom de l'article à ajouter">
+            <button type="button" class="voice-btn" id="voiceBtn" aria-label="Saisie vocale" title="Saisie vocale" hidden>🎤</button>
             <button type="submit" class="add-btn">Ajouter</button>
         </form>
         <div class="suggestions" id="suggestions" aria-label="Suggestions d'articles" role="list"></div>
@@ -45,6 +47,8 @@
     <main class="container" id="mainContent" role="main">
         <div id="container" aria-live="polite" aria-busy="false"></div>
     </main>
+
+    <button type="button" class="supermarket-exit" id="supermarketExitBtn" aria-label="Quitter le mode supermarché" hidden>✕ Quitter mode courses</button>
 
     <!-- Modal Édition Article -->
     <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" aria-hidden="true">
@@ -60,6 +64,10 @@
             <div class="form-group">
                 <label class="form-label" for="editItemQuantity">Quantité</label>
                 <input type="text" class="form-input" id="editItemQuantity" placeholder="Ex: 2kg, 3 unités...">
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="editItemPrice">Prix (€)</label>
+                <input type="number" inputmode="decimal" step="0.01" min="0" class="form-input" id="editItemPrice" placeholder="Ex: 2,50">
             </div>
             <div class="form-group">
                 <label class="form-label" for="editItemCategory">Catégorie</label>

@@ -53,6 +53,9 @@ import {
 } from './share';
 import { toggleTheme, toggleHideChecked, adjustFontSize, resetApp } from './settings';
 import { setupKeyboardShortcuts } from './shortcuts';
+import { parsePrice } from './utils/price';
+import { createVoiceController, isVoiceInputSupported } from './voice';
+import { showToast } from './toast';
 
 declare global {
   interface Window {
@@ -102,6 +105,9 @@ function wireUp(): void {
       input.value = '';
     }
   });
+
+  setupVoiceInput();
+  setupSupermarketMode();
 
   const searchInput = $('searchInput') as HTMLInputElement | null;
   const searchContainer = $('searchContainer');
@@ -212,8 +218,10 @@ function wireUp(): void {
     const name = ($('editItemName') as HTMLInputElement | null)?.value.trim() || '';
     const quantity = ($('editItemQuantity') as HTMLInputElement | null)?.value.trim() || '';
     const category = ($('editItemCategory') as HTMLSelectElement | null)?.value || '';
+    const priceRaw = ($('editItemPrice') as HTMLInputElement | null)?.value || '';
+    const price = parsePrice(priceRaw);
     if (name && currentEditingId) {
-      editItem(currentEditingId, name, quantity, category);
+      editItem(currentEditingId, name, quantity, category, price);
       closeModal('editModal');
     }
   });
@@ -257,6 +265,62 @@ function wireUp(): void {
   // Référence l'icône non utilisée (toggleItem, renderIconGrid) pour éviter le warning d'import
   void toggleItem;
   void renderIconGrid;
+}
+
+function setupSupermarketMode(): void {
+  const enterBtn = document.getElementById('supermarketBtn');
+  const exitBtn = document.getElementById('supermarketExitBtn') as HTMLButtonElement | null;
+  if (!enterBtn || !exitBtn) return;
+
+  const setActive = (active: boolean): void => {
+    document.body.classList.toggle('supermarket-mode', active);
+    enterBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    exitBtn.hidden = !active;
+    if (active) exitBtn.focus();
+    else enterBtn.focus();
+  };
+
+  enterBtn.addEventListener('click', () => setActive(true));
+  exitBtn.addEventListener('click', () => setActive(false));
+}
+
+function setupVoiceInput(): void {
+  const btn = document.getElementById('voiceBtn') as HTMLButtonElement | null;
+  const input = document.getElementById('itemInput') as HTMLInputElement | null;
+  if (!btn || !input) return;
+  if (!isVoiceInputSupported()) {
+    btn.remove();
+    return;
+  }
+  btn.hidden = false;
+
+  const controller = createVoiceController({
+    onTranscript: (text) => {
+      addItem(text);
+      input.value = '';
+      showToast(`"${text}" ajouté`, { variant: 'success', duration: 1800 });
+    },
+    onStart: () => btn.classList.add('recording'),
+    onEnd: () => btn.classList.remove('recording'),
+    onError: (msg) => {
+      btn.classList.remove('recording');
+      if (msg !== 'no-speech' && msg !== 'aborted') {
+        showToast(`Reconnaissance vocale : ${msg}`, { variant: 'error', duration: 3000 });
+      }
+    },
+  });
+  if (!controller) {
+    btn.remove();
+    return;
+  }
+
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('recording')) {
+      controller.stop();
+    } else {
+      controller.start();
+    }
+  });
 }
 
 function init(): void {

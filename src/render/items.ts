@@ -3,6 +3,7 @@ import { getCategoryKeyById } from '../categorize';
 import { setupCategoryDragDrop } from '../dragdrop';
 import { setupItemInteractions } from '../interactions';
 import { escapeHtml, escapeAttr, highlight } from '../utils/escape';
+import { computeTotals, formatPrice } from '../utils/price';
 
 export function renderItems(): void {
   const list = getCurrentList();
@@ -69,7 +70,9 @@ export function renderItems(): void {
                 <div class="item-checkbox" role="checkbox" aria-checked="${item.checked}" tabindex="0"></div>
                 <div class="item-content">
                   <div class="item-text">${highlight(item.name, searchTerm)}</div>
-                  ${item.quantity ? `<div class="item-quantity">${highlight(item.quantity, searchTerm)}</div>` : ''}
+                  ${item.quantity || typeof item.price === 'number'
+                    ? `<div class="item-meta">${item.quantity ? `<span class="item-quantity">${highlight(item.quantity, searchTerm)}</span>` : ''}${typeof item.price === 'number' ? `<span class="item-price">${escapeHtml(formatPrice(item.price))}</span>` : ''}</div>`
+                    : ''}
                 </div>
                 <div class="item-actions">
                   <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}" onclick="window.toggleFavorite('${escapeAttr(item.id)}')" aria-label="${item.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">★</button>
@@ -85,6 +88,33 @@ export function renderItems(): void {
 
   setupCategoryDragDrop();
   setupItemInteractions();
+  renderTotalsBar();
+}
+
+function renderTotalsBar(): void {
+  const list = getCurrentList();
+  const totals = computeTotals(list.items);
+  let bar = document.getElementById('totalsBar');
+
+  if (totals.itemsWithPrice === 0) {
+    bar?.remove();
+    return;
+  }
+
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'totalsBar';
+    bar.className = 'totals-bar';
+    bar.setAttribute('role', 'status');
+    bar.setAttribute('aria-live', 'polite');
+    document.body.appendChild(bar);
+  }
+
+  const note = totals.itemsWithoutPrice > 0
+    ? ` <span class="totals-note">(${totals.itemsWithoutPrice} sans prix)</span>`
+    : '';
+
+  bar.innerHTML = `<span class="totals-remaining">Reste à payer : <strong>${formatPrice(totals.remaining)}</strong></span><span class="totals-total">Total : ${formatPrice(totals.total)}${note}</span>`;
 }
 
 export function handleCategoryHeaderClick(event: Event, category: string): void {

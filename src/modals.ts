@@ -58,6 +58,8 @@ export function openEditModal(itemId: string): void {
   currentEditingId = itemId;
   (document.getElementById('editItemName') as HTMLInputElement).value = item.name;
   (document.getElementById('editItemQuantity') as HTMLInputElement).value = item.quantity;
+  const priceInput = document.getElementById('editItemPrice') as HTMLInputElement | null;
+  if (priceInput) priceInput.value = typeof item.price === 'number' ? String(item.price) : '';
 
   const select = document.getElementById('editItemCategory') as HTMLSelectElement;
   select.innerHTML = Object.keys(state.categories)
