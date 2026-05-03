@@ -1,233 +1,240 @@
 # 🛒 Ma Liste de Courses
 
-Application web standalone de liste de courses optimisée pour mobile avec stockage local.
-
-## 🚀 Fonctionnalités
-
-### ✅ Gestion de base
-- ✅ Ajouter/supprimer/modifier des articles
-- ✅ Cocher/décocher les articles achetés
-- ✅ Édition rapide (nom, quantité, catégorie)
-- ✅ Effacer tous les articles cochés d'un coup
-- ✅ Sauvegarde automatique en localStorage
-
-### 📋 Listes multiples
-- 📑 Créer plusieurs listes (courses, pharmacie, bricolage...)
-- 🔄 Dupliquer une liste existante
-- 🗑️ Supprimer des listes (appui long sur l'onglet)
-
-### 🏷️ Organisation intelligente
-- 🏷️ Catégorisation automatique des articles (12 catégories)
-- 🔀 Tri automatique par catégorie
-- 🌈 Code couleur par catégorie
-- 🖼️ Icônes pour chaque catégorie
-- 📊 Compteur de progression (x/y articles cochés) par catégorie
-
-### ⭐ Favoris et suggestions
-- 📌 Marquer des articles comme favoris
-- 🎯 Suggestions basées sur l'historique d'achat
-- 🤖 Ajout rapide depuis les suggestions
-- ⚡ Panneau de favoris pour ajout ultra-rapide
-
-### 📱 Expérience mobile optimale
-- 👆 Swipe vers la gauche pour supprimer
-- 📳 Retour haptique (vibrations)
-- 🔍 Recherche rapide en temps réel
-- ⌨️ Ajout ultra-rapide (Enter pour valider)
-- 📱 Interface tactile avec gros boutons
-
-### 🎨 Personnalisation
-- 🌗 Mode sombre/clair
-- 📐 Taille de police ajustable (80% à 150%)
-- 🎨 Design moderne et épuré
-
-### 📤 Partage
-- 📲 Partage via QR code
-- 🔀 Import avec fusion intelligente :
-  - Remplacer la liste actuelle
-  - Fusionner sans doublons
-  - Créer une nouvelle liste
-
-### 🔧 Technique
-- 📴 Fonctionne 100% offline (PWA)
-- 🏠 Installable sur l'écran d'accueil
-- ⚡ Ultra-rapide (fichier unique < 50kb sans la lib QR)
-- 🔒 Données 100% privées (stockage local uniquement)
-- 💾 Pas de serveur requis
-
-## 📦 Installation
-
-### Utilisation directe
-1. Ouvrez simplement `index.html` dans votre navigateur
-2. L'application fonctionne immédiatement !
-
-### Installation sur mobile
-1. Ouvrez l'application dans votre navigateur mobile
-2. **iOS** : Appuyez sur le bouton Partager → "Sur l'écran d'accueil"
-3. **Android** : Menu → "Ajouter à l'écran d'accueil"
-4. L'application s'ouvre maintenant comme une app native !
-
-### Hébergement
-
-#### GitHub Pages (recommandé)
-Déployez gratuitement sur GitHub Pages en suivant le **[Guide de déploiement](DEPLOIEMENT_GITHUB_PAGES.md)** :
-1. Créez un repository GitHub
-2. Uploadez les fichiers du projet
-3. Activez GitHub Pages dans les paramètres
-4. Votre app est en ligne ! 🎉
-
-Fichiers nécessaires :
-- `index.html`, `manifest.json`, `service-worker.js`
-- `_config.yml` (configuration GitHub Pages)
-- `.nojekyll` (important pour le bon fonctionnement)
-
-#### Autres hébergeurs
-L'application est compatible avec :
-- **Netlify** : Glissez-déposez le dossier
-- **Vercel** : Déploiement automatique via Git
-- **Apache/Nginx** : Uploadez les fichiers sur votre serveur
-- **GitHub Pages, GitLab Pages** : Intégration native
-
-## 📚 Documentation
-
-Pour une utilisation optimale de l'application, consultez :
-- **[📖 Manuel Utilisateur (HTML)](manuel.html)** - Guide interactif détaillé pour les utilisateurs
-- **[Manuel Utilisateur (MD)](MANUEL_UTILISATEUR.md)** - Version Markdown du guide
-- **[🔧 Documentation Technique](DOCUMENTATION_TECHNIQUE.md)** - Architecture et détails techniques pour développeurs
-- **[🚀 Guide de déploiement](DEPLOIEMENT_GITHUB_PAGES.md)** - Déployer sur GitHub Pages (et autres)
-
-## 🎯 Utilisation
-
-### Gérer les listes
-- **Créer** : Bouton ➕ dans l'entête en haut à droite
-- **Changer** : Cliquez sur les onglets en haut
-- **Dupliquer/Renommer** : Appui long sur un onglet (mobile) ou clic droit (desktop)
-- **Supprimer** : Appui long sur un onglet → Supprimer
-
-### Accès rapide (entête)
-- **📖 Manuel** : Accès au manuel utilisateur interactif
-- **🗑️ Effacer cochés** : Supprime tous les articles cochés de la liste active
-- **⭐ Favoris** : Ouvre le panneau des favoris pour ajout rapide
-- **⚙️ Paramètres** : Ouvre les paramètres de l'application
-- **➕ Nouvelle liste** : Crée une nouvelle liste
-
-### Gérer les articles
-- **Ajouter** : Tapez le nom et appuyez sur Entrer ou "Ajouter"
-- **Cocher** : Cliquez sur le cercle à gauche
-- **Modifier** : Cliquez sur le nom de l'article
-- **Favoris** : Étoile ⭐ sur l'article
-- **Supprimer** :
-  - Bouton 🗑️ sur l'article
-  - Ou icône 🗑️ dans l'entête pour effacer tous les cochés
-
-### Catégories disponibles
-- 🍎 Fruits
-- 🥬 Légumes
-- 🥩 Viandes
-- 🐟 Poissons
-- 🥛 Produits laitiers
-- 🛍️ Épicerie
-- ❄️ Surgelés
-- 🥤 Boissons
-- 🥖 Boulangerie
-- 🧴 Hygiène
-- 🧽 Entretien
-- 📦 Autre
-
-### Partager une liste
-1. Ouvrez Paramètres ⚙️
-2. Cliquez sur "📤 Partager la liste"
-3. Un QR code et un code texte sont générés
-4. Partagez le QR code ou copiez le code texte
-5. L'autre personne importe via Paramètres > 📥 Importer
-6. Choix : Remplacer / Fusionner / Nouvelle liste
-
-### Utiliser les favoris
-1. Cliquez sur l'icône ⭐ dans l'entête en haut à droite
-2. Parcourez vos articles favoris groupés par catégorie
-3. Cliquez sur un article pour l'ajouter instantanément à votre liste
-4. Ajoutez plusieurs favoris sans fermer la fenêtre
-
-### Réorganiser les catégories
-- **Desktop** : Cliquez-glissez la poignée ☰ à gauche du nom de catégorie
-- **Mobile** : Touchez et maintenez la poignée ☰, puis déplacez
-- L'ordre est sauvegardé automatiquement
-
-## 🛠️ Technologies
-
-- **HTML5** : Structure sémantique
-- **CSS3** : Design moderne avec variables CSS
-- **JavaScript Vanilla** : Aucune dépendance (sauf QRCode.js)
-- **PWA** : Service Worker pour fonctionnement offline
-- **LocalStorage** : Persistance des données
-- **QRCode.js** : Génération de QR codes
-
-## 📊 Performance
-
-- ⚡ Chargement initial : < 100ms
-- 💾 Taille totale : ~40kb (HTML+CSS+JS inline)
-- 🚀 Temps de réponse : < 10ms
-- 📱 Optimisé pour mobile et tablette
-- 🔋 Économie de batterie (pas de requêtes réseau)
-
-## 🔐 Confidentialité
-
-- ✅ Aucune donnée envoyée sur Internet
-- ✅ Stockage 100% local dans votre navigateur
-- ✅ Aucun tracking, aucun cookie
-- ✅ Pas de compte requis
-- ✅ Open source et auditable
-
-## 🌐 Compatibilité
-
-- ✅ Chrome/Edge 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ iOS Safari 14+
-- ✅ Chrome Android 90+
-
-## 📝 Licence
-
-Ce projet est libre d'utilisation.
-
-## 🤝 Contribution
-
-N'hésitez pas à suggérer des améliorations ou signaler des bugs !
-
-### Pour les développeurs
-
-Consultez la [Documentation Technique](DOCUMENTATION_TECHNIQUE.md) pour :
-- Architecture détaillée de l'application
-- Structure des données et API
-- Guide de contribution
-- Roadmap des fonctionnalités
-
-## 🔍 Détails techniques
-
-### Architecture
-- **Fichier unique** : Tout le code HTML, CSS et JavaScript dans [index.html](index.html)
-- **Taille** : ~85KB non compressé, ~20KB gzippé
-- **Service Worker** : Cache pour fonctionnement offline
-- **LocalStorage** : Stockage persistant local
-
-### Catégories intelligentes
-L'application reconnaît automatiquement ~150 mots-clés répartis dans 12 catégories et place chaque article dans la bonne catégorie.
-
-### Système de favoris
-Les favoris sont partagés entre toutes vos listes. Marquez un article favori une fois, retrouvez-le partout.
-
-### Confidentialité
-- ✅ Zéro tracking, zéro analytics
-- ✅ Données stockées uniquement sur votre appareil
-- ✅ Aucune connexion serveur (hors CDN QRCode.js)
-- ✅ Code source ouvert et auditable
+Application web de liste de courses optimisée pour mobile. PWA installable, **fonctionne 100% hors ligne**, **aucun compte requis**, données stockées localement uniquement.
 
 ---
 
-Fait avec ❤️ pour simplifier vos courses
+## ✨ Fonctionnalités
 
-**Liens utiles :**
-- [📖 Manuel Utilisateur (HTML)](manuel.html) - Guide complet interactif
-- [📄 Manuel Utilisateur (MD)](MANUEL_UTILISATEUR.md) - Version Markdown
-- [🔧 Documentation Technique](DOCUMENTATION_TECHNIQUE.md) - Pour les développeurs
-- [🚀 Guide de déploiement](DEPLOIEMENT_GITHUB_PAGES.md) - Déployer sur GitHub Pages
+### Gestion des listes & articles
+- Plusieurs listes simultanées (courses, pharmacie, bricolage, ...)
+- Renommer / dupliquer / supprimer une liste (clic droit ou bouton ⋮)
+- Ajout / édition / cochage / suppression d'articles
+- **Annuler la dernière suppression** via le toast (5 s)
+- **Catégorisation automatique** d'environ 150 mots-clés répartis sur 23 catégories par défaut, avec gestion des variantes singulier/pluriel et résolution par priorité (v2.2)
+- Catégories personnalisables (icône, ajout, suppression, réorganisation par drag & drop)
+- Effacer en un clic tous les articles cochés (avec annulation possible)
+
+### Recherche, suggestions & favoris
+- Recherche en temps réel avec **surlignage des correspondances**
+- Bouton ✕ pour vider la recherche d'un clic
+- Suggestions automatiques basées sur l'historique d'achat
+- Système de favoris : étoile ⭐ sur n'importe quel article ; panneau d'ajout rapide groupé par catégorie
+
+### Prix & budget *(nouveau)*
+- Prix optionnel (€) sur chaque article
+- **Barre de totaux** flottante : "Reste à payer" et "Total" estimé, avec indication des articles sans prix
+
+### Saisie vocale *(nouveau)*
+- Bouton 🎤 à côté du champ d'ajout (si l'API Web Speech est dispo)
+- Reconnaissance en français, ajout direct à la liste
+
+### Mode supermarché *(nouveau)*
+- Bouton 🛒 dans le header → vue plein-écran épurée pour faire les courses
+- Articles plus grands, checkboxes plus larges, distractions masquées
+
+### Partage
+- Partage par **QR code** ou code texte (base64) — aucun serveur impliqué
+- Import avec 3 stratégies au choix : **remplacer**, **fusionner sans doublons**, **nouvelle liste**
+- Validation stricte du payload importé (Zod)
+
+### Confort & personnalisation
+- Mode sombre / clair
+- Taille de police ajustable (80 % – 150 %)
+- Option "masquer les articles cochés"
+- Retour haptique (vibrations) sur mobile
+
+### Accessibilité (WCAG)
+- Zoom utilisateur autorisé (`maximum-scale=1.0` retiré)
+- Skip-link "Aller au contenu" au focus clavier
+- Tous les boutons icône ont des `aria-label` FR
+- Modales : `role="dialog"`, `aria-modal`, focus trap, restauration du focus à la fermeture
+- Onglets de listes : `role="tab"` / `aria-selected` / navigation clavier
+- Toggles `role="switch"` avec `aria-checked` synchronisé
+- Conteneur d'articles `aria-live="polite"` (annonce les changements)
+- Outline `:focus-visible` net sur tous les éléments interactifs
+
+### Raccourcis clavier *(nouveau)*
+| Raccourci | Action |
+|---|---|
+| `Ctrl` / `Cmd` + `K` | Focus sur la recherche |
+| `/` | Focus sur l'ajout d'article |
+| `Esc` | Ferme la modale ouverte, ou vide la recherche |
+| `?` | Affiche / masque l'aide raccourcis |
+| `Enter` | Valide le champ courant |
+
+### Robustesse & perf
+- Sauvegarde localStorage **debouncée** (200 ms) + flush sur `beforeunload` / `pagehide` / `visibilitychange:hidden`
+- Toast d'erreur explicite si le stockage est indisponible (mode privé Safari, quota dépassé)
+- Service Worker en **stale-while-revalidate** : pas de blocage sur une vieille version après mise à jour
+- Migrations de schéma localStorage unifiées et testées
+
+---
+
+## 🚀 Démarrage rapide (utilisateur)
+
+### En ligne
+Si l'application est déployée (par ex. GitHub Pages), il suffit d'ouvrir l'URL.
+
+### En local sans build
+1. Téléchargez le dossier
+2. Ouvrez `dist/index.html` (s'il existe) ou utilisez le mode développement (voir ci-dessous)
+
+### Installation comme app
+- **iOS / Safari** : bouton Partager → "Sur l'écran d'accueil"
+- **Android / Chrome** : menu ⋮ → "Ajouter à l'écran d'accueil"
+
+L'app s'installe alors comme une application native, démarre offline, occupe ~150 KB en cache.
+
+---
+
+## 🛠️ Stack technique
+
+| Aspect | Détail |
+|---|---|
+| Langage | **TypeScript** strict |
+| Bundler | **Vite 5** + `vite-plugin-singlefile` (bundle inliné en un seul `dist/index.html`) |
+| Tests | **Vitest** (40 tests sur catégorisation, migration, schémas, prix) |
+| Lint | ESLint + `@typescript-eslint` |
+| Format | Prettier |
+| Validation runtime | **Zod** (payloads d'import) |
+| PWA | Service Worker stale-while-revalidate + manifest |
+| Dépendances runtime | QRCode.js (CDN, lazy) |
+| Backend | Aucun |
+| Stockage | localStorage (avec migration de schéma versionnée) |
+
+---
+
+## 📦 Développement
+
+```bash
+npm install        # installe les dépendances dev
+npm run dev        # lance Vite en mode dev (hot reload)
+npm run build      # bundle de prod → dist/index.html (auto-contenu)
+npm run preview    # sert dist/ pour tester avant déploiement
+npm run typecheck  # tsc --noEmit
+npm run lint       # ESLint
+npm run test       # Vitest run (40 tests)
+npm run test:watch # Vitest en watch
+npm run format     # Prettier --write
+```
+
+### Scripts CI
+
+GitHub Actions exécute `lint + typecheck + test + build` sur chaque push et PR (`.github/workflows/ci.yml`).
+
+---
+
+## 📁 Structure du projet
+
+```
+Liste-de-courses/
+├── index.html                 # Squelette HTML (≈270 lignes), entrée Vite
+├── src/
+│   ├── main.ts                # Init + wire-up DOM + window globals
+│   ├── types.ts               # Interfaces TS (Item, ShoppingList, AppState…)
+│   ├── constants.ts           # DEFAULT_CATEGORIES, AVAILABLE_ICONS, STORAGE_KEY
+│   ├── state.ts               # Store + saveToLocalStorage debounced + migrateState
+│   ├── categorize.ts          # Algo v2.2 (pur, testé)
+│   ├── items.ts               # CRUD articles + favoris + undo
+│   ├── lists.ts               # CRUD listes
+│   ├── modals.ts              # openModal/closeModal + focus trap + restore
+│   ├── confirm.ts             # confirmDialog/alertDialog (remplace alert/confirm natifs)
+│   ├── toast.ts               # Toasts success/error/info + action
+│   ├── shortcuts.ts           # Raccourcis clavier
+│   ├── share.ts               # Export QR + import (avec validation Zod)
+│   ├── schemas.ts             # Schémas Zod
+│   ├── settings.ts            # Mode sombre, font size, reset
+│   ├── voice.ts               # Web Speech API wrapper
+│   ├── dragdrop.ts            # Réordonnancement drag & drop des catégories
+│   ├── interactions.ts        # Long-press, swipe, toggle item
+│   ├── styles.css             # CSS unifié (variables, responsive, dark mode)
+│   ├── utils/
+│   │   ├── escape.ts          # escapeHtml / highlight (regex-safe)
+│   │   ├── focus-trap.ts      # createFocusTrap réutilisable
+│   │   └── price.ts           # parsePrice / formatPrice / computeTotals
+│   └── render/
+│       ├── items.ts           # Rendu de la liste + barre de totaux
+│       ├── tabs.ts            # Onglets de listes (role=tab)
+│       ├── suggestions.ts     # Chips de suggestions
+│       ├── favorites.ts       # Grille des favoris
+│       └── categories.ts      # Liste des catégories en paramètres
+├── tests/                     # Vitest (40 tests)
+├── scripts/post-build.mjs     # Copie manifest/SW/.nojekyll dans dist/
+├── service-worker.js          # SW stale-while-revalidate
+├── manifest.json              # PWA manifest
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── CHANGELOG.md
+├── MANUEL_UTILISATEUR.md
+├── DOCUMENTATION_TECHNIQUE.md
+└── manuel.html
+```
+
+---
+
+## 📦 Déploiement
+
+```bash
+npm run build
+# Le dossier dist/ contient :
+#   - index.html (auto-contenu, CSS + JS inlinés, ≈140 KB / 38 KB gzip)
+#   - manifest.json
+#   - service-worker.js
+#   - .nojekyll
+```
+
+Déployer ce dossier sur n'importe quel hébergeur statique : **GitHub Pages**, Netlify, Vercel, Cloudflare Pages, S3, Apache, Nginx.
+
+Pour GitHub Pages, le `.nojekyll` est requis (déjà présent dans `dist/` après build).
+
+---
+
+## 🧪 Tests
+
+```bash
+npm run test
+```
+
+40 tests Vitest répartis :
+
+- `tests/categorize.test.ts` (21) — normalisation, tokenisation, variantes, multi-mots, priorités, accents
+- `tests/migrate.test.ts` (6) — migrations localStorage (legacy nom → ID, fallback `autre`, extraction favoris, ajout des catégories par défaut, préservation custom)
+- `tests/schemas.test.ts` (5) — validation Zod (payload valide, nom vide, taille excessive, types invalides)
+- `tests/price.test.ts` (8) — parsing FR/EN, formatage EUR, totaux
+
+---
+
+## 🔐 Confidentialité
+
+- Aucune donnée n'est envoyée sur Internet
+- Aucun tracking, aucun cookie, aucun analytics
+- Seule dépendance externe : **QRCode.js** chargé en CDN à la première utilisation du partage (puis mis en cache par le SW)
+- Code source ouvert et auditable
+
+---
+
+## 📚 Documentation
+
+- **[CHANGELOG.md](CHANGELOG.md)** — historique des versions
+- **[MANUEL_UTILISATEUR.md](MANUEL_UTILISATEUR.md)** — guide pas-à-pas pour les utilisateurs
+- **[DOCUMENTATION_TECHNIQUE.md](DOCUMENTATION_TECHNIQUE.md)** — architecture, modules, types, API
+- **[manuel.html](manuel.html)** — version interactive du manuel utilisateur
+- **[dictionnaire.md](dictionnaire.md)** — liste exhaustive des mots-clés par catégorie
+
+---
+
+## 🌐 Compatibilité navigateurs
+
+- Chrome / Edge 90+
+- Firefox 88+ (saisie vocale non supportée)
+- Safari 14+
+- iOS Safari 14+
+- Chrome Android 90+
+
+---
+
+## 📝 Licence
+
+Projet libre d'utilisation.

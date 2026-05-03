@@ -1,119 +1,221 @@
 # Documentation Technique - Ma Liste de Courses
 
+> **v3 — refactor TypeScript**. L'architecture monofichier vanilla a été remplacée par une codebase modulaire TypeScript bundlée par Vite. Le bundle final reste un **seul fichier `dist/index.html` auto-contenu** (via `vite-plugin-singlefile`) pour préserver la simplicité de déploiement.
+
 ## Table des matières
 1. [Architecture générale](#architecture-générale)
 2. [Structure du projet](#structure-du-projet)
 3. [Technologies utilisées](#technologies-utilisées)
-4. [Structure des données](#structure-des-données)
-5. [Fonctionnalités détaillées](#fonctionnalités-détaillées)
-6. [Système de stockage](#système-de-stockage)
-7. [PWA et Service Worker](#pwa-et-service-worker)
-8. [API et fonctions principales](#api-et-fonctions-principales)
-9. [Système de catégories](#système-de-catégories)
-10. [Migration et compatibilité](#migration-et-compatibilité)
-11. [Performance](#performance)
-12. [Sécurité et confidentialité](#sécurité-et-confidentialité)
+4. [Workflow de développement](#workflow-de-développement)
+5. [Tests & CI](#tests--ci)
+6. [Structure des données](#structure-des-données)
+7. [Fonctionnalités détaillées](#fonctionnalités-détaillées)
+8. [Système de stockage](#système-de-stockage)
+9. [PWA et Service Worker](#pwa-et-service-worker)
+10. [API et fonctions principales](#api-et-fonctions-principales)
+11. [Système de catégories](#système-de-catégories)
+12. [Migration et compatibilité](#migration-et-compatibilité)
+13. [Performance](#performance)
+14. [Sécurité et confidentialité](#sécurité-et-confidentialité)
 
 ---
 
 ## Architecture générale
 
 ### Concept
-**Ma Liste de Courses** est une Progressive Web App (PWA) monofichier qui fonctionne entièrement côté client sans backend.
+**Ma Liste de Courses** est une Progressive Web App (PWA) qui fonctionne entièrement côté client, **sans backend**. Le code est écrit en **TypeScript modulaire**, bundlé par **Vite** ; le bundle de production est inliné en un **seul fichier `dist/index.html` auto-contenu** par `vite-plugin-singlefile`.
 
 ### Principes de conception
-- **Zero-dependency** : Aucune dépendance npm, pas de bundler
-- **Offline-first** : Fonctionne sans connexion Internet
-- **Privacy-first** : Toutes les données restent sur l'appareil
-- **Mobile-first** : Optimisée pour mobile avec support desktop
-- **Single-file** : Tout le code dans un seul fichier HTML
+- **TypeScript strict** : tout le code applicatif est typé
+- **Modulaire** : 17 modules + utils + render/, séparation des responsabilités
+- **Single-file deploy** : malgré la modularité, le build produit un seul HTML déployable n'importe où
+- **Offline-first** : Service Worker en stale-while-revalidate
+- **Privacy-first** : toutes les données restent dans le localStorage
+- **A11y** : ARIA, focus trap, skip-link, navigation clavier
 
 ### Architecture technique
+
 ```
-┌─────────────────────────────────────┐
-│         index.html (40kb)           │
-│  ┌──────────────────────────────┐   │
-│  │   HTML Structure             │   │
-│  │   - Headers & Meta           │   │
-│  │   - Modals (10 modales)      │   │
-│  │   - Main container           │   │
-│  └──────────────────────────────┘   │
-│  ┌──────────────────────────────┐   │
-│  │   CSS (<style>)              │   │
-│  │   - Variables CSS            │   │
-│  │   - Responsive design        │   │
-│  │   - Animations               │   │
-│  │   - Dark mode support        │   │
-│  └──────────────────────────────┘   │
-│  ┌──────────────────────────────┐   │
-│  │   JavaScript (<script>)      │   │
-│  │   - State management         │   │
-│  │   - CRUD operations          │   │
-│  │   - LocalStorage sync        │   │
-│  │   - UI rendering             │   │
-│  │   - Event listeners          │   │
-│  └──────────────────────────────┘   │
-└─────────────────────────────────────┘
-           │
-           ├─────► manifest.json (PWA config)
-           ├─────► service-worker.js (Cache)
-           └─────► QRCode.js (CDN externe)
+Source (TypeScript)
+┌──────────────────────────────────────────┐
+│  src/                                    │
+│  ├── main.ts            (entry, wire-up) │
+│  ├── state.ts           (store, debounce, migrations)
+│  ├── categorize.ts      (algo v2.2 pur, testé)
+│  ├── items.ts / lists.ts (CRUD)
+│  ├── render/*.ts        (DOM rendering par section)
+│  ├── modals.ts / confirm.ts / toast.ts (UI feedback)
+│  ├── shortcuts.ts        (clavier)
+│  ├── share.ts / schemas.ts (export QR + import Zod)
+│  ├── settings.ts / dragdrop.ts / interactions.ts
+│  ├── voice.ts            (Web Speech API wrapper)
+│  ├── styles.css          (single CSS source)
+│  └── utils/              (escape, focus-trap, price)
+└──────────────────────────────────────────┘
+                    │
+              vite build
+                    │
+                    ▼
+Production (single file)
+┌──────────────────────────────────────────┐
+│  dist/index.html  (≈140 KB / 38 KB gzip) │
+│  ├─ HTML squelette                       │
+│  ├─ CSS inliné (<style>)                 │
+│  └─ JS inliné (<script type="module">)   │
+└──────────────────────────────────────────┘
+                    │
+                    ├─► dist/manifest.json
+                    ├─► dist/service-worker.js (SWR)
+                    ├─► dist/.nojekyll
+                    └─► QRCode.js (CDN, lazy)
 ```
 
 ---
 
 ## Structure du projet
 
-### Fichiers
-
 ```
-Liste-de-courses-main/
-├── index.html              # Application complète (HTML + CSS + JS)
-├── test-categorisation.html # Suite de tests pour catégorisation (v2.2)
-├── manifest.json          # Configuration PWA
-├── service-worker.js      # Service worker pour cache offline
-├── README.md              # Documentation utilisateur
-├── MANUEL_UTILISATEUR.md  # Manuel détaillé
-└── DOCUMENTATION_TECHNIQUE.md  # Ce fichier
+Liste-de-courses/
+├── index.html                  # Squelette HTML (≈270 lignes), entrée Vite
+├── src/
+│   ├── main.ts                 # Init, wire-up DOM, expose window globals
+│   ├── types.ts                # Item, ShoppingList, AppState, …
+│   ├── constants.ts            # DEFAULT_CATEGORIES, AVAILABLE_ICONS, STORAGE_KEY
+│   ├── state.ts                # state singleton, save (debounced), load, migrateState
+│   ├── categorize.ts           # Algo de catégorisation v2.2 (pur)
+│   ├── items.ts                # CRUD articles + favoris + undo
+│   ├── lists.ts                # CRUD listes
+│   ├── modals.ts               # openModal/closeModal + focus trap auto + restore
+│   ├── confirm.ts              # confirmDialog/alertDialog (remplacent alert/confirm)
+│   ├── toast.ts                # Toast success/error/info + action
+│   ├── shortcuts.ts            # Raccourcis clavier globaux
+│   ├── share.ts                # Export QR + import (Zod-validated)
+│   ├── schemas.ts              # Schémas Zod
+│   ├── settings.ts             # toggleTheme, toggleHideChecked, font size, reset
+│   ├── voice.ts                # Wrapper SpeechRecognition / webkitSpeechRecognition
+│   ├── dragdrop.ts             # Réordonnancement catégories (souris + tactile)
+│   ├── interactions.ts         # Long-press, swipe, toggle item
+│   ├── styles.css              # CSS unifié
+│   ├── utils/
+│   │   ├── escape.ts           # escapeHtml / highlight regex-safe
+│   │   ├── focus-trap.ts       # createFocusTrap + getFocusables
+│   │   └── price.ts            # parsePrice, formatPrice, computeTotals
+│   └── render/
+│       ├── items.ts            # renderItems + barre de totaux
+│       ├── tabs.ts             # renderListTabs (role=tab + aria-selected)
+│       ├── suggestions.ts      # renderSuggestions
+│       ├── favorites.ts        # renderFavorites + addItemFromFavorite
+│       └── categories.ts       # renderCategoriesList + saveCategory
+├── tests/
+│   ├── categorize.test.ts      # 21 tests catégorisation
+│   ├── migrate.test.ts         # 6 tests migrations
+│   ├── schemas.test.ts         # 5 tests Zod
+│   └── price.test.ts           # 8 tests prix
+├── scripts/post-build.mjs      # Copie manifest/SW/.nojekyll dans dist/
+├── service-worker.js           # SW stale-while-revalidate
+├── manifest.json               # PWA manifest
+├── vite.config.ts              # Vite + viteSingleFile + Vitest
+├── tsconfig.json               # TS strict (target ES2020, DOM)
+├── package.json
+├── .eslintrc.cjs
+├── .prettierrc
+├── .gitignore
+├── .github/workflows/ci.yml    # GitHub Actions (lint + typecheck + test + build)
+├── CHANGELOG.md
+├── README.md
+├── MANUEL_UTILISATEUR.md
+├── DOCUMENTATION_TECHNIQUE.md  # ce fichier
+├── manuel.html                 # Manuel utilisateur HTML (existant, legacy)
+└── dictionnaire.md             # Liste exhaustive des mots-clés
 ```
 
-### Taille des fichiers
-- **index.html** : ~95kb (non minifié, +10kb avec nouvelles fonctions v2.2)
-- **test-categorisation.html** : ~8kb (tests automatisés v2.2)
-- **manifest.json** : ~1kb
-- **service-worker.js** : ~2kb
-- **Total** : ~106kb
-- **QRCode.js (CDN)** : ~12kb
+### Taille des artefacts (build de prod)
+- `dist/index.html` : ~140 KB / **~38 KB gzip** (CSS + JS + Zod inlinés)
+- `dist/manifest.json` : ~1.5 KB
+- `dist/service-worker.js` : ~1 KB
+- QRCode.js (CDN, lazy) : ~12 KB
 
 ---
 
 ## Technologies utilisées
 
-### Frontend
-- **HTML5** : Structure sémantique
-- **CSS3** : Variables CSS, Flexbox, Grid, Animations
-- **JavaScript ES6+** : Vanilla JS moderne
+### Stack
+- **TypeScript 5** strict (target ES2020)
+- **Vite 5** + `vite-plugin-singlefile` pour produire un HTML auto-contenu
+- **Vitest** + jsdom pour les tests
+- **ESLint** + `@typescript-eslint`
+- **Prettier**
+- **Zod** pour la validation runtime des payloads d'import
 
-### Bibliothèques externes
-- **QRCode.js** (v1.0.0) : Génération de QR codes
-  - Chargée depuis CDN : jsdelivr.net
-  - Uniquement pour le partage de listes
+### Bibliothèques externes runtime
+- **QRCode.js** (v1.0.0, ~12 KB) — chargée depuis jsdelivr CDN à la première utilisation du partage
 
 ### APIs Web utilisées
-- **LocalStorage API** : Persistance des données
-- **Service Worker API** : Cache offline
-- **Clipboard API** : Copier-coller de codes
-- **History API** : Gestion des paramètres URL
-- **Drag & Drop API** : Réorganisation des catégories
-- **Touch Events API** : Interactions tactiles
-- **Vibration API** : Retour haptique sur les interactions principales
+- **LocalStorage** — persistance des données
+- **Service Worker** — cache offline (stratégie stale-while-revalidate)
+- **Clipboard** — copie du code de partage
+- **History** — gestion `?import=` dans l'URL
+- **Drag & Drop** — réordonnancement catégories (souris)
+- **Touch Events** — long-press, swipe, drag tactile
+- **Vibration** — retour haptique
+- **Web Speech (`SpeechRecognition`)** — saisie vocale (Chrome/Edge/Safari récent)
+- **`Intl.NumberFormat`** — formatage prix en EUR (fr-FR)
 
 ### Compatibilité navigateurs
-- Chrome/Edge 90+
-- Firefox 88+
+- Chrome / Edge 90+
+- Firefox 88+ *(saisie vocale non supportée — bouton micro masqué)*
 - Safari 14+
 - iOS Safari 14+
 - Chrome Android 90+
+
+---
+
+## Workflow de développement
+
+### Installation
+```bash
+npm install
+```
+
+### Scripts npm
+
+| Commande | Action |
+|---|---|
+| `npm run dev` | Lance Vite en mode dev (hot reload, http://localhost:5173) |
+| `npm run build` | `tsc --noEmit` puis `vite build` puis `post-build.mjs` (copie SW/manifest, supprime le manifest hashé) |
+| `npm run preview` | Sert `dist/` localement |
+| `npm run typecheck` | `tsc --noEmit` |
+| `npm run lint` | ESLint sur `src/` et `tests/` |
+| `npm run format` | Prettier --write |
+| `npm run test` | Vitest run (40 tests) |
+| `npm run test:watch` | Vitest en watch mode |
+
+### Build script post-process
+`scripts/post-build.mjs` :
+1. Copie `manifest.json`, `service-worker.js`, `.nojekyll` dans `dist/`
+2. Supprime tout `dist/manifest-<hash>.json` que Vite aurait pu produire
+3. Réécrit `dist/index.html` pour pointer vers `manifest.json` (non hashé)
+
+---
+
+## Tests & CI
+
+### Tests Vitest (40 au total)
+
+| Fichier | Tests | Couverture |
+|---|---|---|
+| `tests/categorize.test.ts` | 21 | normalisation, tokenisation, variantes, multi-mots, priorités, accents |
+| `tests/migrate.test.ts` | 6 | legacy nom → ID, fallback "autre", extraction favoris, ajout catégories par défaut, préservation custom |
+| `tests/schemas.test.ts` | 5 | Zod payload valide, nom vide, taille excessive, types invalides |
+| `tests/price.test.ts` | 8 | parsing FR/EN, format EUR, computeTotals |
+
+### CI GitHub Actions
+`.github/workflows/ci.yml` exécute sur chaque push et PR :
+1. `npm ci`
+2. `npm run lint`
+3. `npm run typecheck`
+4. `npm run test`
+5. `npm run build`
 
 ---
 
