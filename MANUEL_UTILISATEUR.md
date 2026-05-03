@@ -5,8 +5,10 @@
 2. [Installation](#installation)
 3. [Démarrage rapide](#démarrage-rapide)
 4. [Fonctionnalités détaillées](#fonctionnalités-détaillées)
-5. [Astuces et bonnes pratiques](#astuces-et-bonnes-pratiques)
-6. [Résolution de problèmes](#résolution-de-problèmes)
+5. [Nouveautés v3](#nouveautés-v3) — *prix, voix, mode supermarché, undo, raccourcis*
+6. [Accessibilité](#accessibilité)
+7. [Astuces et bonnes pratiques](#astuces-et-bonnes-pratiques)
+8. [Résolution de problèmes](#résolution-de-problèmes)
 
 ---
 
@@ -24,6 +26,12 @@
 - Retour haptique (vibrations) sur les interactions principales
 - Fonctionne entièrement hors ligne
 - Vos données restent privées sur votre appareil
+- **Prix par article + estimation de budget** (nouveau)
+- **Saisie vocale** en français (nouveau, navigateurs compatibles)
+- **Mode supermarché** plein-écran pour faire les courses (nouveau)
+- **Annulation des suppressions** (toast undo, nouveau)
+- **Raccourcis clavier** (nouveau)
+- **Accessibilité améliorée** : ARIA, focus trap, navigation clavier (nouveau)
 
 ---
 
@@ -475,6 +483,120 @@ La réinitialisation supprime :
 - Toutes vos catégories personnalisées
 - Tous vos paramètres
 - Votre historique pour les suggestions
+
+---
+
+## Nouveautés v3
+
+### 💶 Prix et budget
+
+Vous pouvez maintenant attribuer un **prix optionnel** à chaque article et suivre votre budget en temps réel.
+
+**Ajouter un prix à un article :**
+1. Cliquez sur l'article (ou faites un appui long sur mobile) pour ouvrir le mode édition
+2. Renseignez le champ **Prix (€)** — la virgule et le point décimal sont acceptés (ex: `2,50` ou `2.50`)
+3. Validez avec **Enregistrer**
+
+**Affichage :**
+- Le prix s'affiche à côté de la quantité, en vert
+- Une **barre de totaux** apparaît en bas de l'écran dès qu'au moins un article a un prix :
+  - **Reste à payer** : somme des articles non cochés
+  - **Total** : somme totale, avec une indication du nombre d'articles sans prix
+
+**Bon à savoir :**
+- Le prix est **optionnel** : laissez vide si vous ne souhaitez pas budgéter
+- Les prix sont inclus dans le partage QR code (si l'autre appareil a une version récente)
+- Aucun calcul fiscal, juste une estimation
+
+### 🎤 Saisie vocale
+
+Si votre navigateur supporte l'API Web Speech (Chrome, Edge, Safari récent), un bouton **🎤** apparaît à côté du champ d'ajout.
+
+**Utilisation :**
+1. Appuyez sur le bouton micro
+2. Le bouton devient rouge et pulse
+3. Dictez le nom de l'article (en français)
+4. L'article est automatiquement ajouté à la liste active
+
+**Astuce :** Utile en cuisine, en voiture, ou les mains pleines. La reconnaissance fonctionne mieux dans un environnement calme.
+
+**Erreurs possibles :**
+- Si la reconnaissance échoue, un toast d'erreur apparaît
+- Sur Firefox desktop ou Safari iOS ancien, le bouton n'apparaît pas du tout (API non supportée)
+
+### 🛒 Mode supermarché
+
+Un mode plein-écran épuré, conçu pour faire les courses au magasin.
+
+**Activation :** bouton **🛒** dans le header.
+
+**Caractéristiques :**
+- Header, recherche et formulaire d'ajout masqués
+- Articles plus grands, **checkboxes plus larges** (plus faciles à toucher)
+- Articles cochés à 45 % d'opacité (pour suivre où vous en êtes)
+- Boutons d'édition / suppression / favoris masqués (focus sur l'action de cocher)
+- Drag handles et boutons de repli des catégories masqués
+
+**Sortie :** bouton **✕ Quitter mode courses** flottant en haut à droite.
+
+### ↩️ Annuler une suppression
+
+Quand vous supprimez un article (icône 🗑️), il n'y a plus de confirmation : la suppression est immédiate, mais un **toast** apparaît pendant 5 secondes en bas de l'écran avec un bouton **Annuler** :
+
+> "Pommes" supprimé — **[Annuler]**
+
+Cliquer sur **Annuler** restaure l'article à sa position d'origine. C'est aussi le cas pour la suppression en masse via 🗑️ "Effacer cochés" du header.
+
+### ⌨️ Raccourcis clavier
+
+| Raccourci | Action |
+|---|---|
+| `Ctrl` + `K` (ou `Cmd` + `K` sur Mac) | Place le curseur sur le champ de recherche |
+| `/` | Place le curseur sur le champ d'ajout d'article |
+| `Esc` | Ferme la modale ouverte, ou vide la recherche si remplie |
+| `?` | Affiche / masque la fenêtre d'aide raccourcis |
+| `Enter` | Valide le champ courant (ajout, recherche, modale, etc.) |
+
+L'aide raccourcis est aussi accessible à tout moment via la touche `?`.
+
+### 🔍 Recherche améliorée
+
+- Les correspondances sont **surlignées en jaune** dans les noms et quantités d'articles
+- Un bouton **✕** apparaît dans la barre de recherche dès qu'un terme est saisi pour vider d'un clic
+- `Esc` vide aussi la recherche si elle n'est pas vide
+
+### ⋮ Menu visible sur les onglets
+
+Plus besoin de découvrir le clic droit ou l'appui long : un bouton **⋮** est désormais visible directement sur chaque onglet de liste pour accéder aux actions Renommer / Dupliquer / Supprimer. (L'appui long et le clic droit restent disponibles.)
+
+---
+
+## Accessibilité
+
+L'application a été retravaillée pour être utilisable au clavier et avec un lecteur d'écran (NVDA, VoiceOver, JAWS, TalkBack).
+
+### Navigation clavier
+- **Tab** parcourt les éléments interactifs dans un ordre logique
+- **Enter** / **Espace** activent les boutons et toggles
+- Dans une modale, le focus est **piégé** : Tab et Shift+Tab restent dans la modale
+- Escape ferme la modale et **rend le focus à l'élément qui l'avait avant l'ouverture**
+- Outline visible (vert + halo) sur tout élément focusé au clavier
+- Skip-link "Aller au contenu" en début de page (visible uniquement au focus clavier)
+
+### Lecteur d'écran
+- Tous les boutons icône ont un `aria-label` en français
+- Les modales ont `role="dialog"`, `aria-modal="true"` et un titre annoncé
+- Les onglets de listes utilisent `role="tab"` / `aria-selected`
+- Les toggles (mode sombre, masquer cochés) utilisent `role="switch"` / `aria-checked`
+- La liste d'articles est un conteneur `aria-live="polite"` : les changements sont annoncés
+- Les toasts sont annoncés via un conteneur `aria-live="polite"`
+
+### Zoom
+- Le **pinch-zoom utilisateur est autorisé** (la balise `maximum-scale=1.0` qui le bloquait a été retirée pour respecter WCAG 1.4.4)
+- La taille de police est ajustable de 80 % à 150 % via les paramètres
+
+### Contrastes
+- Les couleurs respectent WCAG AA en mode clair et en mode sombre
 
 ---
 
