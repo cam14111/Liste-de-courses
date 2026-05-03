@@ -2,6 +2,7 @@ import { state } from '../state';
 import { renderItems } from './items';
 import { renderSuggestions } from './suggestions';
 import { handleListContextMenu } from '../lists';
+import { escapeHtml, escapeAttr } from '../utils/escape';
 
 export function renderListTabs(): void {
   const container = document.getElementById('listSelector');
@@ -11,9 +12,17 @@ export function renderListTabs(): void {
     .map(([id, list]) => {
       const itemCount = list.items.length;
       const checkedCount = list.items.filter((i) => i.checked).length;
-      return `<button class="list-tab ${id === state.currentList ? 'active' : ''}" data-list="${id}" oncontextmenu="window.handleListContextMenu(event, '${id}')">${list.name} ${itemCount > 0 ? `(${checkedCount}/${itemCount})` : ''}</button>`;
+      const counter = itemCount > 0 ? `(${checkedCount}/${itemCount})` : '';
+      return `<button class="list-tab ${id === state.currentList ? 'active' : ''}" data-list="${escapeAttr(id)}" oncontextmenu="window.handleListContextMenu(event, '${escapeAttr(id)}')"><span class="list-tab-name">${escapeHtml(list.name)} ${counter}</span><span class="list-tab-menu" role="button" aria-label="Actions sur la liste" data-list-menu="${escapeAttr(id)}">⋮</span></button>`;
     })
     .join('');
+
+  container.querySelectorAll<HTMLElement>('.list-tab-menu').forEach((menu) => {
+    menu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleListContextMenu(e, menu.dataset.listMenu || '');
+    });
+  });
 
   container.querySelectorAll<HTMLButtonElement>('.list-tab').forEach((tab) => {
     let longPressTimer: ReturnType<typeof setTimeout> | null = null;

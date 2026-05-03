@@ -2,6 +2,9 @@ import { state, saveToLocalStorage } from '../state';
 import { AVAILABLE_ICONS } from '../constants';
 import { openModal, closeModal } from '../modals';
 import { renderItems } from './items';
+import { confirmDialog, alertDialog } from '../confirm';
+import { showToast } from '../toast';
+import { escapeHtml, escapeAttr } from '../utils/escape';
 
 let currentEditingCategory: string | null = null;
 let selectedIcon: string | null = null;
@@ -14,11 +17,11 @@ export function renderCategoriesList(): void {
       ([id, data]) => `<div class="category-item">
         <div class="category-item-info">
           <span class="category-item-icon">${data.icon}</span>
-          <span class="category-item-name">${id.charAt(0).toUpperCase() + id.slice(1)}</span>
+          <span class="category-item-name">${escapeHtml(id.charAt(0).toUpperCase() + id.slice(1))}</span>
         </div>
         <div class="category-item-actions">
-          <button class="item-btn" onclick="window.editCategory('${id}')" title="Modifier">✏️</button>
-          <button class="item-btn" onclick="window.deleteCategory('${id}')" title="Supprimer">🗑️</button>
+          <button class="item-btn" onclick="window.editCategory('${escapeAttr(id)}')" title="Modifier" aria-label="Modifier la catégorie">✏️</button>
+          <button class="item-btn" onclick="window.deleteCategory('${escapeAttr(id)}')" title="Supprimer" aria-label="Supprimer la catégorie">🗑️</button>
         </div>
       </div>`,
     )
@@ -30,8 +33,15 @@ export function renderIconGrid(): void {
   if (!grid) return;
   grid.innerHTML = AVAILABLE_ICONS.map(
     (icon) =>
-      `<div class="icon-option ${selectedIcon === icon ? 'selected' : ''}" onclick="window.selectIcon('${icon}')">${icon}</div>`,
+      `<div class="icon-option ${selectedIcon === icon ? 'selected' : ''}" data-icon="${escapeAttr(icon)}" role="button" tabindex="0" aria-label="Choisir l'icône ${escapeAttr(icon)}">${icon}</div>`,
   ).join('');
+
+  grid.querySelectorAll<HTMLElement>('.icon-option').forEach((el) => {
+    el.addEventListener('click', () => {
+      const ic = el.dataset.icon;
+      if (ic) selectIcon(ic);
+    });
+  });
 }
 
 export function selectIcon(icon: string): void {
@@ -62,14 +72,14 @@ export function editCategory(categoryId: string): void {
   openModal('categoryModal');
 }
 
-export function deleteCategory(categoryKey: string): void {
-  if (
-    !confirm(
-      `Supprimer la catégorie "${categoryKey}" ?\n\nLes articles de cette catégorie seront déplacés dans "autre".`,
-    )
-  ) {
-    return;
-  }
+export async function deleteCategory(categoryKey: string): Promise<void> {
+  const ok = await confirmDialog({
+    title: `Supprimer la catégorie "${categoryKey}"`,
+    message: 'Les articles de cette catégorie seront déplacés dans "autre".',
+    confirmLabel: 'Supprimer',
+    destructive: true,
+  });
+  if (!ok) return;
 
   const idToDelete = state.categories[categoryKey]?.id;
   const autreId = state.categories['autre']?.id || 'default_autre';
@@ -90,18 +100,19 @@ export function deleteCategory(categoryKey: string): void {
   saveToLocalStorage();
   renderCategoriesList();
   renderItems();
+  showToast(`Catégorie "${categoryKey}" supprimée`, { variant: 'success', duration: 2500 });
 }
 
-export function saveCategory(): void {
+export async function saveCategory(): Promise<void> {
   const input = document.getElementById('categoryName') as HTMLInputElement | null;
   const name = input?.value.trim().toLowerCase() || '';
 
   if (!name) {
-    alert('Veuillez entrer un nom de catégorie');
+    await alertDialog('Veuillez entrer un nom de catégorie');
     return;
   }
   if (!selectedIcon) {
-    alert('Veuillez sélectionner une icône');
+    await alertDialog('Veuillez sélectionner une icône');
     return;
   }
 
@@ -135,7 +146,7 @@ export function saveCategory(): void {
     }
   } else {
     if (state.categories[name]) {
-      alert('Cette catégorie existe déjà');
+      await alertDialog('Cette catégorie existe déjà');
       return;
     }
     state.categories[name] = {

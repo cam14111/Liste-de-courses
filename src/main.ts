@@ -52,6 +52,7 @@ import {
   handleImport,
 } from './share';
 import { toggleTheme, toggleHideChecked, adjustFontSize, resetApp } from './settings';
+import { setupKeyboardShortcuts } from './shortcuts';
 
 declare global {
   interface Window {
@@ -102,7 +103,23 @@ function wireUp(): void {
     }
   });
 
-  $('searchInput')?.addEventListener('input', renderItems);
+  const searchInput = $('searchInput') as HTMLInputElement | null;
+  const searchContainer = $('searchContainer');
+  const updateSearchClear = (): void => {
+    if (!searchContainer || !searchInput) return;
+    searchContainer.classList.toggle('has-value', !!searchInput.value);
+  };
+  searchInput?.addEventListener('input', () => {
+    updateSearchClear();
+    renderItems();
+  });
+  $('searchClearBtn')?.addEventListener('click', () => {
+    if (!searchInput) return;
+    searchInput.value = '';
+    updateSearchClear();
+    renderItems();
+    searchInput.focus();
+  });
   $('clearCheckedBtn')?.addEventListener('click', clearCheckedItems);
 
   $('settingsBtn')?.addEventListener('click', () => {
@@ -260,6 +277,7 @@ function init(): void {
   if (fontLabel) fontLabel.textContent = `${state.settings.fontSize}%`;
 
   wireUp();
+  setupKeyboardShortcuts();
 
   renderListTabs();
   renderItems();

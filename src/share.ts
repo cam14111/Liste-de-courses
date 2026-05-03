@@ -3,6 +3,8 @@ import { state, saveToLocalStorage, getCurrentList, generateId } from './state';
 import { renderItems } from './render/items';
 import { renderListTabs } from './render/tabs';
 import { openModal, closeModal } from './modals';
+import { showToast } from './toast';
+import { alertDialog } from './confirm';
 
 declare global {
   interface Window {
@@ -50,12 +52,12 @@ export function copyShareCode(): void {
   code.setSelectionRange(0, 99999);
   try {
     document.execCommand('copy');
-    alert('Code copié !');
+    showToast('Code copié !', { variant: 'success', duration: 2000 });
   } catch {
     navigator.clipboard
       .writeText(code.value)
-      .then(() => alert('Code copié !'))
-      .catch(() => alert('Erreur lors de la copie'));
+      .then(() => showToast('Code copié !', { variant: 'success', duration: 2000 }))
+      .catch(() => showToast('Erreur lors de la copie', { variant: 'error' }));
   }
 }
 
@@ -64,7 +66,7 @@ export function processImportCode(): void {
   if (!codeEl) return;
   const code = codeEl.value.trim();
   if (!code) {
-    alert('Veuillez coller un code valide');
+    showToast('Veuillez coller un code valide', { variant: 'error' });
     return;
   }
   try {
@@ -79,7 +81,7 @@ export function processImportCode(): void {
     openModal('importModal');
     codeEl.value = '';
   } catch (e) {
-    alert('Code invalide. Veuillez vérifier et réessayer.');
+    void alertDialog('Code invalide. Veuillez vérifier et réessayer.', 'Import impossible');
     console.error('Erreur import:', e);
   }
 }

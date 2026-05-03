@@ -3,6 +3,8 @@ import { renderItems } from './render/items';
 import { renderListTabs } from './render/tabs';
 import { renderSuggestions } from './render/suggestions';
 import { openModal } from './modals';
+import { confirmDialog } from './confirm';
+import { showToast } from './toast';
 
 export let currentActionListId: string | null = null;
 
@@ -20,19 +22,24 @@ export function createList(name: string): void {
   renderSuggestions();
 }
 
-export function deleteList(listId: string): void {
+export async function deleteList(listId: string): Promise<void> {
   if (Object.keys(state.lists).length === 1) {
-    alert('Vous devez avoir au moins une liste');
+    showToast('Vous devez avoir au moins une liste', { variant: 'error' });
     return;
   }
-  if (confirm('Supprimer cette liste ?')) {
-    delete state.lists[listId];
-    state.currentList = Object.keys(state.lists)[0];
-    saveToLocalStorage();
-    renderListTabs();
-    renderItems();
-    renderSuggestions();
-  }
+  const ok = await confirmDialog({
+    title: 'Supprimer la liste',
+    message: 'Êtes-vous sûr de vouloir supprimer cette liste ?',
+    confirmLabel: 'Supprimer',
+    destructive: true,
+  });
+  if (!ok) return;
+  delete state.lists[listId];
+  state.currentList = Object.keys(state.lists)[0];
+  saveToLocalStorage();
+  renderListTabs();
+  renderItems();
+  renderSuggestions();
 }
 
 export function duplicateList(listId: string): void {
@@ -50,7 +57,7 @@ export function duplicateList(listId: string): void {
 
 export function renameList(listId: string, newName: string): void {
   if (!newName || !newName.trim()) {
-    alert('Veuillez entrer un nom pour la liste');
+    showToast('Veuillez entrer un nom pour la liste', { variant: 'error' });
     return;
   }
   state.lists[listId].name = newName.trim();
@@ -72,14 +79,24 @@ export function duplicateListWithName(listId: string, newName: string): void {
   renderItems();
 }
 
-export function confirmDeleteList(listId: string): void {
+export async function confirmDeleteList(listId: string): Promise<void> {
   if (Object.keys(state.lists).length === 1) {
-    alert('Vous devez avoir au moins une liste');
+    showToast('Vous devez avoir au moins une liste', { variant: 'error' });
     return;
   }
-  if (confirm('Êtes-vous sûr de vouloir supprimer cette liste ?')) {
-    deleteList(listId);
-  }
+  const ok = await confirmDialog({
+    title: 'Supprimer la liste',
+    message: 'Êtes-vous sûr de vouloir supprimer cette liste ?',
+    confirmLabel: 'Supprimer',
+    destructive: true,
+  });
+  if (!ok) return;
+  delete state.lists[listId];
+  state.currentList = Object.keys(state.lists)[0];
+  saveToLocalStorage();
+  renderListTabs();
+  renderItems();
+  renderSuggestions();
 }
 
 export function handleListContextMenu(event: Event, listId: string): void {

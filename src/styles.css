@@ -833,3 +833,297 @@ body {
     font-size: 1rem;
   }
 }
+
+/* ==================== Toast ==================== */
+.toast-container {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  pointer-events: none;
+  width: min(90vw, 480px);
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.2s, transform 0.2s;
+  font-size: 0.95rem;
+}
+
+.toast.toast-enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.toast-leaving {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.toast-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast-success {
+  background: var(--primary);
+  color: white;
+}
+
+.toast-error {
+  background: var(--danger);
+  color: white;
+}
+
+.toast-action {
+  background: transparent;
+  border: 1px solid currentColor;
+  color: inherit;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.toast-action:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.toast-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 0 0.25rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* ==================== Confirm dialog ==================== */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.confirm-overlay.confirm-enter {
+  opacity: 1;
+}
+
+.confirm-overlay.confirm-leaving {
+  opacity: 0;
+}
+
+.confirm-dialog {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.confirm-message {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  margin-bottom: 1.25rem;
+  white-space: pre-line;
+  line-height: 1.45;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.confirm-btn {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.confirm-btn-cancel {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.confirm-btn-cancel:hover {
+  background: var(--border-color);
+}
+
+.confirm-btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.confirm-btn-primary:hover {
+  background: var(--primary-dark);
+}
+
+.confirm-btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.confirm-btn-danger:hover {
+  opacity: 0.9;
+}
+
+/* ==================== Shortcuts help ==================== */
+.shortcuts-list {
+  list-style: none;
+  margin: 0 0 1rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.shortcuts-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+
+.shortcuts-list kbd {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 0.15rem 0.45rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.shortcuts-list span {
+  color: var(--text-secondary);
+}
+
+/* ==================== Search clear button ==================== */
+.search-container {
+  position: relative;
+}
+
+.search-clear {
+  position: absolute;
+  right: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.search-container.has-value .search-clear {
+  display: flex;
+}
+
+.search-container.has-value .search-input {
+  padding-right: 2.75rem;
+}
+
+.search-clear:hover {
+  background: var(--border-color);
+  color: var(--text-primary);
+}
+
+/* ==================== Search highlight ==================== */
+.item-text mark,
+.item-quantity mark {
+  background: rgba(255, 215, 0, 0.4);
+  color: inherit;
+  padding: 0 1px;
+  border-radius: 2px;
+}
+
+[data-theme='dark'] .item-text mark,
+[data-theme='dark'] .item-quantity mark {
+  background: rgba(255, 215, 0, 0.3);
+}
+
+/* ==================== Tab menu button ==================== */
+.list-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.list-tab-menu {
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  color: inherit;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.85rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-weight: bold;
+}
+
+.list-tab.active .list-tab-menu {
+  background: rgba(76, 175, 80, 0.18);
+  color: var(--primary);
+}
+
+.list-tab-menu:hover {
+  background: rgba(255, 255, 255, 0.4);
+}

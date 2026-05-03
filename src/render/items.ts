@@ -2,6 +2,7 @@ import { state, saveToLocalStorage, getCurrentList } from '../state';
 import { getCategoryKeyById } from '../categorize';
 import { setupCategoryDragDrop } from '../dragdrop';
 import { setupItemInteractions } from '../interactions';
+import { escapeHtml, escapeAttr, highlight } from '../utils/escape';
 
 export function renderItems(): void {
   const list = getCurrentList();
@@ -52,26 +53,27 @@ export function renderItems(): void {
       const data = state.categories[category];
       const isCollapsed = state.collapsedCategories[category];
       const checkedCount = catItems.filter((i) => i.checked).length;
-      return `<div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${category}" draggable="false">
-          <div class="category-header" style="border-color: ${data.color};" onclick="window.handleCategoryHeaderClick(event, '${category}')">
+      const catLabel = escapeHtml(category.charAt(0).toUpperCase() + category.slice(1));
+      return `<div class="category-section ${isCollapsed ? 'collapsed' : ''}" data-category="${escapeAttr(category)}" draggable="false">
+          <div class="category-header" style="border-color: ${data.color};" onclick="window.handleCategoryHeaderClick(event, '${escapeAttr(category)}')">
             <span class="category-drag-handle" title="Réorganiser">☰</span>
             <span class="category-icon">${data.icon}</span>
-            <span>${category.charAt(0).toUpperCase() + category.slice(1)}</span>
+            <span>${catLabel}</span>
             <span class="category-count">${checkedCount}/${catItems.length}</span>
-            <button class="category-toggle">▼</button>
+            <button class="category-toggle" aria-label="Replier la catégorie">▼</button>
           </div>
           <ul class="items-list">
             ${catItems
               .map(
-                (item) => `<li class="item ${item.checked ? 'checked' : ''}" data-id="${item.id}">
-                <div class="item-checkbox"></div>
+                (item) => `<li class="item ${item.checked ? 'checked' : ''}" data-id="${escapeAttr(item.id)}">
+                <div class="item-checkbox" role="checkbox" aria-checked="${item.checked}" tabindex="0"></div>
                 <div class="item-content">
-                  <div class="item-text">${item.name}</div>
-                  ${item.quantity ? `<div class="item-quantity">${item.quantity}</div>` : ''}
+                  <div class="item-text">${highlight(item.name, searchTerm)}</div>
+                  ${item.quantity ? `<div class="item-quantity">${highlight(item.quantity, searchTerm)}</div>` : ''}
                 </div>
                 <div class="item-actions">
-                  <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}" onclick="window.toggleFavorite('${item.id}')">★</button>
-                  <button class="item-btn delete-btn" onclick="window.deleteItem('${item.id}')">🗑️</button>
+                  <button class="item-btn favorite-btn ${item.favorite ? 'active' : ''}" onclick="window.toggleFavorite('${escapeAttr(item.id)}')" aria-label="${item.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}">★</button>
+                  <button class="item-btn delete-btn" onclick="window.deleteItem('${escapeAttr(item.id)}')" aria-label="Supprimer l'article">🗑️</button>
                 </div>
               </li>`,
               )

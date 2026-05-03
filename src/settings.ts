@@ -1,6 +1,7 @@
 import { state, saveToLocalStorage } from './state';
 import { renderItems } from './render/items';
 import { STORAGE_KEY } from './constants';
+import { confirmDialog } from './confirm';
 
 export function toggleTheme(): void {
   state.settings.theme = state.settings.theme === 'light' ? 'dark' : 'light';
@@ -28,15 +29,22 @@ export function adjustFontSize(delta: number): void {
   saveToLocalStorage();
 }
 
-export function resetApp(): void {
-  const ok = confirm(
-    "⚠️ ATTENTION ⚠️\n\nÊtes-vous sûr de vouloir réinitialiser l'application ?\n\nCette action supprimera TOUTES vos données :\n• Toutes vos listes de courses\n• Tous vos articles\n• Tous vos favoris\n• Toutes vos catégories personnalisées\n• Tous vos paramètres\n\nCette action est IRRÉVERSIBLE !",
-  );
+export async function resetApp(): Promise<void> {
+  const ok = await confirmDialog({
+    title: '⚠️ Réinitialiser l\'application',
+    message:
+      "Cette action supprimera TOUTES vos données :\n• Toutes vos listes\n• Tous vos articles\n• Tous vos favoris\n• Toutes vos catégories personnalisées\n• Tous vos paramètres\n\nCette action est IRRÉVERSIBLE.",
+    confirmLabel: 'Continuer',
+    destructive: true,
+  });
   if (!ok) return;
 
-  const ok2 = confirm(
-    'Dernière confirmation !\n\nTapez OK pour confirmer la suppression définitive de toutes vos données.',
-  );
+  const ok2 = await confirmDialog({
+    title: 'Dernière confirmation',
+    message: 'Confirmer la suppression définitive de toutes vos données ?',
+    confirmLabel: 'Tout supprimer',
+    destructive: true,
+  });
   if (!ok2) return;
 
   localStorage.removeItem(STORAGE_KEY);
