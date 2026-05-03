@@ -1,5 +1,6 @@
 import type { AppState, Category } from './types';
-import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ORDER, STORAGE_KEY } from './constants';
+import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ORDER, SCHEMA_VERSION, STORAGE_KEY } from './constants';
+import { showToast } from './toast';
 
 export function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2);
@@ -7,6 +8,7 @@ export function generateId(): string {
 
 function buildEmptyState(): AppState {
   return {
+    schemaVersion: SCHEMA_VERSION,
     lists: {},
     currentList: 'courses',
     settings: { theme: 'light', fontSize: 100, hideChecked: false },
@@ -29,11 +31,42 @@ function assignState(next: AppState): void {
   Object.assign(state, next);
 }
 
-export function saveToLocalStorage(): void {
+const SAVE_DEBOUNCE_MS = 200;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let storageWarned = false;
+
+function writeNow(): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
     console.error('localStorage save failed:', e);
+    if (!storageWarned) {
+      storageWarned = true;
+      try {
+        showToast('Stockage local indisponible — vos modifications ne sont pas sauvegardées', {
+          variant: 'error',
+          duration: 6000,
+        });
+      } catch {
+        /* noop */
+      }
+    }
+  }
+}
+
+export function saveToLocalStorage(): void {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    saveTimer = null;
+    writeNow();
+  }, SAVE_DEBOUNCE_MS);
+}
+
+export function flushPendingSave(): void {
+  if (saveTimer) {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    writeNow();
   }
 }
 
@@ -145,6 +178,7 @@ export function migrateState(raw: unknown): AppState {
   if (!raw || typeof raw !== 'object') return next;
   const loaded = raw as Partial<AppState> & { categories?: Record<string, Partial<Category>> };
 
+  next.schemaVersion = SCHEMA_VERSION;
   next.lists = loaded.lists || {};
   next.currentList = loaded.currentList || 'courses';
   next.settings = {
@@ -178,8 +212,7 @@ export function loadFromLocalStorage(): void {
     try {
       const raw = JSON.parse(saved);
       assignState(migrateState(raw));
-      // Sauvegarder une éventuelle migration de favoris en mémoire
-      if (state.favorites.length > 0) saveToLocalStorage();
+      if (state.favorites.length > 0) flushPendingSave();
     } catch (e) {
       console.error('localStorage parse failed, resetting:', e);
       assignState(buildEmptyState());

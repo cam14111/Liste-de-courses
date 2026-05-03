@@ -1,6 +1,6 @@
 import './styles.css';
 
-import { state, loadFromLocalStorage } from './state';
+import { state, loadFromLocalStorage, flushPendingSave } from './state';
 import {
   addItem,
   deleteItem,
@@ -288,6 +288,12 @@ function init(): void {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('service-worker.js').catch(() => {});
 }
+
+window.addEventListener('pagehide', flushPendingSave);
+window.addEventListener('beforeunload', flushPendingSave);
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') flushPendingSave();
+});
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);

@@ -5,6 +5,7 @@ import { renderListTabs } from './render/tabs';
 import { openModal, closeModal } from './modals';
 import { showToast } from './toast';
 import { alertDialog } from './confirm';
+import { ImportPayloadSchema, type ImportPayload } from './schemas';
 
 declare global {
   interface Window {
@@ -61,6 +62,11 @@ export function copyShareCode(): void {
   }
 }
 
+function decodeAndValidate(code: string): ImportPayload {
+  const decoded = JSON.parse(atob(code));
+  return ImportPayloadSchema.parse(decoded);
+}
+
 export function processImportCode(): void {
   const codeEl = document.getElementById('importCode') as HTMLTextAreaElement | null;
   if (!codeEl) return;
@@ -70,13 +76,12 @@ export function processImportCode(): void {
     return;
   }
   try {
-    const decoded = JSON.parse(atob(code));
-    if (!decoded.name || !decoded.items) throw new Error('Format invalide');
-    state.importData = decoded;
+    const payload = decodeAndValidate(code);
+    state.importData = payload;
     const nameEl = document.getElementById('importListName');
     const countEl = document.getElementById('importItemCount');
-    if (nameEl) nameEl.textContent = decoded.name;
-    if (countEl) countEl.textContent = String(decoded.items.length);
+    if (nameEl) nameEl.textContent = payload.name;
+    if (countEl) countEl.textContent = String(payload.items.length);
     closeModal('importManualModal');
     openModal('importModal');
     codeEl.value = '';
@@ -91,12 +96,12 @@ export function checkImportUrl(): void {
   const importData = params.get('import');
   if (!importData) return;
   try {
-    const decoded = JSON.parse(atob(importData));
-    state.importData = decoded;
+    const payload = decodeAndValidate(importData);
+    state.importData = payload;
     const nameEl = document.getElementById('importListName');
     const countEl = document.getElementById('importItemCount');
-    if (nameEl) nameEl.textContent = decoded.name;
-    if (countEl) countEl.textContent = String(decoded.items.length);
+    if (nameEl) nameEl.textContent = payload.name;
+    if (countEl) countEl.textContent = String(payload.items.length);
     openModal('importModal');
     window.history.replaceState({}, '', window.location.pathname);
   } catch (e) {
@@ -118,12 +123,8 @@ export function normalizeCategoryOnImport(importedCategory: string): string {
   return state.categories['autre']?.id || 'default_autre';
 }
 
-type ImportItem = Omit<Item, 'id' | 'favorite' | 'addedAt'>;
-
 export function handleImport(action: 'replace' | 'merge' | 'new'): void {
-  const importData = state.importData as
-    | { name: string; items: ImportItem[] }
-    | null;
+  const importData = state.importData as ImportPayload | null;
   if (!importData) return;
 
   const list = getCurrentList();
@@ -132,35 +133,30 @@ export function handleImport(action: 'replace' | 'merge' | 'new'): void {
     category: normalizeCategoryOnImport(item.category),
   }));
 
+  const toItem = (raw: typeof normalized[number]): Item => ({
+    id: generateId(),
+    name: raw.name,
+    quantity: raw.quantity ?? '',
+    category: raw.category,
+    checked: raw.checked ?? false,
+    favorite: false,
+    addedAt: Date.now(),
+  });
+
   if (action === 'replace') {
-    list.items = normalized.map((item) => ({
-      ...item,
-      id: generateId(),
-      favorite: false,
-      addedAt: Date.now(),
-    }));
+    list.items = normalized.map(toItem);
   } else if (action === 'merge') {
     const existing = list.items.map((i) => i.name.toLowerCase());
     normalized.forEach((item) => {
       if (!existing.includes(item.name.toLowerCase())) {
-        list.items.push({
-          ...item,
-          id: generateId(),
-          favorite: false,
-          addedAt: Date.now(),
-        });
+        list.items.push(toItem(item));
       }
     });
   } else if (action === 'new') {
     const newId = generateId();
     state.lists[newId] = {
       name: importData.name,
-      items: normalized.map((item) => ({
-        ...item,
-        id: generateId(),
-        favorite: false,
-        addedAt: Date.now(),
-      })),
+      items: normalized.map(toItem),
     };
     state.currentList = newId;
   }

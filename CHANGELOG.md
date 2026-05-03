@@ -1,6 +1,24 @@
 # Changelog
 
-## [Unreleased] — Phase C (accessibilité)
+## [Unreleased] — Phase E (perf & robustesse)
+
+### Added
+- **Debounce** sur `saveToLocalStorage` (200 ms) : un batch d'actions ne déclenche plus N writes synchrones.
+- **`flushPendingSave()`** : flush forcé de la sauvegarde en attente. Câblé sur `pagehide`, `beforeunload` et `visibilitychange:hidden` pour ne jamais perdre une mutation in-flight.
+- **`SCHEMA_VERSION`** stocké dans `state.schemaVersion` à chaque migration. Préparation pour migrations explicites futures.
+- **`src/schemas.ts`** : schémas **Zod** pour valider les payloads d'import (`ImportPayloadSchema`, `ImportItemSchema`). Bornes (200 chars sur les noms, 2000 items max) pour éviter les payloads malicieux/corrompus.
+- **Tests** : 5 sur `schemas` + 6 sur `migrateState` (legacy categorie nom→id, fallback "autre", extraction favoris, ajout categoryOrder, préservation custom). 32 tests au total (vs 21).
+
+### Changed
+- **Service Worker** réécrit en **stale-while-revalidate** : sert le cache immédiatement et rafraîchit en arrière-plan. Plus de blocage utilisateur sur une vieille version après update.
+- `processImportCode` et `checkImportUrl` valident désormais le payload via Zod et affichent un message clair si invalide.
+- `handleImport` consomme `ImportPayload` typé directement (plus de cast `Item`).
+- Erreurs `localStorage.setItem` (quota dépassé, navigation privée Safari, etc.) affichent un toast d'erreur explicite (une seule fois par session).
+
+### Notes
+- Bundle de prod : 136 KB / 35.8 KB gzip (vs 82 / 22.9 avant) ; +50 KB pour Zod. Compromis assumé pour la sécurité de l'import. Optimisation possible via validation custom plus tard si besoin.
+
+## [Released b444644] — Phase C (accessibilité)
 
 ### Fixed
 - **Violation WCAG 1.4.4** : retrait de `maximum-scale=1.0, user-scalable=no` de la meta viewport. Le zoom utilisateur est maintenant possible.
