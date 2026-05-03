@@ -262,12 +262,12 @@ function wireUp(): void {
 function init(): void {
   loadFromLocalStorage();
   document.documentElement.setAttribute('data-theme', state.settings.theme);
-  if (state.settings.theme === 'dark') {
-    document.getElementById('themeToggle')?.classList.add('active');
-  }
-  if (state.settings.hideChecked) {
-    document.getElementById('hideCheckedToggle')?.classList.add('active');
-  }
+  const themeToggle = document.getElementById('themeToggle');
+  if (state.settings.theme === 'dark') themeToggle?.classList.add('active');
+  themeToggle?.setAttribute('aria-checked', state.settings.theme === 'dark' ? 'true' : 'false');
+  const hideToggle = document.getElementById('hideCheckedToggle');
+  if (state.settings.hideChecked) hideToggle?.classList.add('active');
+  hideToggle?.setAttribute('aria-checked', state.settings.hideChecked ? 'true' : 'false');
   document.documentElement.style.setProperty(
     '--font-size-base',
     `${state.settings.fontSize}%`,

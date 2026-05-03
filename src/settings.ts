@@ -6,13 +6,17 @@ import { confirmDialog } from './confirm';
 export function toggleTheme(): void {
   state.settings.theme = state.settings.theme === 'light' ? 'dark' : 'light';
   document.documentElement.setAttribute('data-theme', state.settings.theme);
-  document.getElementById('themeToggle')?.classList.toggle('active');
+  const toggle = document.getElementById('themeToggle');
+  toggle?.classList.toggle('active');
+  toggle?.setAttribute('aria-checked', state.settings.theme === 'dark' ? 'true' : 'false');
   saveToLocalStorage();
 }
 
 export function toggleHideChecked(): void {
   state.settings.hideChecked = !state.settings.hideChecked;
-  document.getElementById('hideCheckedToggle')?.classList.toggle('active');
+  const toggle = document.getElementById('hideCheckedToggle');
+  toggle?.classList.toggle('active');
+  toggle?.setAttribute('aria-checked', state.settings.hideChecked ? 'true' : 'false');
   saveToLocalStorage();
   renderItems();
 }

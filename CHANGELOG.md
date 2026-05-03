@@ -1,6 +1,33 @@
 # Changelog
 
-## [Unreleased] — Phase B (UX & feedback)
+## [Unreleased] — Phase C (accessibilité)
+
+### Fixed
+- **Violation WCAG 1.4.4** : retrait de `maximum-scale=1.0, user-scalable=no` de la meta viewport. Le zoom utilisateur est maintenant possible.
+
+### Added
+- **`src/utils/focus-trap.ts`** — `createFocusTrap(root, onEscape)` réutilisable + helper `getFocusables`.
+- **Skip-link** "Aller au contenu" en début de page (visible uniquement au focus clavier, redirige vers `#mainContent`).
+- **Sémantique HTML** :
+  - `<header role="banner">`, `<main id="mainContent" role="main">`, `<nav aria-label="Actions principales">`, `<form aria-label="Ajouter un article">`.
+  - `role="search"` sur le conteneur de recherche.
+  - `role="tablist"` / `role="tab"` / `aria-selected` sur les onglets de liste.
+  - `aria-live="polite"` sur le conteneur d'articles (annonce les changements).
+- **ARIA sur les 11 modales** : `role="dialog"`, `aria-modal="true"`, `aria-labelledby` pointant vers le titre, `aria-hidden` synchronisé au open/close.
+- **Focus trap automatique** dans `openModal` : capture Tab/Shift+Tab dans la modale, ferme sur Escape.
+- **Restauration du focus** : `closeModal` rend le focus à l'élément qui avait le focus avant l'ouverture.
+- **Focus initial** sur le premier champ utile (input/select) à l'ouverture d'une modale, pas sur la croix de fermeture.
+- **Toggle switches** (mode sombre, masquer cochés) deviennent de vrais boutons avec `role="switch"` + `aria-checked` (synchronisé via `toggleTheme` / `toggleHideChecked` et l'init).
+- **Labels associés** : tous les `<label class="form-label">` ont un `for=` qui pointe vers l'input correspondant. Les inputs de recherche / d'ajout ont un label `.visually-hidden`.
+- **`aria-label` FR** complets sur les boutons icône restants : header (manuel, effacer cochés, favoris, paramètres, nouvelle liste), close des modales, +/- font size, partager/importer, edit/delete catégorie, options merge.
+- **Style `:focus-visible`** : outline net (vert primary + halo) sur tous les boutons et tabs au focus clavier.
+- **Classe `.visually-hidden`** pour cacher visuellement tout en restant lisible par les lecteurs d'écran.
+
+### Changed
+- Les `.merge-option` (boutons d'action import + actions liste) sont des `<button type="button">` (au lieu de `<div onclick>`) : focus clavier, Enter/Space natifs.
+- `renderListTabs` génère maintenant `role="tab"` + `aria-selected` + `tabindex` (0 actif, -1 inactif) pour la navigation tab/flèches.
+
+## [Released ccecd43, 957bbbe] — Phase 1 + Phase B
 
 ### Added
 - **`src/toast.ts`** — système de toasts (variants `success` / `error` / `info`), action optionnelle (ex. "Annuler"), auto-dismiss, conteneur `aria-live="polite"`.

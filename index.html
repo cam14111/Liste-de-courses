@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4CAF50">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -11,52 +11,58 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <div class="header">
+    <a href="#mainContent" class="skip-link">Aller au contenu</a>
+
+    <header class="header" role="banner">
         <div class="header-top">
             <h1>🛒 Mes Courses</h1>
-            <div class="header-actions">
-                <a href="manuel.html" class="icon-btn" title="Manuel utilisateur" style="text-decoration: none;">📖</a>
-                <button class="icon-btn" id="clearCheckedBtn" title="Effacer les articles cochés">🗑️</button>
-                <button class="icon-btn" id="favoritesBtn" title="Favoris">⭐</button>
-                <button class="icon-btn" id="settingsBtn" title="Paramètres">⚙️</button>
-                <button class="icon-btn" id="newListBtn" title="Nouvelle liste">➕</button>
-            </div>
+            <nav class="header-actions" aria-label="Actions principales">
+                <a href="manuel.html" class="icon-btn" title="Manuel utilisateur" aria-label="Ouvrir le manuel utilisateur" style="text-decoration: none;">📖</a>
+                <button class="icon-btn" id="clearCheckedBtn" title="Effacer les articles cochés" aria-label="Effacer les articles cochés">🗑️</button>
+                <button class="icon-btn" id="favoritesBtn" title="Favoris" aria-label="Ouvrir les favoris">⭐</button>
+                <button class="icon-btn" id="settingsBtn" title="Paramètres" aria-label="Ouvrir les paramètres">⚙️</button>
+                <button class="icon-btn" id="newListBtn" title="Nouvelle liste" aria-label="Créer une nouvelle liste">➕</button>
+            </nav>
         </div>
-        <div class="list-selector" id="listSelector"></div>
-    </div>
+        <div class="list-selector" id="listSelector" role="tablist" aria-label="Mes listes"></div>
+    </header>
 
-    <div class="search-container" id="searchContainer">
+    <div class="search-container" id="searchContainer" role="search">
+        <label for="searchInput" class="visually-hidden">Rechercher un article</label>
         <input type="text" class="search-input" id="searchInput" placeholder="🔍 Rechercher un article..." aria-label="Rechercher un article">
         <button type="button" class="search-clear" id="searchClearBtn" aria-label="Effacer la recherche">×</button>
     </div>
 
     <div class="add-item-container">
-        <form class="add-item-form" id="addItemForm">
-            <input type="text" class="add-input" id="itemInput" placeholder="Ajouter un article..." autocomplete="off">
+        <form class="add-item-form" id="addItemForm" aria-label="Ajouter un article">
+            <label for="itemInput" class="visually-hidden">Nom de l'article à ajouter</label>
+            <input type="text" class="add-input" id="itemInput" placeholder="Ajouter un article..." autocomplete="off" aria-label="Nom de l'article à ajouter">
             <button type="submit" class="add-btn">Ajouter</button>
         </form>
-        <div class="suggestions" id="suggestions"></div>
+        <div class="suggestions" id="suggestions" aria-label="Suggestions d'articles" role="list"></div>
     </div>
 
-    <div class="container" id="container"></div>
+    <main class="container" id="mainContent" role="main">
+        <div id="container" aria-live="polite" aria-busy="false"></div>
+    </main>
 
     <!-- Modal Édition Article -->
-    <div class="modal" id="editModal">
+    <div class="modal" id="editModal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Modifier l'article</h2>
-                <button class="close-btn" id="closeEditModal">×</button>
+                <h2 class="modal-title" id="editModalTitle">Modifier l'article</h2>
+                <button class="close-btn" id="closeEditModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="form-group">
-                <label class="form-label">Nom</label>
+                <label class="form-label" for="editItemName">Nom</label>
                 <input type="text" class="form-input" id="editItemName">
             </div>
             <div class="form-group">
-                <label class="form-label">Quantité</label>
+                <label class="form-label" for="editItemQuantity">Quantité</label>
                 <input type="text" class="form-input" id="editItemQuantity" placeholder="Ex: 2kg, 3 unités...">
             </div>
             <div class="form-group">
-                <label class="form-label">Catégorie</label>
+                <label class="form-label" for="editItemCategory">Catégorie</label>
                 <select class="form-select" id="editItemCategory"></select>
             </div>
             <button class="btn-primary" id="saveEditBtn">Enregistrer</button>
@@ -64,50 +70,50 @@
     </div>
 
     <!-- Modal Favoris -->
-    <div class="modal" id="favoritesModal">
+    <div class="modal" id="favoritesModal" role="dialog" aria-modal="true" aria-labelledby="favoritesModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Articles favoris</h2>
-                <button class="close-btn" id="closeFavoritesModal">×</button>
+                <h2 class="modal-title" id="favoritesModalTitle">Articles favoris</h2>
+                <button class="close-btn" id="closeFavoritesModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="favorites-grid" id="favoritesGrid"></div>
         </div>
     </div>
 
     <!-- Modal Paramètres -->
-    <div class="modal" id="settingsModal">
+    <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Paramètres</h2>
-                <button class="close-btn" id="closeSettingsModal">×</button>
+                <h2 class="modal-title" id="settingsModalTitle">Paramètres</h2>
+                <button class="close-btn" id="closeSettingsModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="settings-option">
-                <span>Mode sombre</span>
-                <div class="toggle-switch" id="themeToggle">
-                    <div class="toggle-slider"></div>
-                </div>
+                <span id="themeToggleLabel">Mode sombre</span>
+                <button type="button" class="toggle-switch" id="themeToggle" role="switch" aria-checked="false" aria-labelledby="themeToggleLabel">
+                    <span class="toggle-slider" aria-hidden="true"></span>
+                </button>
             </div>
             <div class="settings-option">
-                <span>Masquer articles cochés</span>
-                <div class="toggle-switch" id="hideCheckedToggle">
-                    <div class="toggle-slider"></div>
-                </div>
+                <span id="hideCheckedToggleLabel">Masquer articles cochés</span>
+                <button type="button" class="toggle-switch" id="hideCheckedToggle" role="switch" aria-checked="false" aria-labelledby="hideCheckedToggleLabel">
+                    <span class="toggle-slider" aria-hidden="true"></span>
+                </button>
             </div>
             <div class="settings-option">
-                <span>Taille de police</span>
-                <div class="font-size-controls">
-                    <button class="font-btn" id="decreaseFontBtn">A-</button>
-                    <span id="fontSizeLabel">100%</span>
-                    <button class="font-btn" id="increaseFontBtn">A+</button>
+                <span id="fontSizeLegend">Taille de police</span>
+                <div class="font-size-controls" role="group" aria-labelledby="fontSizeLegend">
+                    <button class="font-btn" id="decreaseFontBtn" aria-label="Réduire la taille de police">A-</button>
+                    <span id="fontSizeLabel" aria-live="polite">100%</span>
+                    <button class="font-btn" id="increaseFontBtn" aria-label="Augmenter la taille de police">A+</button>
                 </div>
             </div>
             <div class="settings-option" style="border-top: 2px solid var(--border-color); margin-top: 1rem; padding-top: 1rem;">
                 <span>Partager la liste</span>
-                <button class="font-btn" id="shareSettingsBtn" style="width: auto; padding: 0.5rem 1rem;">📤</button>
+                <button class="font-btn" id="shareSettingsBtn" aria-label="Partager la liste actuelle" style="width: auto; padding: 0.5rem 1rem;">📤</button>
             </div>
             <div class="settings-option">
                 <span>Importer une liste</span>
-                <button class="font-btn" id="importSettingsBtn" style="width: auto; padding: 0.5rem 1rem;">📥</button>
+                <button class="font-btn" id="importSettingsBtn" aria-label="Importer une liste" style="width: auto; padding: 0.5rem 1rem;">📥</button>
             </div>
             <div class="settings-option" style="border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; display: block;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
@@ -127,14 +133,14 @@
     </div>
 
     <!-- Modal Nouvelle Liste -->
-    <div class="modal" id="newListModal">
+    <div class="modal" id="newListModal" role="dialog" aria-modal="true" aria-labelledby="newListModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Nouvelle liste</h2>
-                <button class="close-btn" id="closeNewListModal">×</button>
+                <h2 class="modal-title" id="newListModalTitle">Nouvelle liste</h2>
+                <button class="close-btn" id="closeNewListModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="form-group">
-                <label class="form-label">Nom de la liste</label>
+                <label class="form-label" for="newListName">Nom de la liste</label>
                 <input type="text" class="form-input" id="newListName" placeholder="Ex: Pharmacie, Bricolage...">
             </div>
             <button class="btn-primary" id="createListBtn">Créer</button>
@@ -142,19 +148,19 @@
     </div>
 
     <!-- Modal Partage -->
-    <div class="modal" id="shareModal">
+    <div class="modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Partager la liste</h2>
-                <button class="close-btn" id="closeShareModal">×</button>
+                <h2 class="modal-title" id="shareModalTitle">Partager la liste</h2>
+                <button class="close-btn" id="closeShareModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="qr-container">
-                <div id="qrcode"></div>
+                <div id="qrcode" role="img" aria-label="QR code de partage de la liste"></div>
                 <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
                     Scannez ce QR code avec une app de scan, puis copiez le texte et importez-le dans l'autre appareil
                 </p>
                 <div class="form-group" style="margin-top: 1.5rem;">
-                    <label class="form-label">Ou copiez ce code :</label>
+                    <label class="form-label" for="shareCode">Ou copiez ce code :</label>
                     <textarea class="form-input" id="shareCode" rows="3" readonly style="font-size: 0.75rem; font-family: monospace;"></textarea>
                     <button class="btn-primary" id="copyShareBtn" style="margin-top: 0.5rem;">📋 Copier le code</button>
                 </div>
@@ -163,14 +169,14 @@
     </div>
 
     <!-- Modal Import manuel -->
-    <div class="modal" id="importManualModal">
+    <div class="modal" id="importManualModal" role="dialog" aria-modal="true" aria-labelledby="importManualModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Importer une liste</h2>
-                <button class="close-btn" id="closeImportManualModal">×</button>
+                <h2 class="modal-title" id="importManualModalTitle">Importer une liste</h2>
+                <button class="close-btn" id="closeImportManualModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="form-group">
-                <label class="form-label">Collez le code de partage ici :</label>
+                <label class="form-label" for="importCode">Collez le code de partage ici :</label>
                 <textarea class="form-input" id="importCode" rows="4" placeholder="Collez le code..."></textarea>
             </div>
             <button class="btn-primary" id="processImportBtn">Importer</button>
@@ -178,11 +184,11 @@
     </div>
 
     <!-- Modal Import/Fusion -->
-    <div class="modal" id="importModal">
+    <div class="modal" id="importModal" role="dialog" aria-modal="true" aria-labelledby="importModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Importer la liste</h2>
-                <button class="close-btn" id="closeImportModal">×</button>
+                <h2 class="modal-title" id="importModalTitle">Importer la liste</h2>
+                <button class="close-btn" id="closeImportModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <p style="margin-bottom: 0.5rem; font-weight: 600;">
                 Liste : <span id="importListName"></span>
@@ -193,75 +199,75 @@
             <p style="margin-bottom: 1rem;">
                 Comment souhaitez-vous l'importer ?
             </p>
-            <div class="merge-options">
-                <div class="merge-option" data-action="replace">
+            <div class="merge-options" role="group" aria-label="Choix de l'action d'import">
+                <button type="button" class="merge-option" data-action="replace">
                     <div class="merge-option-title">🔄 Remplacer</div>
                     <div class="merge-option-desc">Remplace la liste actuelle</div>
-                </div>
-                <div class="merge-option" data-action="merge">
+                </button>
+                <button type="button" class="merge-option" data-action="merge">
                     <div class="merge-option-title">🔀 Fusionner</div>
                     <div class="merge-option-desc">Ajoute les articles sans doublon à la liste actuelle</div>
-                </div>
-                <div class="merge-option" data-action="new">
+                </button>
+                <button type="button" class="merge-option" data-action="new">
                     <div class="merge-option-title">➕ Nouvelle liste</div>
                     <div class="merge-option-desc">Crée une nouvelle liste</div>
-                </div>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Modal Gestion Catégorie -->
-    <div class="modal" id="categoryModal">
+    <div class="modal" id="categoryModal" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
                 <h2 class="modal-title" id="categoryModalTitle">Nouvelle catégorie</h2>
-                <button class="close-btn" id="closeCategoryModal">×</button>
+                <button class="close-btn" id="closeCategoryModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="form-group">
-                <label class="form-label">Nom de la catégorie</label>
+                <label class="form-label" for="categoryName">Nom de la catégorie</label>
                 <input type="text" class="form-input" id="categoryName" placeholder="Ex: Pharmacie, Bricolage...">
             </div>
             <div class="form-group">
-                <label class="form-label">Icône</label>
-                <div class="icon-grid" id="iconGrid"></div>
+                <span class="form-label" id="iconGridLabel">Icône</span>
+                <div class="icon-grid" id="iconGrid" role="radiogroup" aria-labelledby="iconGridLabel"></div>
             </div>
             <button class="btn-primary" id="saveCategoryBtn">Enregistrer</button>
         </div>
     </div>
 
     <!-- Modal Actions Liste -->
-    <div class="modal" id="listActionsModal">
+    <div class="modal" id="listActionsModal" role="dialog" aria-modal="true" aria-labelledby="listActionsModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Actions sur la liste</h2>
-                <button class="close-btn" id="closeListActionsModal">×</button>
+                <h2 class="modal-title" id="listActionsModalTitle">Actions sur la liste</h2>
+                <button class="close-btn" id="closeListActionsModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="merge-options">
-                <div class="merge-option" id="renameListOption">
+                <button type="button" class="merge-option" id="renameListOption">
                     <div class="merge-option-title">✏️ Renommer</div>
                     <div class="merge-option-desc">Modifier le nom de la liste</div>
-                </div>
-                <div class="merge-option" id="duplicateListOption">
+                </button>
+                <button type="button" class="merge-option" id="duplicateListOption">
                     <div class="merge-option-title">📋 Dupliquer</div>
                     <div class="merge-option-desc">Créer une copie de la liste</div>
-                </div>
-                <div class="merge-option" id="deleteListOption">
+                </button>
+                <button type="button" class="merge-option" id="deleteListOption">
                     <div class="merge-option-title" style="color: var(--danger);">🗑️ Supprimer</div>
                     <div class="merge-option-desc">Supprimer définitivement la liste</div>
-                </div>
+                </button>
             </div>
         </div>
     </div>
 
     <!-- Modal Renommer Liste -->
-    <div class="modal" id="renameListModal">
+    <div class="modal" id="renameListModal" role="dialog" aria-modal="true" aria-labelledby="renameListModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Renommer la liste</h2>
-                <button class="close-btn" id="closeRenameListModal">×</button>
+                <h2 class="modal-title" id="renameListModalTitle">Renommer la liste</h2>
+                <button class="close-btn" id="closeRenameListModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="form-group">
-                <label class="form-label">Nouveau nom</label>
+                <label class="form-label" for="renameListInput">Nouveau nom</label>
                 <input type="text" class="form-input" id="renameListInput" placeholder="Entrez le nouveau nom...">
             </div>
             <button class="btn-primary" id="confirmRenameBtn">Renommer</button>
@@ -269,14 +275,14 @@
     </div>
 
     <!-- Modal Dupliquer Liste -->
-    <div class="modal" id="duplicateListModal">
+    <div class="modal" id="duplicateListModal" role="dialog" aria-modal="true" aria-labelledby="duplicateListModalTitle" aria-hidden="true">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">Dupliquer la liste</h2>
-                <button class="close-btn" id="closeDuplicateListModal">×</button>
+                <h2 class="modal-title" id="duplicateListModalTitle">Dupliquer la liste</h2>
+                <button class="close-btn" id="closeDuplicateListModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="form-group">
-                <label class="form-label">Nom de la nouvelle liste</label>
+                <label class="form-label" for="duplicateListInput">Nom de la nouvelle liste</label>
                 <input type="text" class="form-input" id="duplicateListInput" placeholder="Entrez le nom...">
             </div>
             <button class="btn-primary" id="confirmDuplicateBtn">Dupliquer</button>

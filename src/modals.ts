@@ -1,11 +1,40 @@
 import { state, saveToLocalStorage, getCurrentList } from './state';
+import { createFocusTrap, type FocusTrap, getFocusables } from './utils/focus-trap';
+
+const traps = new Map<string, FocusTrap>();
+const previousFocus = new Map<string, HTMLElement | null>();
 
 export function openModal(modalId: string): void {
-  document.getElementById(modalId)?.classList.add('active');
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+
+  previousFocus.set(modalId, document.activeElement as HTMLElement | null);
+  modal.classList.add('active');
+  modal.setAttribute('aria-hidden', 'false');
+
+  const trap = createFocusTrap(modal, () => closeModal(modalId));
+  traps.set(modalId, trap);
+
+  requestAnimationFrame(() => {
+    const items = getFocusables(modal);
+    const initial = items.find((el) => el.tagName !== 'BUTTON' || !el.classList.contains('close-btn'));
+    (initial || items[0])?.focus();
+  });
 }
 
 export function closeModal(modalId: string): void {
-  document.getElementById(modalId)?.classList.remove('active');
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+
+  modal.classList.remove('active');
+  modal.setAttribute('aria-hidden', 'true');
+
+  traps.get(modalId)?.release();
+  traps.delete(modalId);
+
+  const prev = previousFocus.get(modalId);
+  previousFocus.delete(modalId);
+  prev?.focus?.();
 
   if (modalId === 'favoritesModal') {
     state.categoryOrder.forEach((cat) => {

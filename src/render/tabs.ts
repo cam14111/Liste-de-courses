@@ -13,7 +13,8 @@ export function renderListTabs(): void {
       const itemCount = list.items.length;
       const checkedCount = list.items.filter((i) => i.checked).length;
       const counter = itemCount > 0 ? `(${checkedCount}/${itemCount})` : '';
-      return `<button class="list-tab ${id === state.currentList ? 'active' : ''}" data-list="${escapeAttr(id)}" oncontextmenu="window.handleListContextMenu(event, '${escapeAttr(id)}')"><span class="list-tab-name">${escapeHtml(list.name)} ${counter}</span><span class="list-tab-menu" role="button" aria-label="Actions sur la liste" data-list-menu="${escapeAttr(id)}">⋮</span></button>`;
+      const active = id === state.currentList;
+      return `<button class="list-tab ${active ? 'active' : ''}" role="tab" aria-selected="${active}" tabindex="${active ? 0 : -1}" data-list="${escapeAttr(id)}" oncontextmenu="window.handleListContextMenu(event, '${escapeAttr(id)}')"><span class="list-tab-name">${escapeHtml(list.name)} ${counter}</span><span class="list-tab-menu" role="button" tabindex="0" aria-label="Actions sur la liste ${escapeAttr(list.name)}" data-list-menu="${escapeAttr(id)}">⋮</span></button>`;
     })
     .join('');
 
