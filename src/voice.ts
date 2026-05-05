@@ -81,6 +81,7 @@ export function createVoiceController(callbacks: VoiceCallbacks): VoiceControlle
   };
 
   recognition.onend = () => {
+    active = false;
     callbacks.onEnd?.();
   };
 
