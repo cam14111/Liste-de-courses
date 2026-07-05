@@ -1,5 +1,34 @@
 # Changelog
 
+## [3.1.0] — Fiabilisation & refonte UX
+
+### Fixed
+- **Partage cassé avec accents spéciaux/emoji** : `btoa` plantait sur « œ », « 🍫 »… → encodage base64 UTF-8 (`src/utils/base64.ts`), rétro-compatible avec les anciens codes Latin-1.
+- **XSS** : les chips de suggestions injectaient le nom d'article sans échappement dans `innerHTML`.
+- **Fuite mémoire** : les écouteurs `touchmove`/`touchend` du drag & drop étaient ré-ajoutés sur `document` à chaque rendu ; ils ne sont plus enregistrés qu'une fois.
+- **Crash potentiel** : `getCurrentList()` pouvait renvoyer `undefined` (liste courante supprimée / état corrompu) ; la migration garantit désormais au moins une liste et une liste courante valide.
+- **Catégories par défaut supprimées ou renommées qui réapparaissaient** au rechargement : suivi via `removedDefaultCategories`.
+- La catégorie « autre » (repli) ne peut plus être supprimée ni renommée ; le renommage vers un nom déjà pris est bloqué.
+- **Bouton « Ajouter » coupé sur mobile** (l'input ne rétrécissait pas, `min-width: 0` manquant).
+- **Champ prix** : `type="number"` refusait la virgule française → champ texte `inputmode="decimal"`, « 2,50 » accepté.
+- QRCode.js n'est plus chargé au démarrage (script bloquant) mais à la demande, avec timeout et message hors ligne.
+- Les suggestions se rafraîchissent après suppression/annulation d'un article.
+
+### Added
+- **Partage par lien** : le QR code encode une URL `?import=…` — scanner avec l'appareil photo ouvre directement l'app avec la fenêtre d'import. Boutons « 📲 Partager… » (Web Share API, mobile) et « 🔗 Copier le lien ». L'import manuel accepte un lien complet ou un code.
+- **Quantités comprises à la saisie** : « 3 bananes », « 2kg de pommes », « lait x2 » → nom et quantité séparés (`src/utils/quantity.ts`).
+- **Autocomplétion en direct** : en tapant, les chips proposent les articles correspondants de l'historique et des favoris (insensible aux accents).
+- **« Tout décocher »** dans le menu ⋮ d'une liste, avec annulation — pour réutiliser une liste d'une semaine sur l'autre.
+- **Mode supermarché enrichi** : barre de progression (articles pris / total) et barre des totaux (« Reste à payer ») désormais visible.
+- **Libellés accentués** des catégories (Épicerie, Hygiène, Légumes…) via `CATEGORY_LABELS`.
+- **Thème sombre automatique** au premier lancement (`prefers-color-scheme`) + `meta theme-color` synchronisé.
+- **Icônes PWA réelles** (PNG 192/512 + maskable + `apple-touch-icon`) : l'app installée a enfin une icône sur iOS et Android.
+
+### Changed
+- Plus aucun gestionnaire `onclick` inline ni global `window.*` : délégation d'événements partout (items, suggestions, favoris, catégories, onglets).
+- Sélecteur de catégorie du modal d'édition trié selon l'ordre des catégories.
+- 57 tests Vitest (vs 40) : +5 base64, +8 quantités, +4 migrations.
+
 ## [Unreleased] — Phase D (features utilisateur)
 
 ### Added — Prix & budget

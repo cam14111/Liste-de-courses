@@ -18,6 +18,8 @@ async function copyIfExists(src, dest) {
 await copyIfExists(resolve(root, 'manifest.json'), resolve(dist, 'manifest.json'));
 await copyIfExists(resolve(root, 'service-worker.js'), resolve(dist, 'service-worker.js'));
 await copyIfExists(resolve(root, '.nojekyll'), resolve(dist, '.nojekyll'));
+// Manuel utilisateur lié depuis le header (📖) — sans lui, 404 en production
+await copyIfExists(resolve(root, 'manuel.html'), resolve(dist, 'manuel.html'));
 
 const iconsDir = resolve(root, 'icons');
 if (existsSync(iconsDir)) {

@@ -21,7 +21,7 @@
 - Catégorisation automatique des articles
 - Système de favoris pour ajout rapide
 - Suggestions intelligentes basées sur votre historique
-- Partage de listes via QR code
+- Partage de listes par lien, QR code ou menu de partage du téléphone
 - Mode sombre et personnalisation de l'affichage
 - Retour haptique (vibrations) sur les interactions principales
 - Fonctionne entièrement hors ligne
@@ -346,31 +346,24 @@ L'application analyse votre historique d'utilisation et vous suggère les articl
 1. Ouvrez **⚙️ Paramètres**
 2. Cliquez sur **📤** dans "Partager la liste"
 
-**Méthode 2 : Via le bouton dédié** (si disponible dans une future version)
-
 **Étapes du partage :**
-1. Un QR code est généré automatiquement
-2. Un code texte est également affiché
-3. L'autre personne peut :
-   - Scanner le QR code avec son appareil
-   - Ou copier-coller le code texte
-
-**Copier le code de partage :**
-1. Cliquez sur **📋 Copier le code**
-2. Le code est copié dans le presse-papiers
-3. Envoyez-le par message, email, etc.
+1. Un QR code est généré automatiquement : il contient un **lien direct**
+2. L'autre personne le scanne avec l'appareil photo de son téléphone → l'application s'ouvre avec la fenêtre d'import
+3. Vous pouvez aussi :
+   - **📲 Partager…** : ouvre le menu de partage du téléphone (WhatsApp, SMS, email…)
+   - **🔗 Copier le lien** : colle le lien où vous voulez
+   - Copier le **code texte** (option avancée)
 
 #### Importer une liste
 
-**Méthode 1 : Depuis un QR code**
-1. Scannez le QR code avec une application de scan
-2. Copiez le texte obtenu
-3. Suivez les étapes de la méthode 2
+**Méthode 1 : Depuis un QR code ou un lien**
+1. Scannez le QR code avec l'appareil photo (ou ouvrez le lien reçu)
+2. L'application s'ouvre directement avec la fenêtre d'import
 
-**Méthode 2 : Depuis un code texte**
+**Méthode 2 : Depuis un lien ou un code collé**
 1. Ouvrez **⚙️ Paramètres**
 2. Cliquez sur **📥** dans "Importer une liste"
-3. Collez le code de partage dans le champ
+3. Collez le lien complet ou le code de partage dans le champ
 4. Cliquez sur **Importer**
 
 **Choisir le mode d'import :**

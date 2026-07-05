@@ -1,6 +1,6 @@
 {
   "name": "ma-liste-de-courses",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Application web standalone de liste de courses optimisee pour mobile, offline-first PWA.",
   "private": true,
   "type": "module",

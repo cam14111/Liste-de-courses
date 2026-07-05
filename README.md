@@ -8,8 +8,9 @@ Application web de liste de courses optimisée pour mobile. PWA installable, **f
 
 ### Gestion des listes & articles
 - Plusieurs listes simultanées (courses, pharmacie, bricolage, ...)
-- Renommer / dupliquer / supprimer une liste (clic droit ou bouton ⋮)
+- Renommer / dupliquer / supprimer une liste, **tout décocher** pour la réutiliser (bouton ⋮)
 - Ajout / édition / cochage / suppression d'articles
+- **Quantités comprises à la saisie** : « 3 bananes », « 2kg de pommes », « lait x2 »
 - **Annuler la dernière suppression** via le toast (5 s)
 - **Catégorisation automatique** d'environ 150 mots-clés répartis sur 23 catégories par défaut, avec gestion des variantes singulier/pluriel et résolution par priorité (v2.2)
 - Catégories personnalisables (icône, ajout, suppression, réorganisation par drag & drop)
@@ -19,6 +20,7 @@ Application web de liste de courses optimisée pour mobile. PWA installable, **f
 - Recherche en temps réel avec **surlignage des correspondances**
 - Bouton ✕ pour vider la recherche d'un clic
 - Suggestions automatiques basées sur l'historique d'achat
+- **Autocomplétion en tapant** : les chips proposent les articles correspondants (historique + favoris, insensible aux accents)
 - Système de favoris : étoile ⭐ sur n'importe quel article ; panneau d'ajout rapide groupé par catégorie
 
 ### Prix & budget *(nouveau)*
@@ -29,17 +31,21 @@ Application web de liste de courses optimisée pour mobile. PWA installable, **f
 - Bouton 🎤 à côté du champ d'ajout (si l'API Web Speech est dispo)
 - Reconnaissance en français, ajout direct à la liste
 
-### Mode supermarché *(nouveau)*
+### Mode supermarché
 - Bouton 🛒 dans le header → vue plein-écran épurée pour faire les courses
 - Articles plus grands, checkboxes plus larges, distractions masquées
+- **Barre de progression** (articles pris / total) et **totaux visibles** (« Reste à payer »)
 
 ### Partage
-- Partage par **QR code** ou code texte (base64) — aucun serveur impliqué
+- **QR code = lien direct** : scanner avec l'appareil photo de l'autre téléphone ouvre l'app avec la fenêtre d'import
+- Bouton **📲 Partager…** (menu de partage natif du téléphone) et **🔗 Copier le lien**
+- Code texte en option avancée ; l'import accepte lien complet ou code
+- Encodage **UTF-8 sûr** (accents, œ, emoji) rétro-compatible avec les anciens codes
 - Import avec 3 stratégies au choix : **remplacer**, **fusionner sans doublons**, **nouvelle liste**
-- Validation stricte du payload importé (Zod)
+- Validation stricte du payload importé (Zod) — aucun serveur impliqué
 
 ### Confort & personnalisation
-- Mode sombre / clair
+- Mode sombre / clair (suit la préférence système au premier lancement)
 - Taille de police ajustable (80 % – 150 %)
 - Option "masquer les articles cochés"
 - Retour haptique (vibrations) sur mobile
@@ -94,7 +100,7 @@ L'app s'installe alors comme une application native, démarre offline, occupe ~1
 |---|---|
 | Langage | **TypeScript** strict |
 | Bundler | **Vite 5** + `vite-plugin-singlefile` (bundle inliné en un seul `dist/index.html`) |
-| Tests | **Vitest** (40 tests sur catégorisation, migration, schémas, prix) |
+| Tests | **Vitest** (57 tests : catégorisation, migration, schémas, prix, base64, quantités) |
 | Lint | ESLint + `@typescript-eslint` |
 | Format | Prettier |
 | Validation runtime | **Zod** (payloads d'import) |
@@ -150,17 +156,20 @@ Liste-de-courses/
 │   ├── interactions.ts        # Long-press, swipe, toggle item
 │   ├── styles.css             # CSS unifié (variables, responsive, dark mode)
 │   ├── utils/
+│   │   ├── base64.ts          # base64 UTF-8 sûr + décodage rétro-compatible
 │   │   ├── escape.ts          # escapeHtml / highlight (regex-safe)
 │   │   ├── focus-trap.ts      # createFocusTrap réutilisable
-│   │   └── price.ts           # parsePrice / formatPrice / computeTotals
+│   │   ├── price.ts           # parsePrice / formatPrice / computeTotals
+│   │   └── quantity.ts        # parseItemEntry (« 3 bananes » → nom + quantité)
 │   └── render/
 │       ├── items.ts           # Rendu de la liste + barre de totaux
 │       ├── tabs.ts            # Onglets de listes (role=tab)
 │       ├── suggestions.ts     # Chips de suggestions
 │       ├── favorites.ts       # Grille des favoris
 │       └── categories.ts      # Liste des catégories en paramètres
-├── tests/                     # Vitest (40 tests)
-├── scripts/post-build.mjs     # Copie manifest/SW/.nojekyll dans dist/
+├── tests/                     # Vitest (57 tests)
+├── icons/                     # Icônes PWA PNG (192/512/maskable/apple-touch)
+├── scripts/post-build.mjs     # Copie manifest/SW/icons/.nojekyll dans dist/
 ├── service-worker.js          # SW stale-while-revalidate
 ├── manifest.json              # PWA manifest
 ├── vite.config.ts
@@ -197,12 +206,14 @@ Pour GitHub Pages, le `.nojekyll` est requis (déjà présent dans `dist/` aprè
 npm run test
 ```
 
-40 tests Vitest répartis :
+57 tests Vitest répartis :
 
 - `tests/categorize.test.ts` (21) — normalisation, tokenisation, variantes, multi-mots, priorités, accents
-- `tests/migrate.test.ts` (6) — migrations localStorage (legacy nom → ID, fallback `autre`, extraction favoris, ajout des catégories par défaut, préservation custom)
+- `tests/migrate.test.ts` (10) — migrations localStorage (legacy nom → ID, fallback `autre`, favoris, catégories par défaut supprimées, liste courante valide)
 - `tests/schemas.test.ts` (5) — validation Zod (payload valide, nom vide, taille excessive, types invalides)
 - `tests/price.test.ts` (8) — parsing FR/EN, formatage EUR, totaux
+- `tests/base64.test.ts` (5) — encodage UTF-8, rétro-compatibilité anciens codes
+- `tests/quantity.test.ts` (8) — parsing des quantités à la saisie
 
 ---
 
