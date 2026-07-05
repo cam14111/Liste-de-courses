@@ -1,5 +1,6 @@
 import { state, saveToLocalStorage, getCurrentList } from './state';
 import { getCategoryLabel } from './constants';
+import { escapeHtml, escapeAttr } from './utils/escape';
 import { createFocusTrap, type FocusTrap, getFocusables } from './utils/focus-trap';
 
 const traps = new Map<string, FocusTrap>();
@@ -63,7 +64,7 @@ export function openEditModal(itemId: string): void {
     .filter((cat) => state.categories[cat])
     .map((cat) => {
       const data = state.categories[cat];
-      return `<option value="${data.id}" ${data.id === item.category ? 'selected' : ''}>${data.icon} ${getCategoryLabel(cat)}</option>`;
+      return `<option value="${escapeAttr(data.id)}" ${data.id === item.category ? 'selected' : ''}>${data.icon} ${escapeHtml(getCategoryLabel(cat))}</option>`;
     })
     .join('');
 

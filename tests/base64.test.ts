@@ -32,4 +32,9 @@ describe('base64 UTF-8', () => {
     const legacyCode = btoa(legacy); // ancien format, accents en Latin-1
     expect(decodeShareCode(legacyCode)).toBe(legacy);
   });
+
+  it('decodeShareCode ne bascule pas en legacy pour un payload contenant U+FFFD', () => {
+    const text = JSON.stringify({ name: 'Liste � corrompue', items: [] });
+    expect(decodeShareCode(utf8ToBase64(text))).toBe(text);
+  });
 });

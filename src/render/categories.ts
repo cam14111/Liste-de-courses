@@ -9,6 +9,13 @@ import { escapeHtml, escapeAttr } from '../utils/escape';
 let currentEditingCategory: string | null = null;
 let selectedIcon: string | null = null;
 
+/** Empêche la migration de restaurer une catégorie par défaut supprimée/renommée. */
+function markDefaultCategoryRemoved(key: string): void {
+  if (DEFAULT_CATEGORIES[key] && !state.removedDefaultCategories.includes(key)) {
+    state.removedDefaultCategories.push(key);
+  }
+}
+
 export function renderCategoriesList(): void {
   const container = document.getElementById('categoriesList');
   if (!container) return;
@@ -110,10 +117,7 @@ export async function deleteCategory(categoryKey: string): Promise<void> {
 
   delete state.categories[categoryKey];
   state.categoryOrder = state.categoryOrder.filter((cat) => cat !== categoryKey);
-  // Empêche la migration de restaurer une catégorie par défaut supprimée.
-  if (DEFAULT_CATEGORIES[categoryKey] && !state.removedDefaultCategories.includes(categoryKey)) {
-    state.removedDefaultCategories.push(categoryKey);
-  }
+  markDefaultCategoryRemoved(categoryKey);
 
   saveToLocalStorage();
   renderCategoriesList();
@@ -171,9 +175,7 @@ export async function saveCategory(): Promise<void> {
       const idx = state.categoryOrder.indexOf(oldId);
       if (idx !== -1) state.categoryOrder[idx] = name;
 
-      if (DEFAULT_CATEGORIES[oldId] && !state.removedDefaultCategories.includes(oldId)) {
-        state.removedDefaultCategories.push(oldId);
-      }
+      markDefaultCategoryRemoved(oldId);
     } else {
       state.categories[name].icon = selectedIcon;
     }

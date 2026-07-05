@@ -41,5 +41,7 @@ describe('parseItemEntry', () => {
     expect(parseItemEntry('coca 33cl')).toEqual({ name: 'coca 33cl', quantity: '' });
     // nom trop court après le nombre : on ne parse pas
     expect(parseItemEntry('4x4')).toEqual({ name: '4x4', quantity: '' });
+    // nom court sans unité : produit dont le nombre fait partie du nom
+    expect(parseItemEntry('7 up')).toEqual({ name: '7 up', quantity: '' });
   });
 });

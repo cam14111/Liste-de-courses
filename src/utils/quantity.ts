@@ -13,7 +13,9 @@ export function parseItemEntry(raw: string): ParsedEntry {
 
   // « 3 bananes », « 2kg pommes », « 1,5 kg de farine », « 2x lait »
   let m = text.match(/^(\d+(?:[.,]\d+)?)\s*(kg|g|l|cl|ml|x)?\s+(?:de\s+|d')?(.+)$/i);
-  if (m && m[3].length > 1) {
+  // Sans unité explicite, on exige un nom d'au moins 3 caractères pour ne pas
+  // mutiler des noms de produits commençant par un nombre (« 7 up »).
+  if (m && m[3].length > (m[2] ? 1 : 2)) {
     const unit = m[2] ? m[2].toLowerCase().replace(/^x$/, '') : '';
     return { name: m[3].trim(), quantity: `${m[1]}${unit ? ' ' + unit : ''}`.trim() };
   }

@@ -9,6 +9,12 @@ import { showToast } from './toast';
 import { confirmDialog } from './confirm';
 import { parseItemEntry } from './utils/quantity';
 
+/** Ajout depuis une saisie brute : extrait la quantité (« 3 bananes » → nom + quantité). */
+export function addItemFromInput(raw: string): void {
+  const parsed = parseItemEntry(raw);
+  addItem(parsed.name, parsed.quantity);
+}
+
 export function addItem(
   name: string,
   quantity = '',
@@ -16,16 +22,14 @@ export function addItem(
   price?: number,
 ): void {
   const list = getCurrentList();
-  // « 3 bananes » / « bananes x3 » → nom « bananes », quantité « 3 »
-  const parsed = quantity ? { name: name.trim(), quantity } : parseItemEntry(name);
-  const trimmed = parsed.name;
+  const trimmed = name.trim();
   if (!trimmed) return;
   const isFavorite = state.favorites.some((f) => f.name.toLowerCase() === trimmed.toLowerCase());
 
   const item: Item = {
     id: generateId(),
     name: trimmed,
-    quantity: parsed.quantity,
+    quantity,
     category: category || getCategory(trimmed, state.categories),
     checked: false,
     favorite: isFavorite,

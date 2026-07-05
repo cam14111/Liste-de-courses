@@ -11,10 +11,10 @@ import { ImportPayloadSchema, type ImportPayload } from './schemas';
 
 declare global {
   interface Window {
-    QRCode?: new (
+    QRCode?: (new (
       element: HTMLElement,
       opts: { text: string; width: number; height: number; correctLevel?: number },
-    ) => unknown;
+    ) => unknown) & { CorrectLevel?: { L: number; M: number; Q: number; H: number } };
   }
 }
 
@@ -91,16 +91,29 @@ export function generateQRCode(): void {
 
   const qrEl = document.getElementById('qrcode');
   if (qrEl) {
+    const qrMessage = (text: string): void => {
+      qrEl.innerHTML = `<p style="color: var(--text-secondary); font-size: 0.9rem;">${text}</p>`;
+    };
     qrEl.innerHTML = '';
     loadQrLibrary()
       .then(() => {
-        if (window.QRCode && qrEl.childElementCount === 0) {
-          new window.QRCode(qrEl, { text: shareUrl, width: 220, height: 220 });
+        if (!window.QRCode || qrEl.childElementCount > 0) return;
+        try {
+          new window.QRCode(qrEl, {
+            text: shareUrl,
+            width: 220,
+            height: 220,
+            // Niveau L : capacité maximale (~2,9 Ko) pour les longues listes
+            correctLevel: window.QRCode.CorrectLevel?.L,
+          });
+        } catch (e) {
+          // Payload au-delà de la capacité d'un QR code
+          console.error('QR generation failed:', e);
+          qrMessage('Liste trop longue pour un QR code — utilisez le bouton « Copier le lien ».');
         }
       })
       .catch(() => {
-        qrEl.innerHTML =
-          '<p style="color: var(--text-secondary); font-size: 0.9rem;">QR code indisponible hors ligne — utilisez le lien ou le code ci-dessous.</p>';
+        qrMessage('QR code indisponible hors ligne — utilisez le lien ou le code ci-dessous.');
       });
   }
 }

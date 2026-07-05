@@ -107,6 +107,7 @@ function mergeCategories(
 
 function mergeCategoryOrder(saved: string[] | undefined, removedDefaults: string[]): string[] {
   let order = saved && saved.length > 0 ? [...saved] : [...DEFAULT_CATEGORY_ORDER];
+  order = order.filter((c) => c === 'autre' || !removedDefaults.includes(c));
   const missing = DEFAULT_CATEGORY_ORDER.filter(
     (c) => !order.includes(c) && (c === 'autre' || !removedDefaults.includes(c)),
   );

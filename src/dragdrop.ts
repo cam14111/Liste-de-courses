@@ -4,7 +4,6 @@ const DRAG_DELAY = 500;
 const MOVEMENT_THRESHOLD = 10;
 
 let draggedElement: HTMLElement | null = null;
-let draggedCategory: string | null = null;
 
 let touchStartY = 0;
 let touchStartX = 0;
@@ -57,7 +56,6 @@ function onDocumentTouchEnd(): void {
     draggedElement.classList.remove('dragging');
     persistOrder();
     draggedElement = null;
-    draggedCategory = null;
   }
   isTouchDragging = false;
   isPendingDrag = false;
@@ -79,7 +77,6 @@ export function setupCategoryDragDrop(): void {
   categories.forEach((category) => {
     category.addEventListener('dragstart', (e) => {
       draggedElement = category;
-      draggedCategory = category.dataset.category || null;
       category.classList.add('dragging');
       if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
     });
@@ -89,7 +86,6 @@ export function setupCategoryDragDrop(): void {
         draggedElement.classList.remove('dragging');
         draggedElement.draggable = false;
         draggedElement = null;
-        draggedCategory = null;
       }
     });
 
@@ -107,7 +103,7 @@ export function setupCategoryDragDrop(): void {
 
     category.addEventListener('drop', (e) => {
       e.preventDefault();
-      if (!draggedCategory) return;
+      if (!draggedElement) return;
       persistOrder();
     });
 
@@ -133,7 +129,6 @@ export function setupCategoryDragDrop(): void {
           if (isPendingDrag) {
             isTouchDragging = true;
             draggedElement = category;
-            draggedCategory = category.dataset.category || null;
             if (navigator.vibrate) navigator.vibrate(50);
             category.classList.add('dragging');
           }

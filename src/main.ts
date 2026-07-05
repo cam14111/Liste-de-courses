@@ -1,7 +1,7 @@
 import './styles.css';
 
 import { state, loadFromLocalStorage, flushPendingSave } from './state';
-import { addItem, uncheckAllItems, clearCheckedItems, editItem } from './items';
+import { addItemFromInput, uncheckAllItems, clearCheckedItems, editItem } from './items';
 import {
   createList,
   renameList,
@@ -10,7 +10,7 @@ import {
   currentActionListId,
 } from './lists';
 import { renderListTabs } from './render/tabs';
-import { renderItems } from './render/items';
+import { renderItems, renderSupermarketProgress } from './render/items';
 import { renderSuggestions } from './render/suggestions';
 import { renderFavorites } from './render/favorites';
 import { renderCategoriesList, openAddCategoryModal, saveCategory } from './render/categories';
@@ -39,7 +39,7 @@ function wireUp(): void {
     const value = input?.value.trim() || '';
     if (value && input) {
       input.value = '';
-      addItem(value);
+      addItemFromInput(value);
     }
   });
 
@@ -224,6 +224,7 @@ function setupSupermarketMode(): void {
     document.body.classList.toggle('supermarket-mode', active);
     enterBtn.setAttribute('aria-pressed', active ? 'true' : 'false');
     exitBtn.hidden = !active;
+    renderSupermarketProgress();
     if (active) exitBtn.focus();
     else enterBtn.focus();
   };
@@ -244,7 +245,7 @@ function setupVoiceInput(): void {
 
   const controller = createVoiceController({
     onTranscript: (text) => {
-      addItem(text);
+      addItemFromInput(text);
       input.value = '';
       showToast(`"${text}" ajouté`, { variant: 'success', duration: 1800 });
     },

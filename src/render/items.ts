@@ -7,12 +7,39 @@ import { toggleFavorite, deleteItem } from '../items';
 import { escapeHtml, escapeAttr, highlight } from '../utils/escape';
 import { computeTotals, formatPrice } from '../utils/price';
 
+let containerDelegationReady = false;
+
+/** Un seul listener permanent sur #container pour tous les clics (délégation). */
+function ensureContainerDelegation(container: HTMLElement): void {
+  if (containerDelegationReady) return;
+  containerDelegationReady = true;
+  container.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+
+    const actionBtn = target.closest<HTMLElement>('.item-btn[data-action]');
+    if (actionBtn) {
+      e.stopPropagation();
+      const itemId = actionBtn.closest<HTMLElement>('.item')?.dataset.id;
+      if (!itemId) return;
+      if (actionBtn.dataset.action === 'favorite') toggleFavorite(itemId);
+      else if (actionBtn.dataset.action === 'delete') deleteItem(itemId);
+      return;
+    }
+
+    const header = target.closest<HTMLElement>('[data-category-header]');
+    if (header) {
+      handleCategoryHeaderClick(e, header.dataset.categoryHeader || '');
+    }
+  });
+}
+
 export function renderItems(): void {
   const list = getCurrentList();
   const container = document.getElementById('container');
   const searchInput = document.getElementById('searchInput') as HTMLInputElement | null;
   const searchTerm = searchInput?.value.toLowerCase() ?? '';
   if (!container) return;
+  ensureContainerDelegation(container);
 
   let items = list.items;
 
@@ -94,22 +121,6 @@ export function renderItems(): void {
     })
     .join('');
 
-  container.querySelectorAll<HTMLElement>('[data-category-header]').forEach((header) => {
-    header.addEventListener('click', (e) => {
-      handleCategoryHeaderClick(e, header.dataset.categoryHeader || '');
-    });
-  });
-
-  container.querySelectorAll<HTMLButtonElement>('.item-btn').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const itemId = btn.closest<HTMLElement>('.item')?.dataset.id;
-      if (!itemId) return;
-      if (btn.dataset.action === 'favorite') toggleFavorite(itemId);
-      else if (btn.dataset.action === 'delete') deleteItem(itemId);
-    });
-  });
-
   setupCategoryDragDrop();
   setupItemInteractions();
   renderTotalsBar();
@@ -143,13 +154,13 @@ function renderTotalsBar(): void {
 }
 
 /** Barre de progression affichée uniquement en mode supermarché. */
-function renderSupermarketProgress(): void {
+export function renderSupermarketProgress(): void {
   const list = getCurrentList();
   const total = list.items.length;
   const checked = list.items.filter((i) => i.checked).length;
   let bar = document.getElementById('supermarketProgress');
 
-  if (total === 0) {
+  if (total === 0 || !document.body.classList.contains('supermarket-mode')) {
     bar?.remove();
     return;
   }

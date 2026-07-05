@@ -18,7 +18,8 @@ export function base64ToUtf8(encoded: string): string {
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i);
   }
-  return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+  // fatal: une séquence UTF-8 invalide lève une exception au lieu d'insérer U+FFFD
+  return new TextDecoder('utf-8', { fatal: true }).decode(bytes);
 }
 
 /**
@@ -26,11 +27,10 @@ export function base64ToUtf8(encoded: string): string {
  * (Latin-1 produits par les versions précédentes de l'app).
  */
 export function decodeShareCode(encoded: string): string {
-  const text = base64ToUtf8(encoded);
-  // Un ancien code Latin-1 contenant des accents produit des séquences UTF-8
-  // invalides, remplacées par U+FFFD ; dans ce cas on retombe sur atob brut.
-  if (text.includes('�')) {
+  try {
+    return base64ToUtf8(encoded);
+  } catch {
+    // Ancien code Latin-1 : ses accents forment des séquences UTF-8 invalides.
     return atob(encoded);
   }
-  return text;
 }
