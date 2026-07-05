@@ -7,6 +7,7 @@ import { renderSuggestions } from './render/suggestions';
 import { renderFavorites } from './render/favorites';
 import { showToast } from './toast';
 import { confirmDialog } from './confirm';
+import { parseItemEntry } from './utils/quantity';
 
 export function addItem(
   name: string,
@@ -15,14 +16,17 @@ export function addItem(
   price?: number,
 ): void {
   const list = getCurrentList();
-  const trimmed = name.trim();
+  // « 3 bananes » / « bananes x3 » → nom « bananes », quantité « 3 »
+  const parsed = quantity ? { name: name.trim(), quantity } : parseItemEntry(name);
+  const trimmed = parsed.name;
+  if (!trimmed) return;
   const isFavorite = state.favorites.some((f) => f.name.toLowerCase() === trimmed.toLowerCase());
 
   const item: Item = {
     id: generateId(),
     name: trimmed,
-    quantity,
-    category: category || getCategory(name, state.categories),
+    quantity: parsed.quantity,
+    category: category || getCategory(trimmed, state.categories),
     checked: false,
     favorite: isFavorite,
     addedAt: Date.now(),
@@ -30,7 +34,7 @@ export function addItem(
   };
   list.items.push(item);
 
-  const key = name.toLowerCase();
+  const key = trimmed.toLowerCase();
   state.history[key] = (state.history[key] || 0) + 1;
 
   saveToLocalStorage();
@@ -48,6 +52,7 @@ export function deleteItem(itemId: string): void {
   saveToLocalStorage();
   renderListTabs();
   renderItems();
+  renderSuggestions();
 
   showToast(`"${removed.name}" supprimé`, {
     variant: 'info',
@@ -61,6 +66,7 @@ export function deleteItem(itemId: string): void {
         saveToLocalStorage();
         renderListTabs();
         renderItems();
+        renderSuggestions();
       },
     },
   });
@@ -125,6 +131,36 @@ export function editItem(
   saveToLocalStorage();
   renderListTabs();
   renderItems();
+}
+
+export function uncheckAllItems(): void {
+  const list = getCurrentList();
+  const checked = list.items.filter((i) => i.checked);
+  if (checked.length === 0) {
+    showToast('Aucun article coché', { variant: 'info', duration: 2000 });
+    return;
+  }
+  checked.forEach((item) => {
+    item.checked = false;
+  });
+  saveToLocalStorage();
+  renderListTabs();
+  renderItems();
+  showToast(`${checked.length} article(s) décoché(s)`, {
+    variant: 'success',
+    duration: 4000,
+    action: {
+      label: 'Annuler',
+      onClick: () => {
+        checked.forEach((item) => {
+          item.checked = true;
+        });
+        saveToLocalStorage();
+        renderListTabs();
+        renderItems();
+      },
+    },
+  });
 }
 
 export async function clearCheckedItems(): Promise<void> {

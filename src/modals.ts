@@ -1,4 +1,5 @@
 import { state, saveToLocalStorage, getCurrentList } from './state';
+import { getCategoryLabel } from './constants';
 import { createFocusTrap, type FocusTrap, getFocusables } from './utils/focus-trap';
 
 const traps = new Map<string, FocusTrap>();
@@ -46,10 +47,6 @@ export function closeModal(modalId: string): void {
 
 export let currentEditingId: string | null = null;
 
-export function setCurrentEditingId(id: string | null): void {
-  currentEditingId = id;
-}
-
 export function openEditModal(itemId: string): void {
   const list = getCurrentList();
   const item = list.items.find((i) => i.id === itemId);
@@ -62,10 +59,11 @@ export function openEditModal(itemId: string): void {
   if (priceInput) priceInput.value = typeof item.price === 'number' ? String(item.price) : '';
 
   const select = document.getElementById('editItemCategory') as HTMLSelectElement;
-  select.innerHTML = Object.keys(state.categories)
+  select.innerHTML = state.categoryOrder
+    .filter((cat) => state.categories[cat])
     .map((cat) => {
       const data = state.categories[cat];
-      return `<option value="${data.id}" ${data.id === item.category ? 'selected' : ''}>${data.icon} ${cat.charAt(0).toUpperCase() + cat.slice(1)}</option>`;
+      return `<option value="${data.id}" ${data.id === item.category ? 'selected' : ''}>${data.icon} ${getCategoryLabel(cat)}</option>`;
     })
     .join('');
 

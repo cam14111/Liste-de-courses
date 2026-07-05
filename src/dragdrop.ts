@@ -1,18 +1,80 @@
 import { state, saveToLocalStorage } from './state';
 
-export function setupCategoryDragDrop(): void {
-  const categories = document.querySelectorAll<HTMLElement>('.category-section');
-  let draggedElement: HTMLElement | null = null;
-  let draggedCategory: string | null = null;
+const DRAG_DELAY = 500;
+const MOVEMENT_THRESHOLD = 10;
 
-  let touchStartY = 0;
-  let touchCurrentY = 0;
-  let isTouchDragging = false;
-  let touchStartTimer: ReturnType<typeof setTimeout> | null = null;
-  let touchStartX = 0;
-  let isPendingDrag = false;
-  const DRAG_DELAY = 500;
-  const MOVEMENT_THRESHOLD = 10;
+let draggedElement: HTMLElement | null = null;
+let draggedCategory: string | null = null;
+
+let touchStartY = 0;
+let touchStartX = 0;
+let isTouchDragging = false;
+let touchStartTimer: ReturnType<typeof setTimeout> | null = null;
+let isPendingDrag = false;
+let documentListenersReady = false;
+
+function persistOrder(): void {
+  const newOrder = Array.from(document.querySelectorAll<HTMLElement>('.category-section'))
+    .map((el) => el.dataset.category || '')
+    .filter(Boolean);
+  state.categoryOrder = newOrder;
+  saveToLocalStorage();
+}
+
+function onDocumentTouchMove(e: TouchEvent): void {
+  if (isPendingDrag && !isTouchDragging) {
+    const dx = Math.abs(e.touches[0].clientX - touchStartX);
+    const dy = Math.abs(e.touches[0].clientY - touchStartY);
+    if (dx > MOVEMENT_THRESHOLD || dy > MOVEMENT_THRESHOLD) {
+      if (touchStartTimer) clearTimeout(touchStartTimer);
+      isPendingDrag = false;
+    }
+    return;
+  }
+  if (!isTouchDragging || !draggedElement) return;
+  e.preventDefault();
+  const touchCurrentY = e.touches[0].clientY;
+  const elementBelow = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+  const categoryBelow = elementBelow?.closest<HTMLElement>('.category-section');
+  if (!categoryBelow || categoryBelow === draggedElement) return;
+  const rect = categoryBelow.getBoundingClientRect();
+  const midpoint = rect.top + rect.height / 2;
+  if (touchCurrentY < midpoint) {
+    categoryBelow.parentNode?.insertBefore(draggedElement, categoryBelow);
+  } else {
+    categoryBelow.parentNode?.insertBefore(draggedElement, categoryBelow.nextSibling);
+  }
+}
+
+function onDocumentTouchEnd(): void {
+  if (isPendingDrag && !isTouchDragging) {
+    if (touchStartTimer) clearTimeout(touchStartTimer);
+    isPendingDrag = false;
+    return;
+  }
+  if (!isTouchDragging) return;
+  if (draggedElement) {
+    draggedElement.classList.remove('dragging');
+    persistOrder();
+    draggedElement = null;
+    draggedCategory = null;
+  }
+  isTouchDragging = false;
+  isPendingDrag = false;
+  touchStartY = 0;
+  touchStartX = 0;
+}
+
+function ensureDocumentListeners(): void {
+  if (documentListenersReady) return;
+  documentListenersReady = true;
+  document.addEventListener('touchmove', onDocumentTouchMove, { passive: false });
+  document.addEventListener('touchend', onDocumentTouchEnd, { passive: true });
+}
+
+export function setupCategoryDragDrop(): void {
+  ensureDocumentListeners();
+  const categories = document.querySelectorAll<HTMLElement>('.category-section');
 
   categories.forEach((category) => {
     category.addEventListener('dragstart', (e) => {
@@ -46,11 +108,7 @@ export function setupCategoryDragDrop(): void {
     category.addEventListener('drop', (e) => {
       e.preventDefault();
       if (!draggedCategory) return;
-      const newOrder = Array.from(document.querySelectorAll<HTMLElement>('.category-section'))
-        .map((el) => el.dataset.category || '')
-        .filter(Boolean);
-      state.categoryOrder = newOrder;
-      saveToLocalStorage();
+      persistOrder();
     });
 
     const header = category.querySelector<HTMLElement>('.category-header');
@@ -84,64 +142,4 @@ export function setupCategoryDragDrop(): void {
       { passive: true },
     );
   });
-
-  document.addEventListener(
-    'touchmove',
-    (e) => {
-      if (isPendingDrag && !isTouchDragging) {
-        const dx = Math.abs(e.touches[0].clientX - touchStartX);
-        const dy = Math.abs(e.touches[0].clientY - touchStartY);
-        if (dx > MOVEMENT_THRESHOLD || dy > MOVEMENT_THRESHOLD) {
-          if (touchStartTimer) clearTimeout(touchStartTimer);
-          isPendingDrag = false;
-        }
-        return;
-      }
-      if (!isTouchDragging || !draggedElement) return;
-      e.preventDefault();
-      touchCurrentY = e.touches[0].clientY;
-      const elementBelow = document.elementFromPoint(
-        e.touches[0].clientX,
-        e.touches[0].clientY,
-      );
-      const categoryBelow = elementBelow?.closest<HTMLElement>('.category-section');
-      if (!categoryBelow || categoryBelow === draggedElement) return;
-      const rect = categoryBelow.getBoundingClientRect();
-      const midpoint = rect.top + rect.height / 2;
-      if (touchCurrentY < midpoint) {
-        categoryBelow.parentNode?.insertBefore(draggedElement, categoryBelow);
-      } else {
-        categoryBelow.parentNode?.insertBefore(draggedElement, categoryBelow.nextSibling);
-      }
-    },
-    { passive: false },
-  );
-
-  document.addEventListener(
-    'touchend',
-    () => {
-      if (isPendingDrag && !isTouchDragging) {
-        if (touchStartTimer) clearTimeout(touchStartTimer);
-        isPendingDrag = false;
-        return;
-      }
-      if (!isTouchDragging) return;
-      if (draggedElement) {
-        draggedElement.classList.remove('dragging');
-        const newOrder = Array.from(document.querySelectorAll<HTMLElement>('.category-section'))
-          .map((el) => el.dataset.category || '')
-          .filter(Boolean);
-        state.categoryOrder = newOrder;
-        saveToLocalStorage();
-        draggedElement = null;
-        draggedCategory = null;
-      }
-      isTouchDragging = false;
-      isPendingDrag = false;
-      touchStartY = 0;
-      touchCurrentY = 0;
-      touchStartX = 0;
-    },
-    { passive: true },
-  );
 }

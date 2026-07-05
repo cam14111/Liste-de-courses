@@ -1,5 +1,5 @@
 import { state, saveToLocalStorage } from '../state';
-import { AVAILABLE_ICONS } from '../constants';
+import { AVAILABLE_ICONS, DEFAULT_CATEGORIES, getCategoryLabel } from '../constants';
 import { openModal, closeModal } from '../modals';
 import { renderItems } from './items';
 import { confirmDialog, alertDialog } from '../confirm';
@@ -12,20 +12,30 @@ let selectedIcon: string | null = null;
 export function renderCategoriesList(): void {
   const container = document.getElementById('categoriesList');
   if (!container) return;
-  container.innerHTML = Object.entries(state.categories)
-    .map(
-      ([id, data]) => `<div class="category-item">
+  container.innerHTML = state.categoryOrder
+    .filter((id) => state.categories[id])
+    .map((id) => {
+      const data = state.categories[id];
+      const label = escapeHtml(getCategoryLabel(id));
+      return `<div class="category-item">
         <div class="category-item-info">
           <span class="category-item-icon">${data.icon}</span>
-          <span class="category-item-name">${escapeHtml(id.charAt(0).toUpperCase() + id.slice(1))}</span>
+          <span class="category-item-name">${label}</span>
         </div>
         <div class="category-item-actions">
-          <button class="item-btn" onclick="window.editCategory('${escapeAttr(id)}')" title="Modifier" aria-label="Modifier la catégorie">✏️</button>
-          <button class="item-btn" onclick="window.deleteCategory('${escapeAttr(id)}')" title="Supprimer" aria-label="Supprimer la catégorie">🗑️</button>
+          <button class="item-btn" data-cat-edit="${escapeAttr(id)}" title="Modifier" aria-label="Modifier la catégorie ${label}">✏️</button>
+          <button class="item-btn" data-cat-delete="${escapeAttr(id)}" title="Supprimer" aria-label="Supprimer la catégorie ${label}">🗑️</button>
         </div>
-      </div>`,
-    )
+      </div>`;
+    })
     .join('');
+
+  container.querySelectorAll<HTMLButtonElement>('[data-cat-edit]').forEach((btn) => {
+    btn.addEventListener('click', () => editCategory(btn.dataset.catEdit || ''));
+  });
+  container.querySelectorAll<HTMLButtonElement>('[data-cat-delete]').forEach((btn) => {
+    btn.addEventListener('click', () => void deleteCategory(btn.dataset.catDelete || ''));
+  });
 }
 
 export function renderIconGrid(): void {
@@ -73,8 +83,12 @@ export function editCategory(categoryId: string): void {
 }
 
 export async function deleteCategory(categoryKey: string): Promise<void> {
+  if (categoryKey === 'autre') {
+    await alertDialog('La catégorie "Autre" sert de repli et ne peut pas être supprimée.');
+    return;
+  }
   const ok = await confirmDialog({
-    title: `Supprimer la catégorie "${categoryKey}"`,
+    title: `Supprimer la catégorie "${getCategoryLabel(categoryKey)}"`,
     message: 'Les articles de cette catégorie seront déplacés dans "autre".',
     confirmLabel: 'Supprimer',
     destructive: true,
@@ -96,11 +110,18 @@ export async function deleteCategory(categoryKey: string): Promise<void> {
 
   delete state.categories[categoryKey];
   state.categoryOrder = state.categoryOrder.filter((cat) => cat !== categoryKey);
+  // Empêche la migration de restaurer une catégorie par défaut supprimée.
+  if (DEFAULT_CATEGORIES[categoryKey] && !state.removedDefaultCategories.includes(categoryKey)) {
+    state.removedDefaultCategories.push(categoryKey);
+  }
 
   saveToLocalStorage();
   renderCategoriesList();
   renderItems();
-  showToast(`Catégorie "${categoryKey}" supprimée`, { variant: 'success', duration: 2500 });
+  showToast(`Catégorie "${getCategoryLabel(categoryKey)}" supprimée`, {
+    variant: 'success',
+    duration: 2500,
+  });
 }
 
 export async function saveCategory(): Promise<void> {
@@ -118,6 +139,14 @@ export async function saveCategory(): Promise<void> {
 
   if (currentEditingCategory) {
     const oldId = currentEditingCategory;
+    if (oldId === 'autre' && name !== oldId) {
+      await alertDialog('La catégorie "Autre" sert de repli et ne peut pas être renommée.');
+      return;
+    }
+    if (name !== oldId && state.categories[name]) {
+      await alertDialog('Cette catégorie existe déjà');
+      return;
+    }
     if (name !== oldId) {
       const oldCat = state.categories[oldId];
       state.categories[name] = {
@@ -141,6 +170,10 @@ export async function saveCategory(): Promise<void> {
 
       const idx = state.categoryOrder.indexOf(oldId);
       if (idx !== -1) state.categoryOrder[idx] = name;
+
+      if (DEFAULT_CATEGORIES[oldId] && !state.removedDefaultCategories.includes(oldId)) {
+        state.removedDefaultCategories.push(oldId);
+      }
     } else {
       state.categories[name].icon = selectedIcon;
     }

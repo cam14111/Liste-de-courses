@@ -1,97 +1,34 @@
 import './styles.css';
 
 import { state, loadFromLocalStorage, flushPendingSave } from './state';
-import {
-  addItem,
-  deleteItem,
-  toggleItem,
-  toggleFavorite,
-  clearCheckedItems,
-  editItem,
-} from './items';
+import { addItem, uncheckAllItems, clearCheckedItems, editItem } from './items';
 import {
   createList,
   renameList,
   duplicateListWithName,
   confirmDeleteList,
-  handleListContextMenu,
   currentActionListId,
 } from './lists';
 import { renderListTabs } from './render/tabs';
-import {
-  renderItems,
-  handleCategoryHeaderClick,
-  toggleCategory,
-} from './render/items';
-import { renderSuggestions, addItemFromSuggestion } from './render/suggestions';
-import {
-  renderFavorites,
-  addItemFromFavorite,
-  toggleFavoriteCategory,
-} from './render/favorites';
-import {
-  renderCategoriesList,
-  renderIconGrid,
-  selectIcon,
-  openAddCategoryModal,
-  editCategory,
-  deleteCategory,
-  saveCategory,
-} from './render/categories';
-import {
-  openModal,
-  closeModal,
-  openEditModal,
-  currentEditingId,
-} from './modals';
+import { renderItems } from './render/items';
+import { renderSuggestions } from './render/suggestions';
+import { renderFavorites } from './render/favorites';
+import { renderCategoriesList, openAddCategoryModal, saveCategory } from './render/categories';
+import { openModal, closeModal, currentEditingId } from './modals';
 import {
   generateQRCode,
   copyShareCode,
+  copyShareLink,
+  shareNative,
   processImportCode,
   checkImportUrl,
   handleImport,
 } from './share';
-import { toggleTheme, toggleHideChecked, adjustFontSize, resetApp } from './settings';
+import { applyTheme, toggleTheme, toggleHideChecked, adjustFontSize, resetApp } from './settings';
 import { setupKeyboardShortcuts } from './shortcuts';
 import { parsePrice } from './utils/price';
 import { createVoiceController, isVoiceInputSupported } from './voice';
 import { showToast } from './toast';
-
-declare global {
-  interface Window {
-    addItemFromSuggestion: typeof addItemFromSuggestion;
-    addItemFromFavorite: typeof addItemFromFavorite;
-    toggleFavoriteCategory: typeof toggleFavoriteCategory;
-    toggleFavorite: typeof toggleFavorite;
-    deleteItem: typeof deleteItem;
-    handleCategoryHeaderClick: typeof handleCategoryHeaderClick;
-    toggleCategory: typeof toggleCategory;
-    handleListContextMenu: typeof handleListContextMenu;
-    selectIcon: typeof selectIcon;
-    editCategory: typeof editCategory;
-    deleteCategory: typeof deleteCategory;
-    openAddCategoryModal: typeof openAddCategoryModal;
-    copyShareCode: typeof copyShareCode;
-    processImportCode: typeof processImportCode;
-    resetApp: typeof resetApp;
-  }
-}
-
-window.addItemFromSuggestion = addItemFromSuggestion;
-window.addItemFromFavorite = addItemFromFavorite;
-window.toggleFavoriteCategory = toggleFavoriteCategory;
-window.toggleFavorite = toggleFavorite;
-window.deleteItem = deleteItem;
-window.handleCategoryHeaderClick = handleCategoryHeaderClick;
-window.toggleCategory = toggleCategory;
-window.handleListContextMenu = handleListContextMenu;
-window.selectIcon = selectIcon;
-window.editCategory = editCategory;
-window.deleteCategory = deleteCategory;
-window.openAddCategoryModal = openAddCategoryModal;
-window.copyShareCode = copyShareCode;
-window.processImportCode = processImportCode;
-window.resetApp = resetApp;
 
 function wireUp(): void {
   const $ = (id: string) => document.getElementById(id);
@@ -101,13 +38,21 @@ function wireUp(): void {
     const input = $('itemInput') as HTMLInputElement | null;
     const value = input?.value.trim() || '';
     if (value && input) {
-      addItem(value);
       input.value = '';
+      addItem(value);
     }
   });
 
   setupVoiceInput();
   setupSupermarketMode();
+
+  // Autocomplétion live dans les chips de suggestions
+  const itemInput = $('itemInput') as HTMLInputElement | null;
+  let suggestTimer: ReturnType<typeof setTimeout> | null = null;
+  itemInput?.addEventListener('input', () => {
+    if (suggestTimer) clearTimeout(suggestTimer);
+    suggestTimer = setTimeout(renderSuggestions, 120);
+  });
 
   const searchInput = $('searchInput') as HTMLInputElement | null;
   const searchContainer = $('searchContainer');
@@ -188,6 +133,11 @@ function wireUp(): void {
     if (currentActionListId) confirmDeleteList(currentActionListId);
   });
 
+  $('uncheckAllOption')?.addEventListener('click', () => {
+    closeModal('listActionsModal');
+    uncheckAllItems();
+  });
+
   $('confirmRenameBtn')?.addEventListener('click', () => {
     if (!currentActionListId) return;
     const newName = ($('renameListInput') as HTMLInputElement | null)?.value || '';
@@ -236,8 +186,10 @@ function wireUp(): void {
   $('importSettingsBtn')?.addEventListener('click', () => openModal('importManualModal'));
   $('addCategoryBtn')?.addEventListener('click', openAddCategoryModal);
   $('copyShareBtn')?.addEventListener('click', copyShareCode);
+  $('copyShareLinkBtn')?.addEventListener('click', copyShareLink);
+  $('shareNativeBtn')?.addEventListener('click', shareNative);
   $('processImportBtn')?.addEventListener('click', processImportCode);
-  $('resetAppBtn')?.addEventListener('click', resetApp);
+  $('resetAppBtn')?.addEventListener('click', () => void resetApp());
 
   $('createListBtn')?.addEventListener('click', () => {
     const input = $('newListName') as HTMLInputElement | null;
@@ -261,10 +213,6 @@ function wireUp(): void {
       if (e.target === modal) closeModal(modal.id);
     });
   });
-
-  // Référence l'icône non utilisée (toggleItem, renderIconGrid) pour éviter le warning d'import
-  void toggleItem;
-  void renderIconGrid;
 }
 
 function setupSupermarketMode(): void {
@@ -325,10 +273,7 @@ function setupVoiceInput(): void {
 
 function init(): void {
   loadFromLocalStorage();
-  document.documentElement.setAttribute('data-theme', state.settings.theme);
-  const themeToggle = document.getElementById('themeToggle');
-  if (state.settings.theme === 'dark') themeToggle?.classList.add('active');
-  themeToggle?.setAttribute('aria-checked', state.settings.theme === 'dark' ? 'true' : 'false');
+  applyTheme(state.settings.theme);
   const hideToggle = document.getElementById('hideCheckedToggle');
   if (state.settings.hideChecked) hideToggle?.classList.add('active');
   hideToggle?.setAttribute('aria-checked', state.settings.hideChecked ? 'true' : 'false');
@@ -364,6 +309,3 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
-
-// Exporte openEditModal pour les tests + symétrie (non utilisé dans main, déjà câblé via interactions.ts)
-export { openEditModal };

@@ -1,4 +1,4 @@
-import type { AppState, Category } from './types';
+import type { AppState, Category, ShoppingList } from './types';
 import { DEFAULT_CATEGORIES, DEFAULT_CATEGORY_ORDER, SCHEMA_VERSION, STORAGE_KEY } from './constants';
 import { showToast } from './toast';
 
@@ -19,6 +19,7 @@ function buildEmptyState(): AppState {
     history: {},
     importData: null,
     favorites: [],
+    removedDefaultCategories: [],
   };
 }
 
@@ -70,8 +71,15 @@ export function flushPendingSave(): void {
   }
 }
 
-function mergeCategories(saved: Record<string, Partial<Category>> | undefined): Record<string, Category> {
+function mergeCategories(
+  saved: Record<string, Partial<Category>> | undefined,
+  removedDefaults: string[],
+): Record<string, Category> {
   const out: Record<string, Category> = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+  // « autre » est indispensable (catégorie de repli), on ne la retire jamais.
+  for (const removed of removedDefaults) {
+    if (removed !== 'autre') delete out[removed];
+  }
   if (!saved) return out;
 
   for (const [key, savedCat] of Object.entries(saved)) {
@@ -97,9 +105,11 @@ function mergeCategories(saved: Record<string, Partial<Category>> | undefined): 
   return out;
 }
 
-function mergeCategoryOrder(saved: string[] | undefined): string[] {
+function mergeCategoryOrder(saved: string[] | undefined, removedDefaults: string[]): string[] {
   let order = saved && saved.length > 0 ? [...saved] : [...DEFAULT_CATEGORY_ORDER];
-  const missing = DEFAULT_CATEGORY_ORDER.filter((c) => !order.includes(c));
+  const missing = DEFAULT_CATEGORY_ORDER.filter(
+    (c) => !order.includes(c) && (c === 'autre' || !removedDefaults.includes(c)),
+  );
   if (missing.length > 0) {
     const autreIndex = order.indexOf('autre');
     if (autreIndex !== -1) {
@@ -182,17 +192,31 @@ export function migrateState(raw: unknown): AppState {
   next.lists = loaded.lists || {};
   next.currentList = loaded.currentList || 'courses';
   next.settings = {
-    theme: loaded.settings?.theme || 'light',
+    theme: loaded.settings?.theme === 'dark' ? 'dark' : 'light',
     fontSize: loaded.settings?.fontSize || 100,
     hideChecked: loaded.settings?.hideChecked || false,
   };
   next.collapsedCategories = loaded.collapsedCategories || {};
   next.collapsedFavoriteCategories = loaded.collapsedFavoriteCategories || {};
-  next.categories = mergeCategories(loaded.categories);
-  next.categoryOrder = mergeCategoryOrder(loaded.categoryOrder);
+  next.removedDefaultCategories = Array.isArray(loaded.removedDefaultCategories)
+    ? loaded.removedDefaultCategories.filter((k): k is string => typeof k === 'string')
+    : [];
+  next.categories = mergeCategories(loaded.categories, next.removedDefaultCategories);
+  next.categoryOrder = mergeCategoryOrder(loaded.categoryOrder, next.removedDefaultCategories);
   next.history = loaded.history || {};
   next.importData = loaded.importData || null;
   next.favorites = loaded.favorites || [];
+
+  // Garantit au moins une liste et une liste courante valide.
+  if (Object.keys(next.lists).length === 0) {
+    next.lists['courses'] = { name: 'Courses', items: [] };
+  }
+  Object.values(next.lists).forEach((list) => {
+    if (!Array.isArray(list.items)) list.items = [];
+  });
+  if (!next.lists[next.currentList]) {
+    next.currentList = Object.keys(next.lists)[0];
+  }
 
   migrateItemCategories(next);
   migrateFavorites(next);
@@ -220,9 +244,27 @@ export function loadFromLocalStorage(): void {
     }
   } else {
     state.lists['courses'] = { name: 'Courses', items: [] };
+    // Premier lancement : suit la préférence système pour le thème.
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      state.settings.theme = 'dark';
+    }
   }
 }
 
-export function getCurrentList() {
-  return state.lists[state.currentList];
+export function getCurrentList(): ShoppingList {
+  let list = state.lists[state.currentList];
+  if (!list) {
+    // État incohérent (liste courante supprimée) : on se raccroche à la
+    // première liste existante, ou on en recrée une plutôt que de planter.
+    const firstId = Object.keys(state.lists)[0];
+    if (firstId) {
+      state.currentList = firstId;
+    } else {
+      state.lists['courses'] = { name: 'Courses', items: [] };
+      state.currentList = 'courses';
+    }
+    list = state.lists[state.currentList];
+    saveToLocalStorage();
+  }
+  return list;
 }

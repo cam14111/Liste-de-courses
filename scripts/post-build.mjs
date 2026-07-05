@@ -19,10 +19,18 @@ await copyIfExists(resolve(root, 'manifest.json'), resolve(dist, 'manifest.json'
 await copyIfExists(resolve(root, 'service-worker.js'), resolve(dist, 'service-worker.js'));
 await copyIfExists(resolve(root, '.nojekyll'), resolve(dist, '.nojekyll'));
 
-// Supprime tout manifest hashé en double que Vite aurait produit
+const iconsDir = resolve(root, 'icons');
+if (existsSync(iconsDir)) {
+  for (const entry of await readdir(iconsDir)) {
+    await copyIfExists(join(iconsDir, entry), join(dist, 'icons', entry));
+  }
+}
+
+// Supprime les doublons hashés produits par Vite (manifest, icônes) —
+// les fichiers canoniques sont copiés ci-dessus.
 const entries = await readdir(dist);
 for (const entry of entries) {
-  if (/^manifest-[\w-]+\.json$/.test(entry)) {
+  if (/^manifest-[\w-]+\.json$/.test(entry) || /^(icon|apple-touch-icon)[\w-]*\.png$/.test(entry)) {
     await unlink(join(dist, entry));
     console.log(`removed duplicate: ${entry}`);
   }
@@ -31,8 +39,13 @@ for (const entry of entries) {
 const indexPath = resolve(dist, 'index.html');
 if (existsSync(indexPath)) {
   let html = await readFile(indexPath, 'utf8');
-  // Pointe le manifest vers le fichier non-hashé déposé par le post-build
+  // Pointe manifest et icônes vers les fichiers non-hashés déposés par le post-build
   html = html.replace(/href="\.?\/?manifest-[\w-]+\.json"/g, 'href="manifest.json"');
+  html = html.replace(/href="\.?\/?icon-192-[\w-]+\.png"/g, 'href="icons/icon-192.png"');
+  html = html.replace(
+    /href="\.?\/?apple-touch-icon-[\w-]+\.png"/g,
+    'href="icons/apple-touch-icon.png"',
+  );
   if (!html.includes('rel="manifest"')) {
     html = html.replace('</head>', '  <link rel="manifest" href="manifest.json">\n  </head>');
   }

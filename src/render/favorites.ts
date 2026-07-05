@@ -1,5 +1,6 @@
 import { state, saveToLocalStorage } from '../state';
 import { getCategoryKeyById } from '../categorize';
+import { getCategoryLabel } from '../constants';
 import { addItem } from '../items';
 import { escapeHtml, escapeAttr } from '../utils/escape';
 
@@ -33,9 +34,9 @@ export function renderFavorites(): void {
     .map(([category, items]) => {
       const data = state.categories[category];
       const isCollapsed = state.collapsedFavoriteCategories[category];
-      const catLabel = escapeHtml(category.charAt(0).toUpperCase() + category.slice(1));
+      const catLabel = escapeHtml(getCategoryLabel(category));
       return `<div class="favorite-category ${isCollapsed ? 'collapsed' : ''}">
-          <div class="favorite-category-title" onclick="window.toggleFavoriteCategory('${escapeAttr(category)}')">
+          <div class="favorite-category-title" data-fav-cat-toggle="${escapeAttr(category)}">
             <span>${data.icon} ${catLabel} (${items.length})</span>
             <button class="favorite-category-toggle" aria-label="Replier la catégorie">▼</button>
           </div>
@@ -53,6 +54,13 @@ export function renderFavorites(): void {
         </div>`;
     })
     .join('');
+
+  grid.querySelectorAll<HTMLElement>('[data-fav-cat-toggle]').forEach((el) => {
+    el.addEventListener('click', () => {
+      const cat = el.dataset.favCatToggle;
+      if (cat) toggleFavoriteCategory(cat);
+    });
+  });
 
   grid.querySelectorAll<HTMLElement>('.favorite-item').forEach((el) => {
     el.addEventListener('click', () => {

@@ -45,6 +45,8 @@ export interface AppState {
   history: Record<string, number>;
   importData: unknown;
   favorites: Favorite[];
+  /** Clés des catégories par défaut supprimées/renommées, à ne pas restaurer. */
+  removedDefaultCategories: string[];
 }
 
 export interface CategoryMatch {

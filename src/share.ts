@@ -2,21 +2,53 @@ import type { Item } from './types';
 import { state, saveToLocalStorage, getCurrentList, generateId } from './state';
 import { renderItems } from './render/items';
 import { renderListTabs } from './render/tabs';
+import { renderSuggestions } from './render/suggestions';
 import { openModal, closeModal } from './modals';
 import { showToast } from './toast';
 import { alertDialog } from './confirm';
+import { utf8ToBase64, decodeShareCode } from './utils/base64';
 import { ImportPayloadSchema, type ImportPayload } from './schemas';
 
 declare global {
   interface Window {
     QRCode?: new (
       element: HTMLElement,
-      opts: { text: string; width: number; height: number },
+      opts: { text: string; width: number; height: number; correctLevel?: number },
     ) => unknown;
   }
 }
 
-export function generateQRCode(): void {
+const QRCODE_CDN = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+const QR_LOAD_TIMEOUT_MS = 6000;
+let qrScriptPromise: Promise<void> | null = null;
+
+function loadQrLibrary(): Promise<void> {
+  if (window.QRCode) return Promise.resolve();
+  if (!qrScriptPromise) {
+    qrScriptPromise = new Promise((resolve, reject) => {
+      const fail = (): void => {
+        qrScriptPromise = null;
+        reject(new Error('QRCode library load failed'));
+      };
+      // Réseau lent/suspendu : ne pas attendre indéfiniment, le lien suffit.
+      const timer = setTimeout(fail, QR_LOAD_TIMEOUT_MS);
+      const script = document.createElement('script');
+      script.src = QRCODE_CDN;
+      script.onload = () => {
+        clearTimeout(timer);
+        resolve();
+      };
+      script.onerror = () => {
+        clearTimeout(timer);
+        fail();
+      };
+      document.head.appendChild(script);
+    });
+  }
+  return qrScriptPromise;
+}
+
+function buildShareCode(): string {
   const list = getCurrentList();
   const data = {
     version: 3,
@@ -30,61 +62,140 @@ export function generateQRCode(): void {
     })),
     timestamp: Date.now(),
   };
+  return utf8ToBase64(JSON.stringify(data));
+}
 
-  const encoded = btoa(JSON.stringify(data));
+export function buildShareUrl(code: string): string {
+  return `${window.location.origin}${window.location.pathname}?import=${encodeURIComponent(code)}`;
+}
 
-  const qrEl = document.getElementById('qrcode');
-  if (qrEl) {
-    qrEl.innerHTML = '';
-    if (window.QRCode) {
-      new window.QRCode(qrEl, { text: encoded, width: 256, height: 256 });
-    }
+export function generateQRCode(): void {
+  let encoded: string;
+  try {
+    encoded = buildShareCode();
+  } catch (e) {
+    console.error('Share encode failed:', e);
+    showToast('Impossible de générer le code de partage', { variant: 'error' });
+    return;
   }
+
+  const shareUrl = buildShareUrl(encoded);
 
   const codeEl = document.getElementById('shareCode') as HTMLTextAreaElement | null;
   if (codeEl) codeEl.value = encoded;
 
+  const shareNativeBtn = document.getElementById('shareNativeBtn');
+  if (shareNativeBtn) shareNativeBtn.hidden = typeof navigator.share !== 'function';
+
   openModal('shareModal');
+
+  const qrEl = document.getElementById('qrcode');
+  if (qrEl) {
+    qrEl.innerHTML = '';
+    loadQrLibrary()
+      .then(() => {
+        if (window.QRCode && qrEl.childElementCount === 0) {
+          new window.QRCode(qrEl, { text: shareUrl, width: 220, height: 220 });
+        }
+      })
+      .catch(() => {
+        qrEl.innerHTML =
+          '<p style="color: var(--text-secondary); font-size: 0.9rem;">QR code indisponible hors ligne — utilisez le lien ou le code ci-dessous.</p>';
+      });
+  }
+}
+
+async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const helper = document.createElement('textarea');
+    helper.value = text;
+    helper.style.position = 'fixed';
+    helper.style.opacity = '0';
+    document.body.appendChild(helper);
+    helper.select();
+    let ok = false;
+    try {
+      ok = document.execCommand('copy');
+    } catch {
+      ok = false;
+    }
+    helper.remove();
+    return ok;
+  }
 }
 
 export function copyShareCode(): void {
   const code = document.getElementById('shareCode') as HTMLTextAreaElement | null;
-  if (!code) return;
-  code.select();
-  code.setSelectionRange(0, 99999);
-  try {
-    document.execCommand('copy');
-    showToast('Code copié !', { variant: 'success', duration: 2000 });
-  } catch {
-    navigator.clipboard
-      .writeText(code.value)
-      .then(() => showToast('Code copié !', { variant: 'success', duration: 2000 }))
-      .catch(() => showToast('Erreur lors de la copie', { variant: 'error' }));
-  }
+  if (!code || !code.value) return;
+  void copyToClipboard(code.value).then((ok) =>
+    ok
+      ? showToast('Code copié !', { variant: 'success', duration: 2000 })
+      : showToast('Erreur lors de la copie', { variant: 'error' }),
+  );
+}
+
+export function copyShareLink(): void {
+  const code = document.getElementById('shareCode') as HTMLTextAreaElement | null;
+  if (!code || !code.value) return;
+  void copyToClipboard(buildShareUrl(code.value)).then((ok) =>
+    ok
+      ? showToast('Lien copié !', { variant: 'success', duration: 2000 })
+      : showToast('Erreur lors de la copie', { variant: 'error' }),
+  );
+}
+
+export function shareNative(): void {
+  const code = document.getElementById('shareCode') as HTMLTextAreaElement | null;
+  if (!code || !code.value || typeof navigator.share !== 'function') return;
+  const list = getCurrentList();
+  navigator
+    .share({
+      title: `Liste de courses : ${list.name}`,
+      text: `Ouvre ce lien pour importer ma liste « ${list.name} »`,
+      url: buildShareUrl(code.value),
+    })
+    .catch(() => {
+      /* partage annulé par l'utilisateur */
+    });
 }
 
 function decodeAndValidate(code: string): ImportPayload {
-  const decoded = JSON.parse(atob(code));
+  const decoded = JSON.parse(decodeShareCode(code));
   return ImportPayloadSchema.parse(decoded);
+}
+
+function extractCode(input: string): string {
+  const trimmed = input.trim();
+  // Accepte aussi un lien de partage complet collé tel quel
+  const urlMatch = trimmed.match(/[?&]import=([^&\s]+)/);
+  if (urlMatch) return decodeURIComponent(urlMatch[1]);
+  return trimmed;
+}
+
+function showImportDialog(payload: ImportPayload): void {
+  state.importData = payload;
+  const nameEl = document.getElementById('importListName');
+  const countEl = document.getElementById('importItemCount');
+  if (nameEl) nameEl.textContent = payload.name;
+  if (countEl) countEl.textContent = String(payload.items.length);
+  openModal('importModal');
 }
 
 export function processImportCode(): void {
   const codeEl = document.getElementById('importCode') as HTMLTextAreaElement | null;
   if (!codeEl) return;
-  const code = codeEl.value.trim();
+  const code = extractCode(codeEl.value);
   if (!code) {
     showToast('Veuillez coller un code valide', { variant: 'error' });
     return;
   }
   try {
     const payload = decodeAndValidate(code);
-    state.importData = payload;
-    const nameEl = document.getElementById('importListName');
-    const countEl = document.getElementById('importItemCount');
-    if (nameEl) nameEl.textContent = payload.name;
-    if (countEl) countEl.textContent = String(payload.items.length);
     closeModal('importManualModal');
-    openModal('importModal');
+    showImportDialog(payload);
     codeEl.value = '';
   } catch (e) {
     void alertDialog('Code invalide. Veuillez vérifier et réessayer.', 'Import impossible');
@@ -98,15 +209,12 @@ export function checkImportUrl(): void {
   if (!importData) return;
   try {
     const payload = decodeAndValidate(importData);
-    state.importData = payload;
-    const nameEl = document.getElementById('importListName');
-    const countEl = document.getElementById('importItemCount');
-    if (nameEl) nameEl.textContent = payload.name;
-    if (countEl) countEl.textContent = String(payload.items.length);
-    openModal('importModal');
-    window.history.replaceState({}, '', window.location.pathname);
+    showImportDialog(payload);
   } catch (e) {
+    showToast('Lien d’import invalide', { variant: 'error' });
     console.error('Erreur import:', e);
+  } finally {
+    window.history.replaceState({}, '', window.location.pathname);
   }
 }
 
@@ -134,7 +242,7 @@ export function handleImport(action: 'replace' | 'merge' | 'new'): void {
     category: normalizeCategoryOnImport(item.category),
   }));
 
-  const toItem = (raw: typeof normalized[number]): Item => ({
+  const toItem = (raw: (typeof normalized)[number]): Item => ({
     id: generateId(),
     name: raw.name,
     quantity: raw.quantity ?? '',
@@ -167,5 +275,7 @@ export function handleImport(action: 'replace' | 'merge' | 'new'): void {
   saveToLocalStorage();
   renderListTabs();
   renderItems();
+  renderSuggestions();
   closeModal('importModal');
+  showToast('Liste importée', { variant: 'success', duration: 2500 });
 }

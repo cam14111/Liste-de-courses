@@ -11,6 +11,40 @@ describe('migrateState', () => {
     expect(s.categoryOrder).toContain('autre');
   });
 
+  it('guarantees at least one list and a valid currentList', () => {
+    const empty = migrateState({ lists: {}, currentList: 'fantome' });
+    expect(Object.keys(empty.lists)).toHaveLength(1);
+    expect(empty.lists[empty.currentList]).toBeDefined();
+
+    const dangling = migrateState({
+      lists: { a: { name: 'L', items: [] } },
+      currentList: 'supprimee',
+    });
+    expect(dangling.currentList).toBe('a');
+  });
+
+  it('repairs lists whose items array is missing', () => {
+    const s = migrateState({ lists: { a: { name: 'L' } }, currentList: 'a' });
+    expect(Array.isArray(s.lists.a.items)).toBe(true);
+  });
+
+  it('does not resurrect removed default categories', () => {
+    const s = migrateState({
+      removedDefaultCategories: ['voyage', 'auto'],
+      categoryOrder: ['fruits', 'autre'],
+    });
+    expect(s.categories.voyage).toBeUndefined();
+    expect(s.categories.auto).toBeUndefined();
+    expect(s.categoryOrder).not.toContain('voyage');
+    // les autres catégories par défaut restent restaurées
+    expect(s.categories.sport).toBeDefined();
+  });
+
+  it('never removes the "autre" fallback category', () => {
+    const s = migrateState({ removedDefaultCategories: ['autre'] });
+    expect(s.categories.autre).toBeDefined();
+  });
+
   it('migrates legacy items that store category as a name (not id)', () => {
     const raw = {
       lists: {

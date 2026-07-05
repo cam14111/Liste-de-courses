@@ -3,12 +3,19 @@ import { renderItems } from './render/items';
 import { STORAGE_KEY } from './constants';
 import { confirmDialog } from './confirm';
 
+/** Applique le thème au document, au toggle et à la barre système (theme-color). */
+export function applyTheme(theme: 'light' | 'dark'): void {
+  document.documentElement.setAttribute('data-theme', theme);
+  const toggle = document.getElementById('themeToggle');
+  toggle?.classList.toggle('active', theme === 'dark');
+  toggle?.setAttribute('aria-checked', theme === 'dark' ? 'true' : 'false');
+  const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  if (meta) meta.content = theme === 'dark' ? '#1a1a1a' : '#4CAF50';
+}
+
 export function toggleTheme(): void {
   state.settings.theme = state.settings.theme === 'light' ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', state.settings.theme);
-  const toggle = document.getElementById('themeToggle');
-  toggle?.classList.toggle('active');
-  toggle?.setAttribute('aria-checked', state.settings.theme === 'dark' ? 'true' : 'false');
+  applyTheme(state.settings.theme);
   saveToLocalStorage();
 }
 

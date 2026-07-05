@@ -29,6 +29,37 @@ export const DEFAULT_CATEGORY_ORDER = [
   'autre',
 ];
 
+/** Libellés d'affichage des catégories par défaut (les clés restent des ids techniques sans accent). */
+export const CATEGORY_LABELS: Record<string, string> = {
+  fruits: 'Fruits',
+  legumes: 'Légumes',
+  viandes: 'Viandes',
+  poissons: 'Poissons',
+  laitiers: 'Produits laitiers',
+  boulangerie: 'Boulangerie',
+  epicerie: 'Épicerie',
+  surgeles: 'Surgelés',
+  boissons: 'Boissons',
+  hygiene: 'Hygiène',
+  entretien: 'Entretien',
+  bricolage: 'Bricolage',
+  pharmacie: 'Pharmacie',
+  vetements: 'Vêtements',
+  animaux: 'Animaux',
+  jeux: 'Jeux & loisirs',
+  scolaire: 'Scolaire & bureau',
+  electromenager: 'Électro & high-tech',
+  auto: 'Auto',
+  fetes: 'Fêtes & cadeaux',
+  sport: 'Sport & plein air',
+  voyage: 'Voyage',
+  autre: 'Autre',
+};
+
+export function getCategoryLabel(key: string): string {
+  return CATEGORY_LABELS[key] || key.charAt(0).toUpperCase() + key.slice(1);
+}
+
 export const DEFAULT_CATEGORIES: Record<string, Category> = {
   fruits: {
     id: 'default_fruits',

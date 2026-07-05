@@ -14,7 +14,7 @@ export function renderListTabs(): void {
       const checkedCount = list.items.filter((i) => i.checked).length;
       const counter = itemCount > 0 ? `(${checkedCount}/${itemCount})` : '';
       const active = id === state.currentList;
-      return `<button class="list-tab ${active ? 'active' : ''}" role="tab" aria-selected="${active}" tabindex="${active ? 0 : -1}" data-list="${escapeAttr(id)}" oncontextmenu="window.handleListContextMenu(event, '${escapeAttr(id)}')"><span class="list-tab-name">${escapeHtml(list.name)} ${counter}</span><span class="list-tab-menu" role="button" tabindex="0" aria-label="Actions sur la liste ${escapeAttr(list.name)}" data-list-menu="${escapeAttr(id)}">⋮</span></button>`;
+      return `<button class="list-tab ${active ? 'active' : ''}" role="tab" aria-selected="${active}" tabindex="${active ? 0 : -1}" data-list="${escapeAttr(id)}"><span class="list-tab-name">${escapeHtml(list.name)} ${counter}</span><span class="list-tab-menu" role="button" tabindex="0" aria-label="Actions sur la liste ${escapeAttr(list.name)}" data-list-menu="${escapeAttr(id)}">⋮</span></button>`;
     })
     .join('');
 
@@ -28,6 +28,10 @@ export function renderListTabs(): void {
   container.querySelectorAll<HTMLButtonElement>('.list-tab').forEach((tab) => {
     let longPressTimer: ReturnType<typeof setTimeout> | null = null;
     let longPressTriggered = false;
+
+    tab.addEventListener('contextmenu', (e) => {
+      handleListContextMenu(e, tab.dataset.list || '');
+    });
 
     tab.addEventListener('touchstart', (e) => {
       longPressTriggered = false;

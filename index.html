@@ -9,6 +9,8 @@
     <meta name="description" content="Application de liste de courses optimisée pour mobile">
     <title>Ma Liste de Courses</title>
     <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 </head>
 <body>
     <a href="#mainContent" class="skip-link">Aller au contenu</a>
@@ -67,7 +69,7 @@
             </div>
             <div class="form-group">
                 <label class="form-label" for="editItemPrice">Prix (€)</label>
-                <input type="number" inputmode="decimal" step="0.01" min="0" class="form-input" id="editItemPrice" placeholder="Ex: 2,50">
+                <input type="text" inputmode="decimal" autocomplete="off" class="form-input" id="editItemPrice" placeholder="Ex: 2,50">
             </div>
             <div class="form-group">
                 <label class="form-label" for="editItemCategory">Catégorie</label>
@@ -165,13 +167,20 @@
             <div class="qr-container">
                 <div id="qrcode" role="img" aria-label="QR code de partage de la liste"></div>
                 <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
-                    Scannez ce QR code avec une app de scan, puis copiez le texte et importez-le dans l'autre appareil
+                    Scannez ce QR code avec l'appareil photo de l'autre téléphone : la liste s'ouvrira directement
                 </p>
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label class="form-label" for="shareCode">Ou copiez ce code :</label>
-                    <textarea class="form-input" id="shareCode" rows="3" readonly style="font-size: 0.75rem; font-family: monospace;"></textarea>
-                    <button class="btn-primary" id="copyShareBtn" style="margin-top: 0.5rem;">📋 Copier le code</button>
+                <div class="share-actions">
+                    <button class="btn-primary" id="shareNativeBtn" hidden>📲 Partager…</button>
+                    <button class="btn-primary" id="copyShareLinkBtn">🔗 Copier le lien</button>
                 </div>
+                <details class="share-advanced">
+                    <summary>Code texte (option avancée)</summary>
+                    <div class="form-group" style="margin-top: 0.75rem;">
+                        <label class="form-label visually-hidden" for="shareCode">Code de partage</label>
+                        <textarea class="form-input" id="shareCode" rows="3" readonly style="font-size: 0.75rem; font-family: monospace;"></textarea>
+                        <button class="btn-primary" id="copyShareBtn" style="margin-top: 0.5rem;">📋 Copier le code</button>
+                    </div>
+                </details>
             </div>
         </div>
     </div>
@@ -184,8 +193,8 @@
                 <button class="close-btn" id="closeImportManualModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="form-group">
-                <label class="form-label" for="importCode">Collez le code de partage ici :</label>
-                <textarea class="form-input" id="importCode" rows="4" placeholder="Collez le code..."></textarea>
+                <label class="form-label" for="importCode">Collez le lien ou le code de partage ici :</label>
+                <textarea class="form-input" id="importCode" rows="4" placeholder="Collez le lien ou le code..."></textarea>
             </div>
             <button class="btn-primary" id="processImportBtn">Importer</button>
         </div>
@@ -251,6 +260,10 @@
                 <button class="close-btn" id="closeListActionsModal" aria-label="Fermer la fenêtre">×</button>
             </div>
             <div class="merge-options">
+                <button type="button" class="merge-option" id="uncheckAllOption">
+                    <div class="merge-option-title">🔄 Tout décocher</div>
+                    <div class="merge-option-desc">Réutiliser la liste : décoche tous les articles</div>
+                </button>
                 <button type="button" class="merge-option" id="renameListOption">
                     <div class="merge-option-title">✏️ Renommer</div>
                     <div class="merge-option-desc">Modifier le nom de la liste</div>
@@ -297,7 +310,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
