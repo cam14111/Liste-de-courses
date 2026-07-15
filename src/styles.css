@@ -802,6 +802,7 @@ body {
   width: 50px;
   height: 28px;
   background: var(--border-color);
+  border: none;
   border-radius: 14px;
   cursor: pointer;
   transition: background 0.2s;
